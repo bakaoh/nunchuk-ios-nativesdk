@@ -95,9 +95,6 @@ set(HEADERS
   ios/ObjBSMSData.h
 )
 
-# Boost
-include_directories("${PROJECT_SOURCE_DIR}/libnunchuk/contrib/bitcoin/depends/ios/include")
-
 # Library
 if(BUILD_SHARED)
   add_library (nunchukSDK SHARED ${SOURCES} ${HEADERS})
@@ -107,7 +104,6 @@ else()
   message(STATUS "Building static version...")
 endif()
 
-set(BUILD_CLI FALSE)
 set(CMAKE_CXX_LINK_PIE_SUPPORTED TRUE)
 add_subdirectory(libnunchuk)
 target_link_libraries(nunchukSDK PUBLIC nunchuk)

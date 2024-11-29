@@ -37,7 +37,7 @@ jobs:
       uses: actions/cache/restore@v4
       with:
         path: ${{ github.workspace }}/NunchukSDK/libnunchuk
-        key: cache-sub
+        key: cache-sub-9
 
     - name: Update submodules
       working-directory: ${{ github.workspace }}
@@ -74,14 +74,7 @@ jobs:
       uses: actions/cache/restore@v4
       with:
         path: ${{ github.workspace }}/NunchukSDK/build
-        key: cache-cmake
-
-    - name: Update upstream libnunchuk
-      id: update libnunchuk
-      working-directory: ${{ github.workspace }}/NunchukSDK/libnunchuk
-      run: |
-        git config pull.rebase true
-        git pull
+        key: cache-cmake-9
 
     - name: Config cmake
       if: steps.cache-cmake.outputs.cache-hit != 'true'

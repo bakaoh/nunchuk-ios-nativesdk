@@ -1,6 +1,6 @@
 ## Initialize Submodules
 ``` bash
-git submodule update --init --recursive --depth 1
+git submodule update --init --recursive --filter=blob:none
 ```
 
 ## Fetch, Patch, Build Bitcoin and Libnunchuk Dependencies

@@ -1,0 +1,3 @@
+[submodule "NunchukSDK/libnunchuk"]
+	path = NunchukSDK/libnunchuk
+	url = https://gitlab.com/nunchuck/libnunchuk

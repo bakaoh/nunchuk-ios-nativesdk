@@ -22,13 +22,9 @@ cmake -B build -G Xcode -DCMAKE_TOOLCHAIN_FILE=./ios.toolchain.cmake -DPLATFORM=
 ## Build SDK
 ``` bash
 cd build # cd NunchukSDK/build
-xcodebuild -sdk iphoneos -arch arm64 -scheme nunchuk -configuration Release
+xcodebuild -sdk iphoneos -arch arm64 -scheme nunchukSDK -configuration Release
 ```
 
-## Add static libraries to Xcode
-- Only openssl is build as static library and can be found at:
-`./NunchukSDK/libnunchuk/contrib/openssl/OS64/lib`
+## Open with Xcode
 - Open build/nunchukWalletSDK.xcodeproj
-- Choose nunchukWalletSDK->nunchukSDK->Build Phase
-- Drag and drop `libcrypto.a` `libssl.a` into Link Binary with Libraries
 - Set the active scheme to nunchukSDK > Any iOS Device

@@ -7,8 +7,8 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++20")
 set(IOS)
 
 # Source files
-set(SOURCES
-  NunchukBridge.cpp	
+set(SDK_SOURCES
+  NunchukBridge.cpp
   ios/NunchukImp.mm
   ios/ObjSingleSigner.mm
   ios/ObjWallet.mm
@@ -42,26 +42,8 @@ set(SOURCES
   ios/ObjBSMSData.m
 )
 
-# Headers
-set(HEADERS
-  NunchukBridge.h
+set(PUBLIC_SDK_HEADERS
   ios/NunchukImp.h
-  extensions/ObjWalletLibrary.h
-  extensions/ObjSingleSignerLibrary.h
-  extensions/ObjMasterSignerLibrary.h
-  extensions/ObjTransactionLibrary.h
-  extensions/ObjUnspentOutputLibrary.h
-  extensions/ObjNunchukMatrixEventLibrary.h
-  extensions/ObjRoomWalletLibrary.h
-  extensions/ObjRoomTransactionLibrary.h
-  extensions/ObjAppSettings+Extension.h
-  extensions/ObjPrimaryKey+Extension.h
-  extensions/ObjTapsignerStatusLibrary.h
-  extensions/ObjSatscardStatus+Extension.h
-  extensions/ObjSatscardSlotLibrary.h
-  extensions/ObjBtcUri+Extension.h
-  extensions/ObjCoinTag+Extension.h
-  extensions/ObjCoinCollection+Extension.h
   ios/NunchukAll.h
   ios/ObjSingleSigner.h
   ios/ObjNunchukMatrixEvent.h
@@ -95,25 +77,87 @@ set(HEADERS
   ios/ObjBSMSData.h
 )
 
+# Headers
+set(SDK_HEADERS
+  NunchukBridge.h
+  extensions/ObjWalletLibrary.h
+  extensions/ObjSingleSignerLibrary.h
+  extensions/ObjMasterSignerLibrary.h
+  extensions/ObjTransactionLibrary.h
+  extensions/ObjUnspentOutputLibrary.h
+  extensions/ObjNunchukMatrixEventLibrary.h
+  extensions/ObjRoomWalletLibrary.h
+  extensions/ObjRoomTransactionLibrary.h
+  extensions/ObjAppSettings+Extension.h
+  extensions/ObjPrimaryKey+Extension.h
+  extensions/ObjTapsignerStatusLibrary.h
+  extensions/ObjSatscardStatus+Extension.h
+  extensions/ObjSatscardSlotLibrary.h
+  extensions/ObjBtcUri+Extension.h
+  extensions/ObjCoinTag+Extension.h
+  extensions/ObjCoinCollection+Extension.h
+  ${PUBLIC_SDK_HEADERS}
+)
+
 # Library
 if(BUILD_SHARED)
-  add_library (nunchukSDK SHARED ${SOURCES} ${HEADERS})
+  add_library (nunchukSDK SHARED ${SDK_SOURCES} ${SDK_HEADERS})
   message(STATUS "Building shared version...")
 else()
-  add_library (nunchukSDK STATIC ${SOURCES} ${HEADERS})
+  add_library (nunchukSDK STATIC ${SDK_SOURCES} ${SDK_HEADERS})
   message(STATUS "Building static version...")
 endif()
 
 set(CMAKE_CXX_LINK_PIE_SUPPORTED TRUE)
 add_subdirectory(libnunchuk)
 target_link_libraries(nunchukSDK PUBLIC nunchuk)
+add_dependencies(nunchukSDK event_core_static event_extra_static event_pthreads_static)
+target_include_directories(nunchukSDK PUBLIC ${PROJECT_SOURCE_DIR})
+
+set(SDK_STATIC_DEPENDENCIES "\
+  $<TARGET_FILE:trezor-crypto>
+  $<TARGET_FILE:ur-2>
+  $<TARGET_FILE:nunchuk>
+  $<TARGET_FILE:sqlcipher>
+  $<TARGET_FILE:crc32c>
+  $<TARGET_FILE:crc32c_arm64>
+  $<TARGET_FILE:leveldb>
+  $<TARGET_FILE:minisketch>
+  $<TARGET_FILE:bitcoin_consensus>
+  $<TARGET_FILE:bitcoin_common>
+  $<TARGET_FILE:bitcoin_node>
+  $<TARGET_FILE:bitcoin_crypto>
+  $<TARGET_FILE:bitcoin_crypto_arm_shani>
+  $<TARGET_FILE:univalue>
+  $<TARGET_FILE:bitcoin_util>
+  $<TARGET_FILE:secp256k1>
+  $<TARGET_FILE:bitcoin_wallet>
+  $<TARGET_FILE:embedded>
+  $<TARGET_FILE:ur>
+  $<TARGET_FILE:tap-protocol>
+  $<TARGET_FILE:bitcoin-core>
+  $<TARGET_FILE:bbqr-cpp>
+  $<TARGET_FILE:zlibstatic>
+  ${PROJECT_SOURCE_DIR}/libnunchuk/contrib/openssl/${PLATFORM}/lib/libcrypto.a
+  ${PROJECT_SOURCE_DIR}/libnunchuk/contrib/openssl/${PLATFORM}/lib/libssl.a
+  $<TARGET_FILE:event_core_static>
+  $<TARGET_FILE:event_extra_static>
+  $<TARGET_FILE:event_pthreads_static>
+  "
+)
 
 set_target_properties(nunchukSDK PROPERTIES
     FRAMEWORK TRUE
+    PUBLIC_HEADER "${PUBLIC_SDK_HEADERS}"
+    XCODE_GENERATE_SCHEME TRUE
     MACOSX_FRAMEWORK_INFO_PLIST "${PROJECT_SOURCE_DIR}/Info.plist"
     XCODE_ATTRIBUTE_PRODUCT_BUNDLE_IDENTIFIER "com.nunchuk.nunchuksdk"
     XCODE_ATTRIBUTE_CURRENT_PROJECT_VERSION "0.1"
     XCODE_ATTRIBUTE_DEVELOPMENT_TEAM ""
     XCODE_ATTRIBUTE_DEFINES_MODULE "YES"
     XCODE_ATTRIBUTE_CLANG_ENABLE_OBJC_ARC "YES"
+    XCODE_ATTRIBUTE_BUILD_LIBRARY_FOR_DISTRIBUTION "YES"
+    XCODE_ATTRIBUTE_GENERATE_MASTER_OBJECT_FILE "YES"
+    #XCODE_ATTRIBUTE_INSTALL_PATH "@rpath"
+    XCODE_ATTRIBUTE_PRELINK_LIBS ${SDK_STATIC_DEPENDENCIES}
 )

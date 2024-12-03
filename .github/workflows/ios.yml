@@ -37,18 +37,16 @@ jobs:
       uses: actions/cache/restore@v4
       with:
         path: ${{ github.workspace }}/NunchukSDK/libnunchuk
-        key: cache-sub-9
+        key: cache-sub
 
     - name: Update submodules
       working-directory: ${{ github.workspace }}
       if: steps.cache-sub.outputs.cache-hit != 'true'
       env:
-        GH_LOGIN: ${{ secrets.GH_LOGIN }}
-        GH_TOKEN: ${{ secrets.GH_TOKEN }}
         GL_LOGIN: ${{ secrets.GL_LOGIN }}
         GL_TOKEN: ${{ secrets.GL_TOKEN }}
       run: |
-        echo -e "machine github.com login $GH_LOGIN password $GH_TOKEN\nmachine gitlab.com login $GL_LOGIN password $GL_TOKEN" > ~/.netrc
+        echo -e "machine gitlab.com login $GL_LOGIN password $GL_TOKEN" > ~/.netrc
         set -e
         git submodule update --init --recursive --depth 1
 
@@ -74,7 +72,7 @@ jobs:
       uses: actions/cache/restore@v4
       with:
         path: ${{ github.workspace }}/NunchukSDK/build
-        key: cache-cmake-9
+        key: cache-cmake
 
     - name: Config cmake
       if: steps.cache-cmake.outputs.cache-hit != 'true'
@@ -91,13 +89,31 @@ jobs:
         path: ${{ github.workspace }}/NunchukSDK/build
         key: ${{ steps.cache-cmake.outputs.cache-primary-key }}
 
+    - name: Restore build
+      id: cache-build
+      uses: actions/cache/restore@v4
+      with:
+        path: ${{ github.workspace }}/NunchukSDK/build
+        key: cache-build
+
     - name: Build
       working-directory: ${{ github.workspace }}/NunchukSDK/build
+      if: steps.cache-build.outputs.cache-hit != 'true'
       run: |
-        xcodebuild -sdk iphoneos -arch arm64 -scheme nunchuk -configuration Release
+        #xcodebuild -sdk iphoneos -arch arm64 -scheme nunchukSDK -configuration Release
+        xcodebuild archive -project nunchukWalletSDK.xcodeproj -scheme nunchukSDK -sdk iphoneos -arch arm64 -archivePath "$PWD/out" SKIP_INSTALL=NO
+
+    - name: Save build
+      if: always() && steps.cache-build.outputs.cache-hit != 'true'
+      id: cache-build-save
+      uses: actions/cache/save@v4
+      with:
+        path: ${{ github.workspace }}/NunchukSDK/build
+        key: ${{ steps.cache-build.outputs.cache-primary-key }}
 
     - name: Upload Artifact
       uses: 'actions/upload-artifact@v3'
       with:
         name: upload
-        path: ${{ github.workspace }}/NunchukSDK/build
+        path: ${{ github.workspace }}/NunchukSDK/build/out
+

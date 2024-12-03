@@ -34,7 +34,7 @@ using namespace nunchuk;
     return wallet;
 }
 
-- (instancetype _Nonnull )initWithWallet:(Wallet *_Nullable)wallet nunchukManager:(NunchukManager *)nunchukManager {
+- (instancetype _Nonnull )initWithWallet:(Wallet *_Nullable)wallet {
     ObjWallet * objWallet = [[ObjWallet alloc] init];
     NSString* addressType = @"NESTED_SEGWIT";
     switch (wallet->get_address_type()) {

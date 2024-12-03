@@ -4,7 +4,6 @@
 using namespace  nunchuk;
 
 class NunchukManager {
-    static NunchukManager * instance;
 public:
     std::unique_ptr<Nunchuk> nu;
     std::unique_ptr<NunchukMatrix> nuMatrix;

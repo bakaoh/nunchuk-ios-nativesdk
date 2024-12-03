@@ -10,6 +10,6 @@
 #include <nunchuk.h>
 using namespace  nunchuk;
 @interface ObjWallet (Library)
-- (instancetype _Nonnull )initWithWallet:(Wallet *_Nullable)wallet nunchukManager:(NunchukManager *_Nonnull)nunchukManager;
+- (instancetype _Nonnull )initWithWallet:(Wallet *_Nullable)wallet ;
 @end
 #endif /* ObjWalletLibrary_h */

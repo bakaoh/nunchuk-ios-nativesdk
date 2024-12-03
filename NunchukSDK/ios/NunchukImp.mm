@@ -49,7 +49,7 @@ using namespace tap_protocol;
 @end
 
 @implementation NunchukImp {
-    NunchukManager *nunchukManager;
+    std::unique_ptr<NunchukManager> nunchukManager;
 }
 
 const int FEE_RATE_PRIORITY = CONF_TARGET_PRIORITY;
@@ -60,7 +60,7 @@ dispatch_semaphore_t semaphore;
 
 - (id)init {
     self = [super init];
-    nunchukManager = new NunchukManager();
+    nunchukManager = std::make_unique<NunchukManager>();
     return self;
 }
 
@@ -238,7 +238,7 @@ dispatch_semaphore_t semaphore;
         AddressType address_type = [self addressTypeFromString:addressType];
         WalletType wallet_type = [self walletTypeFromString:type];
         auto wallet = nunchukManager->nu->CreateWallet([name UTF8String], numberKey, [signers count], remoteSigners, address_type, wallet_type == WalletType::ESCROW, [@"" UTF8String], false, [pin UTF8String]);
-        return [[ObjWallet alloc] initWithWallet:&wallet nunchukManager:nunchukManager];
+        return [[ObjWallet alloc] initWithWallet:&wallet];
     } catch (const BaseException& exception) {
         *error = [[NSError alloc] initWithDomain:@"io.nunchuk.ios" code: exception.code() userInfo:@{@"message": [NSString stringWithUTF8String: exception.what()]}];
         return NULL;
@@ -252,7 +252,7 @@ dispatch_semaphore_t semaphore;
     try {
         [self createDecoyWallet:pin];
         auto wallet = nunchukManager->nu->CloneWallet([walletId UTF8String], [pin UTF8String]);
-        return [[ObjWallet alloc] initWithWallet:&wallet nunchukManager:nunchukManager];
+        return [[ObjWallet alloc] initWithWallet:&wallet];
     } catch (const BaseException& exception) {
         *error = [[NSError alloc] initWithDomain:@"io.nunchuk.ios" code: exception.code() userInfo:@{@"message": [NSString stringWithUTF8String: exception.what()]}];
         return NULL;
@@ -275,7 +275,7 @@ dispatch_semaphore_t semaphore;
 - (ObjWallet *)createHotWallet:(NSString *)passphrase error:(NSError * _Nullable __autoreleasing *)outError {
     try {
         Wallet wallet = nunchukManager->nu->CreateHotWallet([@"" UTF8String], [passphrase UTF8String]);
-        ObjWallet *objWallet = [[ObjWallet alloc] initWithWallet: &wallet nunchukManager: nunchukManager];
+        ObjWallet *objWallet = [[ObjWallet alloc] initWithWallet: &wallet];
         return objWallet;
     } catch (const BaseException& exception) {
         *outError = [[NSError alloc] initWithDomain:@"io.nunchuk.ios" code: exception.code() userInfo:@{@"message": [NSString stringWithUTF8String: exception.what()]}];
@@ -289,7 +289,7 @@ dispatch_semaphore_t semaphore;
 - (ObjWallet *)recoverHotWallet:(NSString* _Nonnull)mnemonic passphrase:(NSString *)passphrase replace:(BOOL)replace error:(NSError * _Nullable __autoreleasing *)outError {
     try {
         Wallet wallet = nunchukManager->nu->CreateHotWallet([mnemonic UTF8String], [passphrase UTF8String], false, replace);
-        ObjWallet *objWallet = [[ObjWallet alloc] initWithWallet: &wallet nunchukManager: nunchukManager];
+        ObjWallet *objWallet = [[ObjWallet alloc] initWithWallet: &wallet];
         return objWallet;
     } catch (const BaseException& exception) {
         if (exception.code() == StorageException::SIGNER_EXISTS) {
@@ -449,7 +449,7 @@ dispatch_semaphore_t semaphore;
         }
         auto wallets = nunchukManager->nu->GetWallets(orders);
         for(unsigned i = 0; i < wallets.size(); i++) {
-            ObjWallet * objWallet = [[ObjWallet alloc] initWithWallet:&wallets.at(i) nunchukManager:nunchukManager];
+            ObjWallet * objWallet = [[ObjWallet alloc] initWithWallet:&wallets[i]];
             [objWallets addObject:objWallet];
             
         }
@@ -466,7 +466,7 @@ dispatch_semaphore_t semaphore;
 -(ObjWallet *)getWalletWithId:(NSString *)walletId error:(NSError * _Nullable __autoreleasing *)outError {
     try {
         auto wallet = nunchukManager->nu->GetWallet([walletId UTF8String]);
-        ObjWallet *objWallet = [[ObjWallet alloc] initWithWallet: &wallet nunchukManager: nunchukManager];
+        ObjWallet *objWallet = [[ObjWallet alloc] initWithWallet: &wallet];
         return objWallet;
     } catch (const BaseException& exception) {
         *outError = [[NSError alloc] initWithDomain:@"io.nunchuk.ios" code: exception.code() userInfo:@{@"message": [NSString stringWithUTF8String: exception.what()]}];
@@ -903,9 +903,8 @@ dispatch_semaphore_t semaphore;
 }
 
 -(BOOL)consumeEvent:(ObjNunchukMatrixEvent *)event error:(NSError * _Nullable __autoreleasing *)outError {
-    NunchukManager * instance = nunchukManager;
     try {
-        instance->nuMatrix->ConsumeEvent(instance->nu, [event getNunchukEvent]);
+        nunchukManager->nuMatrix->ConsumeEvent(nunchukManager->nu, [event getNunchukEvent]);
         return YES;
     } catch (const BaseException& exception) {
         *outError = [[NSError alloc] initWithDomain:@"io.nunchuk.ios" code: exception.code() userInfo:@{@"message": [NSString stringWithUTF8String: exception.what()]}];
@@ -1032,7 +1031,7 @@ dispatch_semaphore_t semaphore;
 -(ObjWallet *)importBSMSWithFilePath:(NSString *)filePath walletName:(NSString *)walletName error:(NSError * _Nullable __autoreleasing *)outError {
     try {
         auto wallet =  nunchukManager->nu->ImportWalletDescriptor([filePath UTF8String], [walletName UTF8String]);
-        return [[ObjWallet alloc] initWithWallet:&wallet nunchukManager:nunchukManager];
+        return [[ObjWallet alloc] initWithWallet:&wallet];
     } catch (const BaseException& exception) {
         *outError = [[NSError alloc] initWithDomain:@"io.nunchuk.ios" code: exception.code() userInfo:@{@"message": [NSString stringWithUTF8String: exception.what()]}];
         return NULL;
@@ -1634,7 +1633,7 @@ dispatch_semaphore_t semaphore;
             cQrDatas.push_back([qrData UTF8String]);
         }
         auto wallet = nunchukManager->nu->ImportKeystoneWallet(cQrDatas, [description UTF8String]);
-        return [[ObjWallet alloc] initWithWallet:&wallet nunchukManager:nunchukManager];
+        return [[ObjWallet alloc] initWithWallet:&wallet];
     } catch (const BaseException& exception) {
         *outError = [[NSError alloc] initWithDomain:@"io.nunchuk.ios" code:exception.code() userInfo:@{@"message": [NSString stringWithUTF8String: exception.what()]}];
         return [self parseWalletDescriptorWithQrs: qrDatas description:description error:outError];
@@ -1885,7 +1884,7 @@ dispatch_semaphore_t semaphore;
 - (ObjWallet *)parseWalletDescriptor:(NSString *)content error:(NSError **)error {
     try {
         auto wallet = Utils::ParseWalletDescriptor([content UTF8String]);
-        ObjWallet *objWallet = [[ObjWallet alloc] initWithWallet:&wallet nunchukManager:nunchukManager];
+        ObjWallet *objWallet = [[ObjWallet alloc] initWithWallet:&wallet];
         return objWallet;
     } catch (const BaseException& exception) {
         *error = [[NSError alloc] initWithDomain:@"io.nunchuk.ios" code: exception.code() userInfo:@{@"message": [NSString stringWithUTF8String: exception.what()]}];
@@ -1918,7 +1917,7 @@ dispatch_semaphore_t semaphore;
                 break;
         }
         auto wallet = Utils::ParseKeystoneWallet(chainValue, cQrDatas);
-        ObjWallet *objWallet = [[ObjWallet alloc] initWithWallet:&wallet nunchukManager:nunchukManager];
+        ObjWallet *objWallet = [[ObjWallet alloc] initWithWallet:&wallet];
         return objWallet;
     } catch (const BaseException& exception) {
         *error = [[NSError alloc] initWithDomain:@"io.nunchuk.ios" code: exception.code() userInfo:@{@"message": [NSString stringWithUTF8String: exception.what()]}];
@@ -3448,7 +3447,7 @@ dispatch_semaphore_t semaphore;
         auto newWallet = nunchukManager->nu->CreateWallet(wl, true);
         newWallet.set_name([name UTF8String]);
         nunchukManager->nu->UpdateWallet(newWallet);
-        return [[ObjWallet alloc] initWithWallet:&newWallet nunchukManager:nunchukManager];
+        return [[ObjWallet alloc] initWithWallet:&newWallet];
     } catch (const BaseException& exception) {
         *error = [[NSError alloc] initWithDomain:@"io.nunchuk.ios" code: exception.code() userInfo:@{@"message": [NSString stringWithUTF8String: exception.what()]}];
         return NULL;
@@ -3489,7 +3488,7 @@ dispatch_semaphore_t semaphore;
                 break;
         }
         auto wallet = Utils::ParseWalletConfig(chainValue, [config UTF8String]);
-        return [[ObjWallet alloc] initWithWallet:&wallet nunchukManager:nunchukManager];
+        return [[ObjWallet alloc] initWithWallet:&wallet];
     } catch (const BaseException& exception) {
         *error = [[NSError alloc] initWithDomain:@"io.nunchuk.ios" code: exception.code() userInfo:@{@"message": [NSString stringWithUTF8String: exception.what()]}];
         return NULL;
@@ -3504,7 +3503,7 @@ dispatch_semaphore_t semaphore;
         NSMutableArray *array = [NSMutableArray new];
         auto wallets = nunchukManager->nu->ParseJSONWallets([json UTF8String]);
         for (auto wallet: wallets) {
-            ObjWallet *obj = [[ObjWallet alloc] initWithWallet:&wallet nunchukManager:nunchukManager];
+            ObjWallet *obj = [[ObjWallet alloc] initWithWallet:&wallet];
             [array addObject:obj];
         }
         return array;
@@ -4366,7 +4365,7 @@ dispatch_semaphore_t semaphore;
         if (addresses.size() == 1) {
             auto firstAddress = addresses[0];
             NSString *address = [NSString stringWithUTF8String:firstAddress.c_str()];
-            ObjWallet *objWallet = [[ObjWallet alloc] initWithWallet:&wallet nunchukManager:nunchukManager];
+            ObjWallet *objWallet = [[ObjWallet alloc] initWithWallet:&wallet];
             return [[ObjWalletData alloc] initWithWallet:objWallet bsms:bsms firstAddress:address];
         } else {
             return NULL;
@@ -4403,7 +4402,7 @@ dispatch_semaphore_t semaphore;
         if (addresses.size() == 1) {
             auto firstAddress = addresses[0];
             NSString *address = [NSString stringWithUTF8String:firstAddress.c_str()];
-            ObjWallet *objWallet = [[ObjWallet alloc] initWithWallet:&wallet nunchukManager:nunchukManager];
+            ObjWallet *objWallet = [[ObjWallet alloc] initWithWallet:&wallet];
             return [[ObjWalletData alloc] initWithWallet:objWallet bsms:bsms firstAddress:address];
         } else {
             return NULL;
@@ -4422,7 +4421,7 @@ dispatch_semaphore_t semaphore;
         NSMutableArray *array = [NSMutableArray new];
         auto wallets = nunchukManager->nu->ParseJSONWallets([json UTF8String]);
         for (auto wallet: wallets) {
-            ObjWallet *obj = [[ObjWallet alloc] initWithWallet:&wallet nunchukManager:nunchukManager];
+            ObjWallet *obj = [[ObjWallet alloc] initWithWallet:&wallet];
             NSString *bsms = [NSString stringWithUTF8String:nunchukManager->nu->GetWalletExportData(wallet, ExportFormat::BSMS).c_str()];
             std::vector<std::string> addresses = Utils::DeriveAddresses(wallet, 0, 0);
             if (addresses.size() == 1) {
@@ -4449,7 +4448,7 @@ dispatch_semaphore_t semaphore;
         if (addresses.size() == 1) {
             auto firstAddress = addresses[0];
             NSString *address = [NSString stringWithUTF8String:firstAddress.c_str()];
-            ObjWallet *objWallet = [[ObjWallet alloc] initWithWallet: &wallet nunchukManager: nunchukManager];
+            ObjWallet *objWallet = [[ObjWallet alloc] initWithWallet: &wallet];
             return [[ObjWalletData alloc] initWithWallet:objWallet bsms:bsms firstAddress:address];
         }
         return NULL;

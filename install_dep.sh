@@ -68,7 +68,7 @@ installOpenSSL() {
   echo "Using CROSS_SDK: $CROSS_SDK"
   echo "Using BUILD_TOOL: $BUILD_TOOL"
 
-  ./Configure iphoneos-cross no-shared no-dso no-hw no-engine --prefix="$PWD/$target"
+  ./Configure iphoneos-cross no-shared no-dso no-hw no-engine -mios-version-min=13.0 --prefix="$PWD/$target"
   make clean
   make -j $num_jobs
   make install_dev

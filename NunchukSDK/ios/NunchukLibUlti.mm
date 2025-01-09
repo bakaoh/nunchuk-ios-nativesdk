@@ -513,7 +513,7 @@ using namespace nunchuk;
 }
 
 - (BOOL)isHardwareTypeTag:(NSString *)tag {
-    if ([tag isEqualToString:@"TREZOR"] || [tag isEqualToString:@"LEDGER"] || [tag isEqualToString:@"COLDCARD"] || [tag isEqualToString:@"BITBOX"]) {
+    if ([tag isEqualToString:@"TREZOR"] || [tag isEqualToString:@"LEDGER"] || [tag isEqualToString:@"COLDCARD"] || [tag isEqualToString:@"BITBOX"] || [tag isEqualToString:@"JADE"]) {
         return YES;
     }
     return NO;

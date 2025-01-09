@@ -2,7 +2,9 @@ cmake_minimum_required (VERSION 3.2)
 
 project (nunchukWalletSDK)
 set(CMAKE_XCODE_ATTRIBUTE_IPHONEOS_DEPLOYMENT_TARGET "13.0")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++20")
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
 
 set(IOS)
 
@@ -40,6 +42,7 @@ set(SDK_SOURCES
   ios/ObjWalletData.m
   ios/ObjDraftRolloverTransaction.m
   ios/ObjBSMSData.m
+  ios/ObjKeySetStatus.mm
 )
 
 set(PUBLIC_SDK_HEADERS
@@ -75,6 +78,7 @@ set(PUBLIC_SDK_HEADERS
   ios/ObjWalletData.h
   ios/ObjDraftRolloverTransaction.h
   ios/ObjBSMSData.h
+  ios/ObjKeySetStatus.h
 )
 
 # Headers
@@ -96,6 +100,7 @@ set(SDK_HEADERS
   extensions/ObjBtcUri+Extension.h
   extensions/ObjCoinTag+Extension.h
   extensions/ObjCoinCollection+Extension.h
+  extensions/ObjKeySetStatus+Extension.h
   ${PUBLIC_SDK_HEADERS}
 )
 
@@ -108,7 +113,7 @@ else()
   message(STATUS "Building static version...")
 endif()
 
-set(CMAKE_CXX_LINK_PIE_SUPPORTED TRUE)
+set(ENABLE_HARDENING OFF)
 add_subdirectory(libnunchuk)
 target_link_libraries(nunchukSDK PUBLIC nunchuk)
 add_dependencies(nunchukSDK event_core_static event_extra_static event_pthreads_static)

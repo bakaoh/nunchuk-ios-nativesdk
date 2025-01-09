@@ -28,6 +28,7 @@
 #import "ObjWalletData.h"
 #import "ObjDraftRolloverTransaction.h"
 #import "ObjBSMSData.h"
+#import "ObjKeySetStatus.h"
 
 typedef enum NunchukSDKError: NSInteger {
     NunchukSDKErrorUndefined = -1000000,
@@ -335,6 +336,7 @@ extern const int FEE_RATE_ECONOMICAL;
 - (NSArray *_Nullable)draftRollOverTransactions:(NSString *_Nonnull)sourceWalletId destinationWalletId:(NSString *_Nonnull)destinationWalletId tags:(NSArray *_Nonnull)tags collections:(NSArray *_Nonnull)collections feeRate:(long)feeRate error:(NSError *_Nullable*_Nullable)error;
 - (NSArray *_Nullable)createRollOverTransactions:(NSString *_Nonnull)sourceWalletId destinationWalletId:(NSString *_Nonnull)destinationWalletId tags:(NSArray *_Nonnull)tags collections:(NSArray *_Nonnull)collections feeRate:(long)feeRate error:(NSError *_Nullable*_Nullable)error;
 - (NSNumber *_Nullable)getAddressIndex:(NSString *_Nonnull)walletId appDisplayAddress:(NSString *_Nonnull)appDisplayAddress error:(NSError *_Nullable*_Nullable)error;
+- (NSArray *_Nullable)getKeysetStatus:(NSString *_Nonnull)walletId txId:(NSString *_Nonnull)txId error:(NSError *_Nullable*_Nullable)error;
 
 @end
 #endif

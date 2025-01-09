@@ -103,6 +103,9 @@ using namespace nunchuk;
         case TransactionStatus::CONFIRMED:
             txStatus = @"CONFIRMED";
             break;
+        case TransactionStatus::PENDING_NONCE:
+            txStatus = @"PENDING_NONCE";
+            break;
         default:
             break;
     }

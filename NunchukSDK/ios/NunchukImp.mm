@@ -37,6 +37,8 @@
 #import "ObjWalletData.h"
 #import "ObjDraftRolloverTransaction.h"
 #import "ObjBSMSData.h"
+#import "ObjKeySetStatus.h"
+#import <extensions/ObjKeySetStatus+Extension.h>
 
 using namespace nunchuk;
 using namespace tap_protocol;
@@ -4649,6 +4651,25 @@ dispatch_semaphore_t semaphore;
     try {
         auto index = nunchukManager->nu->GetAddressIndex([walletId UTF8String], [appDisplayAddress UTF8String]);
         return [NSNumber numberWithInt:index];
+    } catch (const BaseException& exception) {
+        *error = [[NSError alloc] initWithDomain:@"io.nunchuk.ios" code: exception.code() userInfo:@{@"message": [NSString stringWithUTF8String: exception.what()]}];
+        return NULL;
+    } catch (const std::exception& exception) {
+        *error = [[NSError alloc] initWithDomain:@"io.nunchuk.ios" code: NunchukSDKErrorUndefined userInfo:@{@"message": [NSString stringWithUTF8String: exception.what()]}];
+        return NULL;
+    }
+}
+
+- (NSArray *)getKeysetStatus:(NSString *)walletId txId:(NSString *)txId error:(NSError * _Nullable __autoreleasing *)error {
+    try {
+        auto transaction = nunchukManager->nu->GetTransaction([walletId UTF8String], [txId UTF8String]);
+        auto keySet = transaction.get_keyset_status();
+        NSMutableArray *array = [NSMutableArray new];
+        for (auto set : keySet) {
+            ObjKeySetStatus *obj = [[ObjKeySetStatus alloc] initKeySetStatus:&set];
+            [array addObject:obj];
+        }
+        return array;
     } catch (const BaseException& exception) {
         *error = [[NSError alloc] initWithDomain:@"io.nunchuk.ios" code: exception.code() userInfo:@{@"message": [NSString stringWithUTF8String: exception.what()]}];
         return NULL;

@@ -92,6 +92,7 @@ extern const int FEE_RATE_ECONOMICAL;
 - (void)didUpdateGroupSanbox:(ObjGroupSandbox *_Nonnull)groupSandbox;
 - (void)didUpdateGroupOnline:(NSString *_Nonnull)groupId online:(NSInteger)online;
 - (void)didDeletedGroupSandbox:(NSString *_Nonnull)groupId;
+- (void)didReceiveReplaceRequest:(NSString *_Nonnull)walletId replaceGroupId:(NSString *_Nonnull)replaceGroupId;
 
 @end
 @interface NunchukImp :NSObject
@@ -410,6 +411,15 @@ extern const int FEE_RATE_ECONOMICAL;
 - (BOOL)setLastReadMessage:(NSString *_Nonnull)walletId messageId:(NSString *_Nonnull)messageId error:(NSError *_Nullable*_Nullable)error;
 - (ObjWallet *_Nullable)isGroupWalletExisted:(NSString *_Nonnull)content error:(NSError *_Nullable*_Nullable)error;
 - (BOOL)recoverGroupWallet:(NSString *_Nonnull)walletId error:(NSError *_Nullable*_Nullable)error;
+
+// Replace Group Wallet
+- (ObjGroupSandbox *_Nullable)createReplaceGroup:(NSString *_Nonnull)walletId error:(NSError *_Nullable*_Nullable)error;
+- (ObjGroupSandbox *_Nullable)acceptReplaceGroup:(NSString *_Nonnull)walletId groupId:(NSString *_Nonnull)groupId error:(NSError *_Nullable*_Nullable)error;
+- (BOOL)declineReplaceGroup:(NSString *_Nonnull)walletId groupId:(NSString *_Nonnull)groupId error:(NSError *_Nullable*_Nullable)error;
+- (NSDictionary<NSString*, NSNumber*> *_Nullable)getReplaceGroups:(NSString *_Nonnull)walletId error:(NSError *_Nullable*_Nullable)error;
+
+// Add listener for replacement requests
+- (void)observeReplaceRequest;
 
 @end
 #endif

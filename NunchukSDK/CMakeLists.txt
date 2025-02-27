@@ -43,6 +43,10 @@ set(SDK_SOURCES
   ios/ObjDraftRolloverTransaction.m
   ios/ObjBSMSData.m
   ios/ObjKeySetStatus.mm
+  ios/ObjGroupMessage.mm
+  ios/ObjGroupConfig.mm
+  ios/ObjGroupWalletConfig.mm
+  ios/ObjGroupSandbox.mm
 )
 
 set(PUBLIC_SDK_HEADERS
@@ -79,6 +83,10 @@ set(PUBLIC_SDK_HEADERS
   ios/ObjDraftRolloverTransaction.h
   ios/ObjBSMSData.h
   ios/ObjKeySetStatus.h
+  ios/ObjGroupMessage.h
+  ios/ObjGroupConfig.h
+  ios/ObjGroupWalletConfig.h
+  ios/ObjGroupSandbox.h
 )
 
 # Headers
@@ -101,6 +109,9 @@ set(SDK_HEADERS
   extensions/ObjCoinTag+Extension.h
   extensions/ObjCoinCollection+Extension.h
   extensions/ObjKeySetStatus+Extension.h
+  extensions/ObjGroupMessage+Extension.h
+  extensions/ObjGroupWalletConfig+Extension.h
+  extensions/ObjGroupSandbox+Extension.h
   ${PUBLIC_SDK_HEADERS}
 )
 

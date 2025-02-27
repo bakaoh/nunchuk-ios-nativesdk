@@ -29,12 +29,17 @@
 #import "ObjDraftRolloverTransaction.h"
 #import "ObjBSMSData.h"
 #import "ObjKeySetStatus.h"
+#import "ObjGroupMessage.h"
+#import "ObjGroupConfig.h"
+#import "ObjGroupWalletConfig.h"
+#import "ObjGroupSandbox.h"
 
 typedef enum NunchukSDKError: NSInteger {
     NunchukSDKErrorUndefined = -1000000,
     NunchukSDKErrorCancelNFCSession = -1000001,
     NunchukSDKErrorSignerExist = -1000002,
-    NunchukSDKErrorShouldHandleAsPortal= -1000003
+    NunchukSDKErrorShouldHandleAsPortal= -1000003,
+    NunchukSDKErrorGroupSandboxFinalized= -1000004
 } NunchukSDKError;
 
 typedef enum ConnectionStatusEnum {
@@ -64,7 +69,7 @@ extern const int FEE_RATE_PRIORITY;
 extern const int FEE_RATE_STANDARD;
 extern const int FEE_RATE_ECONOMICAL;
 
-@protocol MatrixEventDelegate <NSObject>
+@protocol NunchukSDKDelegate <NSObject>
 @optional
 - (NSString* _Nullable)sendEventWithRoomId:(NSString* _Nonnull)roomId
                                   evenType:(NSString* _Nonnull)eventType
@@ -83,10 +88,14 @@ extern const int FEE_RATE_ECONOMICAL;
 - (void)didUpdateBlock:(NSInteger)height hexHeader:(NSString* _Nonnull)hexHeader;
 - (void)didUpdateWalletBalance:(double)balance walletId:(NSString *_Nonnull)walletId;
 - (void)didUpdateTransaction:(NSString *_Nonnull)transactionId walletId:(NSString *_Nonnull)walletId status:(NSString *_Nonnull)status;
+- (void)didReceiveGroupMessage:(ObjGroupMessage *_Nonnull)message;
+- (void)didUpdateGroupSanbox:(ObjGroupSandbox *_Nonnull)groupSandbox;
+- (void)didUpdateGroupOnline:(NSString *_Nonnull)groupId online:(NSInteger)online;
+- (void)didDeletedGroupSandbox:(NSString *_Nonnull)groupId;
 
 @end
 @interface NunchukImp :NSObject
-@property (nonatomic, weak)id <MatrixEventDelegate> _Nullable delegate;
+@property (nonatomic, weak)id <NunchukSDKDelegate> _Nullable delegate;
 -(BOOL)importWallet:(NSBundle*_Nonnull)bundle error:(NSError * _Nullable * _Nullable)outError;
 -(NSString* _Nullable)createWalletWithName:(NSString* _Nullable)name numberKey:(int)numberKey signers:(NSMutableArray * _Nonnull)signers addressType:(NSString *_Nonnull)addressType type:(NSString *_Nonnull)type error:(NSError * _Nullable * _Nullable)outError;
 - (ObjWallet *_Nullable)createDecoyWallet:(NSString *_Nonnull)name numberKey:(int)numberKey signers:(NSMutableArray *_Nonnull)signers addressType:(NSString *_Nonnull)addressType type:(NSString *_Nonnull)type pin:(NSString *_Nonnull)pin error:(NSError *_Nullable*_Nullable)error;
@@ -336,7 +345,71 @@ extern const int FEE_RATE_ECONOMICAL;
 - (NSArray *_Nullable)draftRollOverTransactions:(NSString *_Nonnull)sourceWalletId destinationWalletId:(NSString *_Nonnull)destinationWalletId tags:(NSArray *_Nonnull)tags collections:(NSArray *_Nonnull)collections feeRate:(long)feeRate error:(NSError *_Nullable*_Nullable)error;
 - (NSArray *_Nullable)createRollOverTransactions:(NSString *_Nonnull)sourceWalletId destinationWalletId:(NSString *_Nonnull)destinationWalletId tags:(NSArray *_Nonnull)tags collections:(NSArray *_Nonnull)collections feeRate:(long)feeRate error:(NSError *_Nullable*_Nullable)error;
 - (NSNumber *_Nullable)getAddressIndex:(NSString *_Nonnull)walletId appDisplayAddress:(NSString *_Nonnull)appDisplayAddress error:(NSError *_Nullable*_Nullable)error;
+
+// Value key set
+
 - (NSArray *_Nullable)getKeysetStatus:(NSString *_Nonnull)walletId txId:(NSString *_Nonnull)txId error:(NSError *_Nullable*_Nullable)error;
+
+// Group wallet
+
+- (BOOL)enableGroupWallet:(NSString *_Nonnull)osName
+                osVersion:(NSString *_Nonnull)osVersion
+               appVersion:(NSString *_Nonnull)appVersion
+                 deviceId:(NSString *_Nonnull)deviceId
+              deviceClass:(NSString *_Nonnull)deviceClass
+                 apiToken:(NSString *_Nonnull)apiToken
+                    error:(NSError *_Nullable*_Nullable)error;
+- (BOOL)startConsumeGroupEvent:(NSError *_Nullable*_Nullable)error;
+- (BOOL)stopConsumeGroupEvent:(NSError *_Nullable*_Nullable)error;
+- (BOOL)sendGroupMessage:(NSString *_Nonnull)walletId
+                 message:(NSString *_Nonnull)message
+                  signer:(ObjSingleSigner *_Nullable)signer
+                   error:(NSError *_Nullable*_Nullable)error;
+- (NSArray *_Nullable)getGroupMessages:(NSString *_Nonnull)walletId
+                                  page:(int)page
+                              pageSize:(int)pageSize
+                              isLatest:(BOOL)isLatest
+                                 error:(NSError *_Nullable*_Nullable)error;
+- (ObjGroupConfig *_Nullable)getGroupConfig:(NSError *_Nullable*_Nullable)error;
+- (ObjGroupWalletConfig *_Nullable)getGroupWalletConfig:(NSString *_Nonnull)walletId error:(NSError *_Nullable*_Nullable)error;
+- (BOOL)setGroupWalletConfig:(NSString *_Nonnull)walletId config:(ObjGroupWalletConfig *_Nonnull)config error:(NSError *_Nullable*_Nullable)error;
+- (void)observeGroupMessage;
+- (ObjGroupSandbox *_Nullable)createGroup:(NSString *_Nonnull)name 
+                                        m:(int)m 
+                                        n:(int)n 
+                              addressType:(NSString *_Nonnull)addressType 
+                                    error:(NSError *_Nullable*_Nullable)error;
+- (ObjGroupSandbox *_Nullable)getGroup:(NSString *_Nonnull)groupId error:(NSError *_Nullable*_Nullable)error;
+- (NSNumber *_Nullable)getGroupOnline:(NSString *_Nonnull)groupId error:(NSError *_Nullable*_Nullable)error;
+- (NSArray<ObjGroupSandbox *> *_Nullable)getGroups:(NSError *_Nullable*_Nullable)error;
+- (NSDictionary<NSString*, NSString*> *_Nullable)parseGroupUrl:(NSString *_Nonnull)url error:(NSError *_Nullable*_Nullable)error;
+- (ObjGroupSandbox *_Nullable)joinGroup:(NSString *_Nonnull)groupId error:(NSError *_Nullable*_Nullable)error;
+- (ObjGroupSandbox *_Nullable)addSignerToGroup:(NSString *_Nonnull)groupId 
+                                        signer:(ObjSingleSigner *_Nonnull)signer 
+                                         index:(int)index 
+                                         error:(NSError *_Nullable*_Nullable)error;
+- (ObjGroupSandbox *_Nullable)removeSignerFromGroup:(NSString *_Nonnull)groupId index:(int)index error:(NSError *_Nullable*_Nullable)error;
+- (ObjGroupSandbox *_Nullable)updateGroup:(NSString *_Nonnull)groupId 
+                                     name:(NSString *_Nonnull)name 
+                                        m:(int)m 
+                                        n:(int)n 
+                              addressType:(NSString *_Nonnull)addressType 
+                                error:(NSError *_Nullable*_Nullable)error;
+- (ObjGroupSandbox *_Nullable)finalizeGroup:(NSString *_Nonnull)groupId valueKeyset:(NSArray *_Nonnull)valueKeyset error:(NSError *_Nullable*_Nullable)error;
+- (BOOL)deleteGroup:(NSString *_Nonnull)groupId error:(NSError *_Nullable*_Nullable)error;
+- (void)observeGroupSandbox;
+- (void)observeGroupOnline;
+- (void)observeGroupDeleted;
+- (ObjGroupSandbox *_Nullable)setSlotOccupied:(NSString *_Nonnull)groupId 
+                                       index:(int)index 
+                                       value:(BOOL)value 
+                                       error:(NSError *_Nullable*_Nullable)error;
+- (NSString *_Nullable)getGroupDeviceUID:(NSError *_Nullable*_Nullable)error;
+- (NSArray *_Nullable)getGroupWallets:(NSError *_Nullable*_Nullable)error;
+- (int)getUnreadMessagesCount:(NSString *_Nonnull)walletId;
+- (BOOL)setLastReadMessage:(NSString *_Nonnull)walletId messageId:(NSString *_Nonnull)messageId error:(NSError *_Nullable*_Nullable)error;
+- (ObjWallet *_Nullable)isGroupWalletExisted:(NSString *_Nonnull)content error:(NSError *_Nullable*_Nullable)error;
+- (BOOL)recoverGroupWallet:(NSString *_Nonnull)walletId error:(NSError *_Nullable*_Nullable)error;
 
 @end
 #endif

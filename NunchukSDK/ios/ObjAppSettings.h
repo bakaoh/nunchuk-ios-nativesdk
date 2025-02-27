@@ -36,5 +36,6 @@ typedef enum BackendTypeEnum {
 @property (strong, nonatomic, nullable) NSString *corePRCPassword;
 @property (strong, nonatomic, nullable) NSString *hwiPath;
 @property (strong, nonatomic, nullable) NSString *storagePath;
+@property (strong, nonatomic, nullable) NSString *groupServerURL;
 
 @end

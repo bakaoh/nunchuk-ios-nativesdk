@@ -68,6 +68,8 @@
     appSettings.coreRPCUsername = [NSString stringWithUTF8String: settings->get_corerpc_username().c_str()];
     appSettings.corePRCPassword = [NSString stringWithUTF8String: settings->get_corerpc_password().c_str()];
     
+    appSettings.groupServerURL = [NSString stringWithUTF8String: settings->get_group_server().c_str()];
+    
     return appSettings;
 }
 

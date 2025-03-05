@@ -11,6 +11,7 @@
 @property (nonatomic, strong) NSString *groupId;
 @property (nonatomic, strong) NSString *name;
 @property (nonatomic, strong) NSString *walletId;
+@property (nonatomic, strong) NSString *replaceWalletId;
 @property (nonatomic, strong) NSString *pubkey;
 @property (nonatomic, strong) NSString *url;
 @property (nonatomic, assign) int m;

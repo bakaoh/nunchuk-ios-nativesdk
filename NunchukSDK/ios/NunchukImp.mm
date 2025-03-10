@@ -5060,6 +5060,22 @@ dispatch_semaphore_t semaphore;
         return NULL;
     } catch (const std::exception& exception) {
         *error = [[NSError alloc] initWithDomain:@"io.nunchuk.ios" code: NunchukSDKErrorUndefined userInfo:@{@"message": [NSString stringWithUTF8String: exception.what()]}];
+    }
+}
+
+- (NSArray<NSString *> *)getDeprecatedGroupWallets:(NSError **)error {
+    try {
+        auto walletIds = nunchukManager->nu->GetDeprecatedGroupWallets();
+        NSMutableArray *result = [[NSMutableArray alloc] init];
+        for (auto&& walletId : walletIds) {
+            [result addObject:[NSString stringWithUTF8String:walletId.c_str()]];
+        }
+        return result;
+    } catch (const BaseException& exception) {
+        *error = [[NSError alloc] initWithDomain:@"io.nunchuk.ios" code:exception.code() userInfo:@{@"message": [NSString stringWithUTF8String:exception.what()]}];
+        return NULL;
+    } catch (const std::exception& exception) {
+        *error = [[NSError alloc] initWithDomain:@"io.nunchuk.ios" code:NunchukSDKErrorUndefined userInfo:@{@"message": [NSString stringWithUTF8String:exception.what()]}];
         return NULL;
     }
 }

@@ -407,6 +407,7 @@ extern const int FEE_RATE_ECONOMICAL;
                                        error:(NSError *_Nullable*_Nullable)error;
 - (NSString *_Nullable)getGroupDeviceUID:(NSError *_Nullable*_Nullable)error;
 - (NSArray *_Nullable)getGroupWallets:(NSError *_Nullable*_Nullable)error;
+- (NSArray<NSString *> *_Nullable)getDeprecatedGroupWallets:(NSError *_Nullable*_Nullable)error;
 - (int)getUnreadMessagesCount:(NSString *_Nonnull)walletId;
 - (BOOL)setLastReadMessage:(NSString *_Nonnull)walletId messageId:(NSString *_Nonnull)messageId error:(NSError *_Nullable*_Nullable)error;
 - (ObjWallet *_Nullable)isGroupWalletExisted:(NSString *_Nonnull)content error:(NSError *_Nullable*_Nullable)error;

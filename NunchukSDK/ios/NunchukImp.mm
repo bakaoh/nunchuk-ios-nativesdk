@@ -5060,6 +5060,22 @@ dispatch_semaphore_t semaphore;
         return NULL;
     } catch (const std::exception& exception) {
         *error = [[NSError alloc] initWithDomain:@"io.nunchuk.ios" code: NunchukSDKErrorUndefined userInfo:@{@"message": [NSString stringWithUTF8String: exception.what()]}];
+    }
+}
+
+- (NSArray<NSString *> *)getDeprecatedGroupWallets:(NSError **)error {
+    try {
+        auto walletIds = nunchukManager->nu->GetDeprecatedGroupWallets();
+        NSMutableArray *result = [[NSMutableArray alloc] init];
+        for (auto&& walletId : walletIds) {
+            [result addObject:[NSString stringWithUTF8String:walletId.c_str()]];
+        }
+        return result;
+    } catch (const BaseException& exception) {
+        *error = [[NSError alloc] initWithDomain:@"io.nunchuk.ios" code:exception.code() userInfo:@{@"message": [NSString stringWithUTF8String:exception.what()]}];
+        return NULL;
+    } catch (const std::exception& exception) {
+        *error = [[NSError alloc] initWithDomain:@"io.nunchuk.ios" code:NunchukSDKErrorUndefined userInfo:@{@"message": [NSString stringWithUTF8String:exception.what()]}];
         return NULL;
     }
 }
@@ -5117,6 +5133,19 @@ dispatch_semaphore_t semaphore;
     }
 }
 
+- (ObjGroupSandbox *)createReplaceGroup:(NSString *)walletId error:(NSError **)error {
+    try {
+        auto group = nunchukManager->nu->CreateReplaceGroup([walletId UTF8String]);
+        return [[ObjGroupSandbox alloc] initWithGroupSandbox:&group];
+    } catch (const BaseException& exception) {
+        *error = [[NSError alloc] initWithDomain:@"io.nunchuk.ios" code:exception.code() userInfo:@{@"message": [NSString stringWithUTF8String:exception.what()]}];
+        return NULL;
+    } catch (const std::exception& exception) {
+        *error = [[NSError alloc] initWithDomain:@"io.nunchuk.ios" code:NunchukSDKErrorUndefined userInfo:@{@"message": [NSString stringWithUTF8String:exception.what()]}];
+        return NULL;
+    }
+}
+
 - (NSString *)decryptGroupWalletId:(NSString *)walletId error:(NSError **)error {
     try {
         return [NSString stringWithUTF8String: nunchukManager->nu->DecryptGroupWalletId([walletId UTF8String]).c_str()];
@@ -5125,6 +5154,19 @@ dispatch_semaphore_t semaphore;
         return NULL;
     } catch (const std::exception& exception) {
         *error = [[NSError alloc] initWithDomain:@"io.nunchuk.ios" code: NunchukSDKErrorUndefined userInfo:@{@"message": [NSString stringWithUTF8String: exception.what()]}];
+        return NULL;
+    }
+}
+
+- (ObjGroupSandbox *)acceptReplaceGroup:(NSString *)walletId groupId:(NSString *)groupId error:(NSError **)error {
+    try {
+        auto group = nunchukManager->nu->AcceptReplaceGroup([walletId UTF8String], [groupId UTF8String]);
+        return [[ObjGroupSandbox alloc] initWithGroupSandbox:&group];
+    } catch (const BaseException& exception) {
+        *error = [[NSError alloc] initWithDomain:@"io.nunchuk.ios" code:exception.code() userInfo:@{@"message": [NSString stringWithUTF8String:exception.what()]}];
+        return NULL;
+    } catch (const std::exception& exception) {
+        *error = [[NSError alloc] initWithDomain:@"io.nunchuk.ios" code:NunchukSDKErrorUndefined userInfo:@{@"message": [NSString stringWithUTF8String:exception.what()]}];
         return NULL;
     }
 }
@@ -5139,6 +5181,46 @@ dispatch_semaphore_t semaphore;
         *error = [[NSError alloc] initWithDomain:@"io.nunchuk.ios" code: NunchukSDKErrorUndefined userInfo:@{@"message": [NSString stringWithUTF8String: exception.what()]}];
         return NULL;
     }
+}
+
+- (BOOL)declineReplaceGroup:(NSString *)walletId groupId:(NSString *)groupId error:(NSError **)error {
+    try {
+        nunchukManager->nu->DeclineReplaceGroup([walletId UTF8String], [groupId UTF8String]);
+        return YES;
+    } catch (const BaseException& exception) {
+        *error = [[NSError alloc] initWithDomain:@"io.nunchuk.ios" code:exception.code() userInfo:@{@"message": [NSString stringWithUTF8String:exception.what()]}];
+        return NO;
+    } catch (const std::exception& exception) {
+        *error = [[NSError alloc] initWithDomain:@"io.nunchuk.ios" code:NunchukSDKErrorUndefined userInfo:@{@"message": [NSString stringWithUTF8String:exception.what()]}];
+        return NO;
+    }
+}
+
+- (NSDictionary<NSString*, NSNumber*> *)getReplaceGroups:(NSString *)walletId error:(NSError **)error {
+    try {
+        auto replacements = nunchukManager->nu->GetReplaceGroups([walletId UTF8String]);
+        NSMutableDictionary *dict = [NSMutableDictionary new];
+        for (const auto& [groupId, accepted] : replacements) {
+            [dict setObject:@(accepted) forKey:[NSString stringWithUTF8String:groupId.c_str()]];
+        }
+        return dict;
+    } catch (const BaseException& exception) {
+        *error = [[NSError alloc] initWithDomain:@"io.nunchuk.ios" code:exception.code() userInfo:@{@"message": [NSString stringWithUTF8String:exception.what()]}];
+        return NULL;
+    } catch (const std::exception& exception) {
+        *error = [[NSError alloc] initWithDomain:@"io.nunchuk.ios" code:NunchukSDKErrorUndefined userInfo:@{@"message": [NSString stringWithUTF8String:exception.what()]}];
+        return NULL;
+    }
+}
+
+// Add observer implementation
+- (void)observeReplaceRequest {
+    nunchukManager->nu->AddReplaceRequestListener([self](std::string walletId, std::string replaceGroupId) {
+        if (self.delegate && [self.delegate respondsToSelector:@selector(didReceiveReplaceRequest:replaceGroupId:)]) {
+            [self.delegate didReceiveReplaceRequest:[NSString stringWithUTF8String:walletId.c_str()] 
+                                   replaceGroupId:[NSString stringWithUTF8String:replaceGroupId.c_str()]];
+        }
+    });
 }
 
 @end

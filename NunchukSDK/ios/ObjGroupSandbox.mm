@@ -21,6 +21,7 @@ using namespace nunchuk;
         self.groupId = [NSString stringWithUTF8String:groupSandbox->get_id().c_str()];
         self.name = [NSString stringWithUTF8String:groupSandbox->get_name().c_str()];
         self.walletId = [NSString stringWithUTF8String:groupSandbox->get_wallet_id().c_str()];
+        self.replaceWalletId = [NSString stringWithUTF8String:groupSandbox->get_replace_wallet_id().c_str()];
         self.pubkey = [NSString stringWithUTF8String:groupSandbox->get_pubkey().c_str()];
         self.url = [NSString stringWithUTF8String:groupSandbox->get_url().c_str()];
         self.m = groupSandbox->get_m();

@@ -410,6 +410,8 @@ extern const int FEE_RATE_ECONOMICAL;
 - (BOOL)setLastReadMessage:(NSString *_Nonnull)walletId messageId:(NSString *_Nonnull)messageId error:(NSError *_Nullable*_Nullable)error;
 - (ObjWallet *_Nullable)isGroupWalletExisted:(NSString *_Nonnull)content error:(NSError *_Nullable*_Nullable)error;
 - (BOOL)recoverGroupWallet:(NSString *_Nonnull)walletId error:(NSError *_Nullable*_Nullable)error;
+- (NSString *_Nullable)decryptGroupWalletId:(NSString *_Nonnull)walletId error:(NSError *_Nullable*_Nullable)error;
+- (NSString *_Nullable)decryptGroupTxId:(NSString *_Nonnull)txId walletId:(NSString *_Nonnull)walletId error:(NSError *_Nullable*_Nullable)error;
 
 @end
 #endif

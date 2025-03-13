@@ -5106,7 +5106,7 @@ dispatch_semaphore_t semaphore;
 
 - (BOOL)recoverGroupWallet:(NSString *)walletId error:(NSError **)error {
     try {
-        nunchukManager->nu->RecoverGroupWallet([walletId UTF8String]);;
+        nunchukManager->nu->RecoverGroupWallet([walletId UTF8String]);
         return YES;
     } catch (const BaseException& exception) {
         *error = [[NSError alloc] initWithDomain:@"io.nunchuk.ios" code: exception.code() userInfo:@{@"message": [NSString stringWithUTF8String: exception.what()]}];
@@ -5114,6 +5114,30 @@ dispatch_semaphore_t semaphore;
     } catch (const std::exception& exception) {
         *error = [[NSError alloc] initWithDomain:@"io.nunchuk.ios" code: NunchukSDKErrorUndefined userInfo:@{@"message": [NSString stringWithUTF8String: exception.what()]}];
         return NO;
+    }
+}
+
+- (NSString *)decryptGroupWalletId:(NSString *)walletId error:(NSError **)error {
+    try {
+        return [NSString stringWithUTF8String: nunchukManager->nu->DecryptGroupWalletId([walletId UTF8String]).c_str()];
+    } catch (const BaseException& exception) {
+        *error = [[NSError alloc] initWithDomain:@"io.nunchuk.ios" code: exception.code() userInfo:@{@"message": [NSString stringWithUTF8String: exception.what()]}];
+        return NULL;
+    } catch (const std::exception& exception) {
+        *error = [[NSError alloc] initWithDomain:@"io.nunchuk.ios" code: NunchukSDKErrorUndefined userInfo:@{@"message": [NSString stringWithUTF8String: exception.what()]}];
+        return NULL;
+    }
+}
+
+- (NSString *)decryptGroupTxId:(NSString *)txId walletId:(NSString *)walletId error:(NSError **)error {
+    try {
+        return [NSString stringWithUTF8String: nunchukManager->nu->DecryptGroupTxId([walletId UTF8String], [txId UTF8String]).c_str()];
+    } catch (const BaseException& exception) {
+        *error = [[NSError alloc] initWithDomain:@"io.nunchuk.ios" code: exception.code() userInfo:@{@"message": [NSString stringWithUTF8String: exception.what()]}];
+        return NULL;
+    } catch (const std::exception& exception) {
+        *error = [[NSError alloc] initWithDomain:@"io.nunchuk.ios" code: NunchukSDKErrorUndefined userInfo:@{@"message": [NSString stringWithUTF8String: exception.what()]}];
+        return NULL;
     }
 }
 

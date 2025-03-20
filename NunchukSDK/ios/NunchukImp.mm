@@ -914,8 +914,11 @@ dispatch_semaphore_t semaphore;
 
 -(BOOL)consumeEvent:(ObjNunchukMatrixEvent *)event error:(NSError * _Nullable __autoreleasing *)outError {
     try {
-        nunchukManager->nuMatrix->ConsumeEvent(nunchukManager->nu, [event getNunchukEvent]);
-        return YES;
+        if (nunchukManager->nuMatrix) {
+            nunchukManager->nuMatrix->ConsumeEvent(nunchukManager->nu, [event getNunchukEvent]);
+            return YES;
+        }
+        return NO;
     } catch (const BaseException& exception) {
         *outError = [[NSError alloc] initWithDomain:@"io.nunchuk.ios" code: exception.code() userInfo:@{@"message": [NSString stringWithUTF8String: exception.what()]}];
         return NO;
@@ -1066,9 +1069,12 @@ dispatch_semaphore_t semaphore;
 // MARK: - Shared wallet
 -(ObjNunchukMatrixEvent *)initializeWalletWithRoomId:(NSString *)roomId name:(NSString *)name min:(int)m total:(int)n addressType:(NSString *)addressType isEscrow:(BOOL)isEsrow desc:(NSString *)desc error:(NSError * _Nullable __autoreleasing *)outError {
     try {
-        AddressType address_type = [self addressTypeFromString:addressType];
-        auto event = nunchukManager->nuMatrix->InitWallet([roomId UTF8String], [name UTF8String], m, n, address_type, isEsrow);
-        return [[ObjNunchukMatrixEvent alloc] initWithMatrixEvent:event];
+        if (nunchukManager->nuMatrix) {
+            AddressType address_type = [self addressTypeFromString:addressType];
+            auto event = nunchukManager->nuMatrix->InitWallet([roomId UTF8String], [name UTF8String], m, n, address_type, isEsrow);
+            return [[ObjNunchukMatrixEvent alloc] initWithMatrixEvent:event];
+        }
+        return NULL;
     } catch (const BaseException& exception) {
         *outError = [[NSError alloc] initWithDomain:@"io.nunchuk.ios" code: exception.code() userInfo:@{@"message": [NSString stringWithUTF8String: exception.what()]}];
         return NULL;
@@ -1080,15 +1086,18 @@ dispatch_semaphore_t semaphore;
 
 -(BOOL)joinWalletWithRoomId:(NSString *)roomId signers:(NSArray *)signers walletType:(NSString *)walletTypeStr addressType:(NSString *)addressTypeStr error:(NSError * _Nullable __autoreleasing *)outError {
     try {
-        for (id signer in signers) {
-            if ([signer isKindOfClass:[ObjSingleSigner class]]) {
-                ObjSingleSigner *remoteSigner = (ObjSingleSigner *)signer;
-                auto cSigner = SingleSigner(std::string([remoteSigner.signerName UTF8String]), std::string([remoteSigner.xpub UTF8String]), std::string([remoteSigner.publicKey UTF8String]), std::string([remoteSigner.bip32Path UTF8String]), std::string([remoteSigner.masterFingerPrint UTF8String]), false);
-                cSigner.set_type([self parseObjCSignerType:remoteSigner.type]);
-                auto event = nunchukManager->nuMatrix->JoinWallet([roomId UTF8String], cSigner);
+        if (nunchukManager->nuMatrix) {
+            for (id signer in signers) {
+                if ([signer isKindOfClass:[ObjSingleSigner class]]) {
+                    ObjSingleSigner *remoteSigner = (ObjSingleSigner *)signer;
+                    auto cSigner = SingleSigner(std::string([remoteSigner.signerName UTF8String]), std::string([remoteSigner.xpub UTF8String]), std::string([remoteSigner.publicKey UTF8String]), std::string([remoteSigner.bip32Path UTF8String]), std::string([remoteSigner.masterFingerPrint UTF8String]), false);
+                    cSigner.set_type([self parseObjCSignerType:remoteSigner.type]);
+                    auto event = nunchukManager->nuMatrix->JoinWallet([roomId UTF8String], cSigner);
+                }
             }
+            return YES;
         }
-        return YES;
+        return NO;
     } catch (const BaseException& exception) {
         *outError = [[NSError alloc] initWithDomain:@"io.nunchuk.ios" code: exception.code() userInfo:@{@"message": [NSString stringWithUTF8String: exception.what()]}];
         return NO;
@@ -1100,8 +1109,11 @@ dispatch_semaphore_t semaphore;
 
 -(ObjNunchukMatrixEvent *)leaveWalletWithRoomId:(NSString *)roomId joinId:(NSString *)joinId reason:(NSString *)reason error:(NSError * _Nullable __autoreleasing *)outError {
     try {
-        auto event = nunchukManager->nuMatrix->LeaveWallet([roomId UTF8String], [joinId UTF8String]);
-        return [[ObjNunchukMatrixEvent alloc] initWithMatrixEvent: event];
+        if (nunchukManager->nuMatrix) {
+            auto event = nunchukManager->nuMatrix->LeaveWallet([roomId UTF8String], [joinId UTF8String]);
+            return [[ObjNunchukMatrixEvent alloc] initWithMatrixEvent: event];
+        }
+        return NULL;
     } catch (const BaseException& exception) {
         *outError = [[NSError alloc] initWithDomain:@"io.nunchuk.ios" code: exception.code() userInfo:@{@"message": [NSString stringWithUTF8String: exception.what()]}];
         return NULL;
@@ -1113,8 +1125,11 @@ dispatch_semaphore_t semaphore;
 
 -(ObjNunchukMatrixEvent *)cancelWalletWithRoomId:(NSString *)roomId reason:(NSString *)reason error:(NSError * _Nullable __autoreleasing *)outError {
     try {
-        auto event = nunchukManager->nuMatrix->CancelWallet([roomId UTF8String]);
-        return [[ObjNunchukMatrixEvent alloc] initWithMatrixEvent: event];
+        if (nunchukManager->nuMatrix) {
+            auto event = nunchukManager->nuMatrix->CancelWallet([roomId UTF8String]);
+            return [[ObjNunchukMatrixEvent alloc] initWithMatrixEvent: event];
+        }
+        return NULL;
     } catch (const BaseException& exception) {
         *outError = [[NSError alloc] initWithDomain:@"io.nunchuk.ios" code: exception.code() userInfo:@{@"message": [NSString stringWithUTF8String: exception.what()]}];
         return NULL;
@@ -1126,8 +1141,11 @@ dispatch_semaphore_t semaphore;
 
 -(ObjNunchukMatrixEvent *)createWalletWithRoomId:(NSString *)roomId error:(NSError * _Nullable __autoreleasing *)outError {
     try {
-        auto event = nunchukManager->nuMatrix->CreateWallet(nunchukManager->nu, [roomId UTF8String]);
-        return [[ObjNunchukMatrixEvent alloc] initWithMatrixEvent: event];
+        if (nunchukManager->nuMatrix) {
+            auto event = nunchukManager->nuMatrix->CreateWallet(nunchukManager->nu, [roomId UTF8String]);
+            return [[ObjNunchukMatrixEvent alloc] initWithMatrixEvent: event];
+        }
+        return NULL;
     } catch (const BaseException& exception) {
         *outError = [[NSError alloc] initWithDomain:@"io.nunchuk.ios" code: exception.code() userInfo:@{@"message": [NSString stringWithUTF8String: exception.what()]}];
         return NULL;
@@ -1187,8 +1205,11 @@ dispatch_semaphore_t semaphore;
 
 -(ObjNunchukMatrixEvent *)getEventWithEventId:(NSString *)eventId error:(NSError * _Nullable __autoreleasing *)outError {
     try {
-        auto matrixEvent = nunchukManager->nuMatrix->GetEvent([eventId UTF8String]);
-        return [[ObjNunchukMatrixEvent alloc] initWithMatrixEvent: matrixEvent];
+        if (nunchukManager->nuMatrix) {
+            auto matrixEvent = nunchukManager->nuMatrix->GetEvent([eventId UTF8String]);
+            return [[ObjNunchukMatrixEvent alloc] initWithMatrixEvent: matrixEvent];
+        }
+        return NULL;
     } catch (const BaseException& exception) {
         *outError = [[NSError alloc] initWithDomain:@"io.nunchuk.ios" code: exception.code() userInfo:@{@"message": [NSString stringWithUTF8String: exception.what()]}];
         return NULL;
@@ -1201,10 +1222,13 @@ dispatch_semaphore_t semaphore;
 -(BOOL)consumeSyncEvent:(ObjNunchukMatrixEvent *)event withProgress:(BOOL (^)(int))consumeProgress error:(NSError * _Nullable __autoreleasing *)outError {
     auto matrixEvent = [event getNunchukEvent];
     try {
-        nunchukManager->nuMatrix->ConsumeSyncEvent(nunchukManager->nu, matrixEvent, [consumeProgress](int progress) {
-            return consumeProgress(progress);
-        });
-        return YES;
+        if (nunchukManager->nuMatrix) {
+            nunchukManager->nuMatrix->ConsumeSyncEvent(nunchukManager->nu, matrixEvent, [consumeProgress](int progress) {
+                return consumeProgress(progress);
+            });
+            return YES;
+        }
+        return NO;
     } catch (const BaseException& exception) {
         *outError = [[NSError alloc] initWithDomain:@"io.nunchuk.ios" code: exception.code() userInfo:@{@"message": [NSString stringWithUTF8String: exception.what()]}];
         return NO;
@@ -1217,10 +1241,13 @@ dispatch_semaphore_t semaphore;
 
 -(BOOL)consumeSyncFileWith:(NSString *)fileJsonInfo filePath:(NSString *)filePath withProgressBlock:(BOOL (^)(int))progressBlock error:(NSError * _Nullable __autoreleasing *)outError {
     try {
-        nunchukManager->nuMatrix->WriteFileCallback(nunchukManager->nu, [fileJsonInfo UTF8String], [filePath UTF8String], [progressBlock](int progress) {
-            return progressBlock(progress);
-        });
-        return YES;
+        if (nunchukManager->nuMatrix) {
+            nunchukManager->nuMatrix->WriteFileCallback(nunchukManager->nu, [fileJsonInfo UTF8String], [filePath UTF8String], [progressBlock](int progress) {
+                return progressBlock(progress);
+            });
+            return YES;
+        }
+        return NO;
     } catch (const BaseException& exception) {
         *outError = [[NSError alloc] initWithDomain:@"io.nunchuk.ios" code: exception.code() userInfo:@{@"message": [NSString stringWithUTF8String: exception.what()]}];
         return NO;
@@ -1233,11 +1260,14 @@ dispatch_semaphore_t semaphore;
 
 - (BOOL)registerAutoBackupWithRoomId:(NSString *)roomId accessToken:(NSString *)accessToken error:(NSError * _Nullable __autoreleasing *)outError {
     try {
-        self.syncRoomId = roomId;
-        nunchukManager->nuMatrix->RegisterAutoBackup(nunchukManager->nu,
-                                                     [roomId UTF8String],
-                                                     [accessToken UTF8String]);
-        return YES;
+        if (nunchukManager->nuMatrix) {
+            self.syncRoomId = roomId;
+            nunchukManager->nuMatrix->RegisterAutoBackup(nunchukManager->nu,
+                                                         [roomId UTF8String],
+                                                         [accessToken UTF8String]);
+            return YES;
+        }
+        return NO;
     } catch (const BaseException& exception) {
         *outError = [[NSError alloc] initWithDomain:@"io.nunchuk.ios" code: exception.code() userInfo:@{@"message": [NSString stringWithUTF8String: exception.what()]}];
         return NO;
@@ -1249,8 +1279,11 @@ dispatch_semaphore_t semaphore;
 
 - (BOOL)enableAutoBackup:(BOOL)enabled error:(NSError * _Nullable __autoreleasing *)outError {
     try {
-        nunchukManager->nuMatrix->EnableAutoBackup(enabled);
-        return YES;
+        if (nunchukManager->nuMatrix) {
+            nunchukManager->nuMatrix->EnableAutoBackup(enabled);
+            return YES;
+        }
+        return NO;
     } catch (const BaseException& exception) {
         *outError = [[NSError alloc] initWithDomain:@"io.nunchuk.ios" code: exception.code() userInfo:@{@"message": [NSString stringWithUTF8String: exception.what()]}];
         return NO;
@@ -1262,8 +1295,11 @@ dispatch_semaphore_t semaphore;
 
 - (BOOL)backupWithError:(NSError * _Nullable __autoreleasing *)outError {
     try {
-        nunchukManager->nuMatrix->Backup(nunchukManager->nu);
-        return YES;
+        if (nunchukManager->nuMatrix) {
+            nunchukManager->nuMatrix->Backup(nunchukManager->nu);
+            return YES;
+        }
+        return NO;
     } catch (const BaseException& exception) {
         *outError = [[NSError alloc] initWithDomain:@"io.nunchuk.ios" code: exception.code() userInfo:@{@"message": [NSString stringWithUTF8String: exception.what()]}];
         return NO;
@@ -1275,22 +1311,25 @@ dispatch_semaphore_t semaphore;
 
 -(BOOL)registerDownloadAndUploadFile:(NSError * _Nullable __autoreleasing *)outError {
     try {
-        nunchukManager->nuMatrix->RegisterFileFunc([self](const std::string& fileName, const std::string& mineType, const std::string& fileJsonInfo, const char* data, size_t dataLength) {
-            if (self.delegate && [self.delegate respondsToSelector:@selector(didReceiveUploadRequestWithRoomId:fileName:mineType:fileJsonInfo:data:)]) {
-                [self.delegate didReceiveUploadRequestWithRoomId:self.syncRoomId fileName:[NSString stringWithUTF8String:fileName.c_str()] mineType:[NSString stringWithUTF8String:fileName.c_str()] fileJsonInfo:[NSString stringWithUTF8String:fileJsonInfo.c_str()] data:[NSData dataWithBytes:data length:dataLength]];
-            }
-            return [@"" UTF8String];
-        }, [self](const std::string& fileName, const std::string& mineType, const std::string& fileJsonInfo, const std::string& mxcUri) {
-            if (self.delegate && [self.delegate respondsToSelector:@selector(didReceiveDownloadRequestWithFileName:mineType:fileJsonInfo:mxcUri:)]) {
-                [self.delegate didReceiveDownloadRequestWithFileName:[NSString stringWithUTF8String:fileName.c_str()]
-                                                            mineType:[NSString stringWithUTF8String:fileName.c_str()]
-                                                        fileJsonInfo:[NSString stringWithUTF8String:fileJsonInfo.c_str()]
-                                                              mxcUri:[NSString stringWithUTF8String:mxcUri.c_str()]];
-            }
-            std::vector<unsigned char> data;
-            return data;
-        });
-        return YES;
+        if (nunchukManager->nuMatrix) {
+            nunchukManager->nuMatrix->RegisterFileFunc([self](const std::string& fileName, const std::string& mineType, const std::string& fileJsonInfo, const char* data, size_t dataLength) {
+                if (self.delegate && [self.delegate respondsToSelector:@selector(didReceiveUploadRequestWithRoomId:fileName:mineType:fileJsonInfo:data:)]) {
+                    [self.delegate didReceiveUploadRequestWithRoomId:self.syncRoomId fileName:[NSString stringWithUTF8String:fileName.c_str()] mineType:[NSString stringWithUTF8String:fileName.c_str()] fileJsonInfo:[NSString stringWithUTF8String:fileJsonInfo.c_str()] data:[NSData dataWithBytes:data length:dataLength]];
+                }
+                return [@"" UTF8String];
+            }, [self](const std::string& fileName, const std::string& mineType, const std::string& fileJsonInfo, const std::string& mxcUri) {
+                if (self.delegate && [self.delegate respondsToSelector:@selector(didReceiveDownloadRequestWithFileName:mineType:fileJsonInfo:mxcUri:)]) {
+                    [self.delegate didReceiveDownloadRequestWithFileName:[NSString stringWithUTF8String:fileName.c_str()]
+                                                                mineType:[NSString stringWithUTF8String:fileName.c_str()]
+                                                            fileJsonInfo:[NSString stringWithUTF8String:fileJsonInfo.c_str()]
+                                                                  mxcUri:[NSString stringWithUTF8String:mxcUri.c_str()]];
+                }
+                std::vector<unsigned char> data;
+                return data;
+            });
+            return YES;
+        }
+        return NO;
     } catch (const BaseException& exception) {
         *outError = [[NSError alloc] initWithDomain:@"io.nunchuk.ios" code: exception.code() userInfo:@{@"message": [NSString stringWithUTF8String: exception.what()]}];
         return NO;
@@ -1302,8 +1341,11 @@ dispatch_semaphore_t semaphore;
 
 -(BOOL)backupFileWithFileJsonInfo:(NSString *)fileJsonInfo fileURL:(NSString *)fileURL error:(NSError * _Nullable __autoreleasing *)outError {
     try {
-        nunchukManager->nuMatrix->UploadFileCallback([fileJsonInfo UTF8String], [fileURL UTF8String]);
-        return YES;
+        if (nunchukManager->nuMatrix) {
+            nunchukManager->nuMatrix->UploadFileCallback([fileJsonInfo UTF8String], [fileURL UTF8String]);
+            return YES;
+        }
+        return NO;
     } catch (const BaseException& exception) {
         *outError = [[NSError alloc] initWithDomain:@"io.nunchuk.ios" code: exception.code() userInfo:@{@"message": [NSString stringWithUTF8String: exception.what()]}];
         return NO;
@@ -1325,8 +1367,11 @@ dispatch_semaphore_t semaphore;
         cInputs.push_back(cInput);
     }
     try {
-        auto event = nunchukManager->nuMatrix->InitTransaction(nunchukManager->nu, [roomId UTF8String], cOutputs, [memo UTF8String], cInputs, feeRate, subtractFeeFromAmount);
-        return [[ObjNunchukMatrixEvent alloc] initWithMatrixEvent:event];
+        if (nunchukManager->nuMatrix) {
+            auto event = nunchukManager->nuMatrix->InitTransaction(nunchukManager->nu, [roomId UTF8String], cOutputs, [memo UTF8String], cInputs, feeRate, subtractFeeFromAmount);
+            return [[ObjNunchukMatrixEvent alloc] initWithMatrixEvent:event];
+        }
+        return NULL;
     } catch (const BaseException& exception) {
         *outError = [[NSError alloc] initWithDomain:@"io.nunchuk.ios" code: exception.code() userInfo:@{@"message": [NSString stringWithUTF8String: exception.what()]}];
         return NULL;
@@ -1338,9 +1383,12 @@ dispatch_semaphore_t semaphore;
 
 -(ObjNunchukMatrixEvent *)signTransactionWithInitEventId:(NSString *)initEventId device:(ObjDevice *)device error:(NSError * _Nullable __autoreleasing *)outError {
     try {
-        auto cDevice = Device([device.type UTF8String], [device.path UTF8String], [device.model UTF8String], [device.masterFingerPrint UTF8String], device.needsPassPhraseSent, device.needsPinSent, device.initialized);
-        auto event = nunchukManager->nuMatrix->SignTransaction(nunchukManager->nu, [initEventId UTF8String], cDevice);
-        return [[ObjNunchukMatrixEvent alloc] initWithMatrixEvent:event];
+        if (nunchukManager->nuMatrix) {
+            auto cDevice = Device([device.type UTF8String], [device.path UTF8String], [device.model UTF8String], [device.masterFingerPrint UTF8String], device.needsPassPhraseSent, device.needsPinSent, device.initialized);
+            auto event = nunchukManager->nuMatrix->SignTransaction(nunchukManager->nu, [initEventId UTF8String], cDevice);
+            return [[ObjNunchukMatrixEvent alloc] initWithMatrixEvent:event];
+        }
+        return NULL;
     } catch (const BaseException& exception) {
         *outError = [[NSError alloc] initWithDomain:@"io.nunchuk.ios" code: exception.code() userInfo:@{@"message": [NSString stringWithUTF8String: exception.what()]}];
         return NULL;
@@ -1352,8 +1400,11 @@ dispatch_semaphore_t semaphore;
 
 -(ObjNunchukMatrixEvent *)rejectTransactionWithInitEventId:(NSString *)initEventId reason:(NSString *)reason error:(NSError * _Nullable __autoreleasing *)outError {
     try {
-        auto event = nunchukManager->nuMatrix->RejectTransaction([initEventId UTF8String], [reason UTF8String]);
-        return [[ObjNunchukMatrixEvent alloc] initWithMatrixEvent:event];
+        if (nunchukManager->nuMatrix) {
+            auto event = nunchukManager->nuMatrix->RejectTransaction([initEventId UTF8String], [reason UTF8String]);
+            return [[ObjNunchukMatrixEvent alloc] initWithMatrixEvent:event];
+        }
+        return NULL;
     } catch (const BaseException& exception) {
         *outError = [[NSError alloc] initWithDomain:@"io.nunchuk.ios" code: exception.code() userInfo:@{@"message": [NSString stringWithUTF8String: exception.what()]}];
         return NULL;
@@ -1365,8 +1416,11 @@ dispatch_semaphore_t semaphore;
 
 -(ObjNunchukMatrixEvent *)cancelTransactionWithInitEventId:(NSString *)initEventId reason:(NSString *)reason error:(NSError * _Nullable __autoreleasing *)outError {
     try {
-        auto event = nunchukManager->nuMatrix->CancelTransaction([initEventId UTF8String], [reason UTF8String]);
-        return [[ObjNunchukMatrixEvent alloc] initWithMatrixEvent:event];
+        if (nunchukManager->nuMatrix) {
+            auto event = nunchukManager->nuMatrix->CancelTransaction([initEventId UTF8String], [reason UTF8String]);
+            return [[ObjNunchukMatrixEvent alloc] initWithMatrixEvent:event];
+        }
+        return NULL;
     } catch (const BaseException& exception) {
         *outError = [[NSError alloc] initWithDomain:@"io.nunchuk.ios" code: exception.code() userInfo:@{@"message": [NSString stringWithUTF8String: exception.what()]}];
         return NULL;
@@ -1378,8 +1432,11 @@ dispatch_semaphore_t semaphore;
 
 -(ObjNunchukMatrixEvent *)broadcastTransactionWithInitEventId:(NSString *)initEventId error:(NSError * _Nullable __autoreleasing *)outError {
     try {
-        auto event = nunchukManager->nuMatrix->BroadcastTransaction(nunchukManager->nu, [initEventId UTF8String]);
-        return [[ObjNunchukMatrixEvent alloc] initWithMatrixEvent:event];
+        if (nunchukManager->nuMatrix) {
+            auto event = nunchukManager->nuMatrix->BroadcastTransaction(nunchukManager->nu, [initEventId UTF8String]);
+            return [[ObjNunchukMatrixEvent alloc] initWithMatrixEvent:event];
+        }
+        return NULL;
     } catch (const BaseException& exception) {
         *outError = [[NSError alloc] initWithDomain:@"io.nunchuk.ios" code: exception.code() userInfo:@{@"message": [NSString stringWithUTF8String: exception.what()]}];
         return NULL;
@@ -1391,8 +1448,11 @@ dispatch_semaphore_t semaphore;
 
 -(BOOL)enableGenerateReceiveEvent:(NSError * _Nullable __autoreleasing *)outError {
     try {
-        nunchukManager->nuMatrix->EnableGenerateReceiveEvent(nunchukManager->nu);
-        return YES;
+        if (nunchukManager->nuMatrix) {
+            nunchukManager->nuMatrix->EnableGenerateReceiveEvent(nunchukManager->nu);
+            return YES;
+        }
+        return NO;
     } catch (const BaseException& exception) {
         *outError = [[NSError alloc] initWithDomain:@"io.nunchuk.ios" code: exception.code() userInfo:@{@"message": [NSString stringWithUTF8String: exception.what()]}];
         return NO;
@@ -1404,13 +1464,16 @@ dispatch_semaphore_t semaphore;
 
 -(NSArray<ObjRoomTransaction *> *)getPendingTransactionsWithRoomId:(NSString *)roomId error:(NSError * _Nullable __autoreleasing *)outError {
     try {
-        NSMutableArray<ObjRoomTransaction *> *pendingTxs = [[NSMutableArray alloc] init];
-        auto cPendingTxs = nunchukManager->nuMatrix->GetPendingTransactions([roomId UTF8String]);
-        for (auto& cPendingTx : cPendingTxs) {
-            ObjRoomTransaction *pendingTx = [[ObjRoomTransaction alloc] initWithRoomTransaction: &cPendingTx];
-            [pendingTxs addObject: pendingTx];
+        if (nunchukManager->nuMatrix) {
+            NSMutableArray<ObjRoomTransaction *> *pendingTxs = [[NSMutableArray alloc] init];
+            auto cPendingTxs = nunchukManager->nuMatrix->GetPendingTransactions([roomId UTF8String]);
+            for (auto& cPendingTx : cPendingTxs) {
+                ObjRoomTransaction *pendingTx = [[ObjRoomTransaction alloc] initWithRoomTransaction: &cPendingTx];
+                [pendingTxs addObject: pendingTx];
+            }
+            return pendingTxs;
         }
-        return pendingTxs;
+        return NULL;
     } catch (const BaseException& exception) {
         *outError = [[NSError alloc] initWithDomain:@"io.nunchuk.ios" code: exception.code() userInfo:@{@"message": [NSString stringWithUTF8String: exception.what()]}];
         return NULL;
@@ -1422,8 +1485,11 @@ dispatch_semaphore_t semaphore;
 
 -(ObjRoomTransaction *)getRoomTransactionWithInitEventId:(NSString *)initEventId error:(NSError * _Nullable __autoreleasing *)outError {
     try {
-        auto roomTx = nunchukManager->nuMatrix->GetRoomTransaction([initEventId UTF8String]);
-        return [[ObjRoomTransaction alloc] initWithRoomTransaction:&roomTx];
+        if (nunchukManager->nuMatrix) {
+            auto roomTx = nunchukManager->nuMatrix->GetRoomTransaction([initEventId UTF8String]);
+            return [[ObjRoomTransaction alloc] initWithRoomTransaction:&roomTx];
+        }
+        return NULL;
     }
     catch (const BaseException& exception) {
         *outError = [[NSError alloc] initWithDomain:@"io.nunchuk.ios" code: exception.code() userInfo:@{@"message": [NSString stringWithUTF8String: exception.what()]}];
@@ -1436,8 +1502,11 @@ dispatch_semaphore_t semaphore;
 
 -(NSString *)getTransactionIdWithEventId:(NSString *)eventId error:(NSError * _Nullable __autoreleasing *)outError {
     try {
-        auto txId = nunchukManager->nuMatrix->GetTransactionId([eventId UTF8String]);
-        return [NSString stringWithUTF8String:txId.c_str()];
+        if (nunchukManager->nuMatrix) {
+            auto txId = nunchukManager->nuMatrix->GetTransactionId([eventId UTF8String]);
+            return [NSString stringWithUTF8String:txId.c_str()];
+        }
+        return NULL;
     } catch (const BaseException& exception) {
         *outError = [[NSError alloc] initWithDomain:@"io.nunchuk.ios" code: exception.code() userInfo:@{@"message": [NSString stringWithUTF8String: exception.what()]}];
         return NULL;
@@ -1553,12 +1622,15 @@ dispatch_semaphore_t semaphore;
 
 - (NSArray<ObjRoomWallet *> *)getAllRoomWallets:(NSError * _Nullable __autoreleasing *)outError {
     try {
-        NSMutableArray *result = [[NSMutableArray alloc] init];
-        auto roomWallets = nunchukManager->nuMatrix->GetAllRoomWallets();
-        for (auto &roomWallet: roomWallets) {
-            [result addObject: [[ObjRoomWallet alloc] initWithRoomWallet: &roomWallet]];
+        if (nunchukManager->nuMatrix) {
+            NSMutableArray *result = [[NSMutableArray alloc] init];
+            auto roomWallets = nunchukManager->nuMatrix->GetAllRoomWallets();
+            for (auto &roomWallet: roomWallets) {
+                [result addObject: [[ObjRoomWallet alloc] initWithRoomWallet: &roomWallet]];
+            }
+            return result;
         }
-        return result;
+        return NULL;
     } catch (const BaseException& exception) {
         *outError = [[NSError alloc] initWithDomain:@"io.nunchuk.ios" code: exception.code() userInfo:@{@"message": [NSString stringWithUTF8String: exception.what()]}];
         return NULL;
@@ -1796,8 +1868,11 @@ dispatch_semaphore_t semaphore;
                message:(NSString *)message
                  error:(NSError **)error {
     try {
-        nunchukManager->nuMatrix->SendErrorEvent([roomId UTF8String], [platform UTF8String], [code UTF8String], [message UTF8String]);
-        return YES;
+        if (nunchukManager->nuMatrix) {
+            nunchukManager->nuMatrix->SendErrorEvent([roomId UTF8String], [platform UTF8String], [code UTF8String], [message UTF8String]);
+            return YES;
+        }
+        return NO;
     } catch (const BaseException& exception) {
         *error = [[NSError alloc] initWithDomain:@"io.nunchuk.ios" code: exception.code() userInfo:@{@"message": [NSString stringWithUTF8String: exception.what()]}];
         return NO;
@@ -1832,7 +1907,10 @@ dispatch_semaphore_t semaphore;
 
 - (BOOL)hasRoomWallet:(NSString *)roomId {
     try {
-        return nunchukManager->nuMatrix->HasRoomWallet([roomId UTF8String]);
+        if (nunchukManager->nuMatrix) {
+            return nunchukManager->nuMatrix->HasRoomWallet([roomId UTF8String]);
+        }
+        return NO;
     } catch (const std::exception& exception) {
         return NO;
     }
@@ -1862,19 +1940,22 @@ dispatch_semaphore_t semaphore;
 
 - (ObjNunchukMatrixEvent *)recoverSharedWallet:(NSString *)roomId name:(NSString *)name wallet:(ObjWallet *)wallet error:(NSError **)error {
     try {
-        AddressType addressType = [self addressTypeFromString:wallet.addressType];
-        std::vector<SingleSigner> signers;
-        for(unsigned long i = 0; i < wallet.signers.count; i++) {
-            if ([[wallet.signers objectAtIndex:i] isKindOfClass:[ObjSingleSigner class]]) {
-                ObjSingleSigner *rmSigner = [wallet.signers objectAtIndex:i];
-                auto signer = SingleSigner(std::string([rmSigner.signerName UTF8String]), std::string([rmSigner.xpub UTF8String]), std::string([rmSigner.publicKey UTF8String]), std::string([rmSigner.bip32Path UTF8String]), std::string([rmSigner.masterFingerPrint UTF8String]), false);
-                signer.set_type([self parseObjCSignerType:rmSigner.type]);
-                signers.push_back(signer);
+        if (nunchukManager->nuMatrix) {
+            AddressType addressType = [self addressTypeFromString:wallet.addressType];
+            std::vector<SingleSigner> signers;
+            for(unsigned long i = 0; i < wallet.signers.count; i++) {
+                if ([[wallet.signers objectAtIndex:i] isKindOfClass:[ObjSingleSigner class]]) {
+                    ObjSingleSigner *rmSigner = [wallet.signers objectAtIndex:i];
+                    auto signer = SingleSigner(std::string([rmSigner.signerName UTF8String]), std::string([rmSigner.xpub UTF8String]), std::string([rmSigner.publicKey UTF8String]), std::string([rmSigner.bip32Path UTF8String]), std::string([rmSigner.masterFingerPrint UTF8String]), false);
+                    signer.set_type([self parseObjCSignerType:rmSigner.type]);
+                    signers.push_back(signer);
+                }
             }
+            
+            auto event = nunchukManager->nuMatrix->InitWallet([roomId UTF8String], [name UTF8String], wallet.m, wallet.n, addressType, wallet.isEscrow, [wallet.desc UTF8String], signers);
+            return [[ObjNunchukMatrixEvent alloc] initWithMatrixEvent:event];
         }
-        
-        auto event = nunchukManager->nuMatrix->InitWallet([roomId UTF8String], [name UTF8String], wallet.m, wallet.n, addressType, wallet.isEscrow, [wallet.desc UTF8String], signers);
-        return [[ObjNunchukMatrixEvent alloc] initWithMatrixEvent:event];
+        return NULL;
     } catch (const BaseException& exception) {
         *error = [[NSError alloc] initWithDomain:@"io.nunchuk.ios" code: exception.code() userInfo:@{@"message": [NSString stringWithUTF8String: exception.what()]}];
         return NULL;
@@ -1977,8 +2058,11 @@ dispatch_semaphore_t semaphore;
 
 - (ObjNunchukMatrixEvent *)signAirgapTransactionWithInitEventId:(NSString *)initEventId masterFingerprint:(NSString *)masterFingerprint error:(NSError * _Nullable __autoreleasing *)error {
     try {
-        auto event = nunchukManager->nuMatrix->SignAirgapTransaction(nunchukManager->nu, [initEventId UTF8String], [masterFingerprint UTF8String]);
-        return [[ObjNunchukMatrixEvent alloc] initWithMatrixEvent:event];
+        if (nunchukManager->nuMatrix) {
+            auto event = nunchukManager->nuMatrix->SignAirgapTransaction(nunchukManager->nu, [initEventId UTF8String], [masterFingerprint UTF8String]);
+            return [[ObjNunchukMatrixEvent alloc] initWithMatrixEvent:event];
+        }
+        return NULL;
     } catch (const BaseException& exception) {
         *error = [[NSError alloc] initWithDomain:@"io.nunchuk.ios" code: exception.code() userInfo:@{@"message": [NSString stringWithUTF8String: exception.what()]}];
         return NULL;
@@ -2323,21 +2407,24 @@ dispatch_semaphore_t semaphore;
 
 - (ObjNunchukMatrixEvent *)signTapsignerTransactionWithInitEventId:(NSString *_Nonnull)initEventId cvc:(NSString *_Nonnull)cvc walletId:(NSString *_Nonnull)walletId txId:(NSString *_Nonnull)txId error:(NSError **)error {
     try {
-        std::unique_ptr<Tapsigner> card = [self createTapsignerWithError:error];
-        if (*error != NULL) {
-            if ((*error).code == TapProtocolException::RATE_LIMIT) {
-                if (![self waitTapsigner:card.get() error:error]) {
+        if (nunchukManager->nuMatrix) {
+            std::unique_ptr<Tapsigner> card = [self createTapsignerWithError:error];
+            if (*error != NULL) {
+                if ((*error).code == TapProtocolException::RATE_LIMIT) {
+                    if (![self waitTapsigner:card.get() error:error]) {
+                        [self invalidateSessionWithError:*error];
+                        return NULL;
+                    }
+                } else {
                     [self invalidateSessionWithError:*error];
                     return NULL;
                 }
-            } else {
-                [self invalidateSessionWithError:*error];
-                return NULL;
             }
+            auto event = nunchukManager->nuMatrix->SignTapsignerTransaction(nunchukManager->nu, [initEventId UTF8String], card.get(), [cvc UTF8String]);
+            [self invalidateSessionWithError:NULL];
+            return [[ObjNunchukMatrixEvent alloc] initWithMatrixEvent:event];
         }
-        auto event = nunchukManager->nuMatrix->SignTapsignerTransaction(nunchukManager->nu, [initEventId UTF8String], card.get(), [cvc UTF8String]);
-        [self invalidateSessionWithError:NULL];
-        return [[ObjNunchukMatrixEvent alloc] initWithMatrixEvent:event];
+        return NULL;
     } catch (const BaseException& exception) {
         *error = [self handleNFCException:exception];
         return NULL;

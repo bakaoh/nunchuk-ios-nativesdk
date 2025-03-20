@@ -7,6 +7,12 @@
 
 #ifndef ObjWallet_h
 #define ObjWallet_h
+
+typedef enum NunchukWalletTemplate {
+    DEFAULT,
+    DISABLE_KEY_PATH
+} NunchukWalletTemplate;
+
 @interface ObjWallet : NSObject
 @property(nonatomic, strong, nullable) NSString* walletName;
 @property(nonatomic, strong, nonnull) NSString* walletId;
@@ -22,6 +28,8 @@
 @property(nonatomic, strong, nullable) NSString *type;
 @property(nonatomic) int gapLimit;
 @property(nonatomic) BOOL isNeedBackup;
+@property(nonatomic, assign) NunchukWalletTemplate walletTemplate;
+
 @end
 
 #endif /* ObjWallet_h */

@@ -233,6 +233,30 @@ dispatch_semaphore_t semaphore;
     }
 }
 
+- (NSString *)createTaprootWalletWithName:(NSString *)name numberKey:(int)numberKey signers:(NSMutableArray *)signers type:(NSString *)type valueKeyEnabled:(BOOL)valueKeyEnabled error:(NSError * _Nullable __autoreleasing *)error {
+    try {
+        std::vector<SingleSigner> remoteSigners;
+        for(unsigned long i = 0; i < signers.count; i++) {
+            if ([[signers objectAtIndex:i] isKindOfClass:[ObjSingleSigner class]]) {
+                ObjSingleSigner *rmSigner = [signers objectAtIndex:i];
+                auto signer = SingleSigner(std::string([rmSigner.signerName UTF8String]), std::string([rmSigner.xpub UTF8String]), std::string([rmSigner.publicKey UTF8String]), std::string([rmSigner.bip32Path UTF8String]), std::string([rmSigner.masterFingerPrint UTF8String]), false);
+                signer.set_type([self parseObjCSignerType:rmSigner.type]);
+                remoteSigners.push_back(signer);
+            }
+        }
+        WalletType wallet_type = [self walletTypeFromString:type];
+        WalletTemplate walletTemplate = valueKeyEnabled ? WalletTemplate::DEFAULT : WalletTemplate::DISABLE_KEY_PATH;
+        auto wallet = nunchukManager->nu->CreateWallet([name UTF8String], numberKey, [signers count], remoteSigners, AddressType::TAPROOT, wallet_type == WalletType::ESCROW, [@"" UTF8String], false, [@"" UTF8String], walletTemplate);
+        return [NSString stringWithUTF8String:wallet.get_id().c_str()];
+    } catch (const BaseException& exception) {
+        *error = [[NSError alloc] initWithDomain:@"io.nunchuk.ios" code: exception.code() userInfo:@{@"message": [NSString stringWithUTF8String: exception.what()]}];
+        return NULL;
+    } catch (const std::exception& exception) {
+        *error = [[NSError alloc] initWithDomain:@"io.nunchuk.ios" code: NunchukSDKErrorUndefined userInfo:@{@"message": [NSString stringWithUTF8String: exception.what()]}];
+        return NULL;
+    }
+}
+
 - (ObjWallet *)createDecoyWallet:(NSString *)name numberKey:(int)numberKey signers:(NSMutableArray *)signers addressType:(NSString *)addressType type:(NSString *)type pin:(NSString *)pin error:(NSError * _Nullable __autoreleasing *)error {
     try {
         [self createDecoyWallet:pin];

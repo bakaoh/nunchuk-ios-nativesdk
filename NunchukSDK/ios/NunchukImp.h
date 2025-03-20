@@ -99,6 +99,7 @@ extern const int FEE_RATE_ECONOMICAL;
 @property (nonatomic, weak)id <NunchukSDKDelegate> _Nullable delegate;
 -(BOOL)importWallet:(NSBundle*_Nonnull)bundle error:(NSError * _Nullable * _Nullable)outError;
 -(NSString* _Nullable)createWalletWithName:(NSString* _Nullable)name numberKey:(int)numberKey signers:(NSMutableArray * _Nonnull)signers addressType:(NSString *_Nonnull)addressType type:(NSString *_Nonnull)type error:(NSError * _Nullable * _Nullable)outError;
+- (NSString *_Nullable)createTaprootWalletWithName:(NSString *_Nonnull)name numberKey:(int)numberKey signers:(NSMutableArray *_Nonnull)signers type:(NSString *_Nonnull)type valueKeyEnabled:(BOOL)valueKeyEnabled error:(NSError *_Nullable*_Nullable)error;
 - (ObjWallet *_Nullable)createDecoyWallet:(NSString *_Nonnull)name numberKey:(int)numberKey signers:(NSMutableArray *_Nonnull)signers addressType:(NSString *_Nonnull)addressType type:(NSString *_Nonnull)type pin:(NSString *_Nonnull)pin error:(NSError *_Nullable*_Nullable)error;
 - (ObjWallet *_Nullable)createDecoyWallet:(NSString *_Nonnull)pin fromWalletId:(NSString *_Nonnull)walletId error:(NSError *_Nullable*_Nullable)error;
 -(ObjWallet* _Nullable)createHotWallet:(NSString * _Nonnull)passphrase error:(NSError * _Nullable * _Nullable)outError;

@@ -22,15 +22,16 @@ using namespace nunchuk;
     (NSString * _Nonnull) addressType : (NSDate* _Nonnull) createdAt : (NSString *) messageToSign : (int) m : (int) n : (int) gapLimit {
     ObjWallet * wallet = [[ObjWallet alloc] init];
     
-    wallet->_walletName = walletName;
-    wallet->_desc = desc;
-    wallet->_createdAt = createdAt;
-    wallet->_messageToSign = messageToSign;
-    wallet->_m = m;
-    wallet->_n = n;
-    wallet->_walletId = walletId;
-    wallet->_gapLimit = gapLimit;
-    wallet->_isNeedBackup = NO;
+    wallet.walletName = walletName;
+    wallet.desc = desc;
+    wallet.createdAt = createdAt;
+    wallet.messageToSign = messageToSign;
+    wallet.m = m;
+    wallet.n = n;
+    wallet.walletId = walletId;
+    wallet.gapLimit = gapLimit;
+    wallet.isNeedBackup = NO;
+    wallet.walletTemplate = DEFAULT;
     return wallet;
 }
 
@@ -74,7 +75,15 @@ using namespace nunchuk;
     objWallet.type = [self walletTypeStringFrom:wallet->get_wallet_type()];
     objWallet.gapLimit = wallet->get_gap_limit();
     objWallet.isNeedBackup = wallet->need_backup();
-    
+    auto wTemplate = wallet->get_wallet_template();
+    switch (wTemplate) {
+        case WalletTemplate::DEFAULT:
+            objWallet.walletTemplate = DEFAULT;
+            break;
+        case WalletTemplate::DISABLE_KEY_PATH:
+            objWallet.walletTemplate = DISABLE_KEY_PATH;
+            break;
+    }
     return objWallet;
 }
 

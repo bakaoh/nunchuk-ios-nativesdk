@@ -5334,4 +5334,17 @@ dispatch_semaphore_t semaphore;
     });
 }
 
+- (BOOL)exportTransactionHistoryWithWalletId:(NSString *)walletId filePath:(NSString *)filePath format:(NunchukExportFormat)format error:(NSError **)error {
+    try {
+        auto exportFormat = [self parseExportFormat:format];
+        return nunchukManager->nu->ExportTransactionHistory([walletId UTF8String], [filePath UTF8String], exportFormat);
+    } catch (const std::exception &e) {
+        NSLog(@"[NunchukImp] exportTransactionHistoryWithWalletId exception: %s", e.what());
+        if (error) {
+            *error = [NSError errorWithDomain:@"NunchukImp" code:NunchukSDKErrorUndefined userInfo:@{NSLocalizedDescriptionKey: [NSString stringWithFormat:@"%s", e.what()]}];
+        }
+        return NO;
+    }
+}
+
 @end

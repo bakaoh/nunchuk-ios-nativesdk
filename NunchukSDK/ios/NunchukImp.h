@@ -425,5 +425,7 @@ extern const int FEE_RATE_ECONOMICAL;
 // Add listener for replacement requests
 - (void)observeReplaceRequest;
 
+- (BOOL)exportTransactionHistoryWithWalletId:(NSString *_Nonnull)walletId filePath:(NSString *_Nonnull)filePath format:(NunchukExportFormat)format error:(NSError *_Nullable*_Nullable)error;
+
 @end
 #endif

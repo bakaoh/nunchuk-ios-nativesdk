@@ -5347,4 +5347,22 @@ dispatch_semaphore_t semaphore;
     }
 }
 
+- (NSNumber *)getScriptPathFeeRateWithWalletId:(NSString *)walletId transaction:(ObjTransaction *)transaction error:(NSError **)error {
+    try {
+        auto wallet = nunchukManager->nu->GetWallet([walletId UTF8String]);
+        UInt64 subAmount = transaction.subAmount;
+        UInt64 fee = transaction.fee;
+        UInt64 feeRate = transaction.feeRate;
+        Transaction tx = Utils::DecodeTx(wallet, [transaction.psbt UTF8String], subAmount, fee, feeRate);
+        Amount scriptPathFeeRate = nunchukManager->nu->GetScriptPathFeeRate([walletId UTF8String], tx);
+        return [NSNumber numberWithLongLong:scriptPathFeeRate];
+    } catch (const std::exception &e) {
+        NSLog(@"[NunchukImp] getScriptPathFeeRateWithWalletId exception: %s", e.what());
+        if (error) {
+            *error = [NSError errorWithDomain:@"NunchukImp" code:NunchukSDKErrorUndefined userInfo:@{NSLocalizedDescriptionKey: [NSString stringWithFormat:@"%s", e.what()]}];
+        }
+        return nil;
+    }
+}
+
 @end

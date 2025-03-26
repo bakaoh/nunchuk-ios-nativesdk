@@ -427,5 +427,7 @@ extern const int FEE_RATE_ECONOMICAL;
 
 - (BOOL)exportTransactionHistoryWithWalletId:(NSString *_Nonnull)walletId filePath:(NSString *_Nonnull)filePath format:(NunchukExportFormat)format error:(NSError *_Nullable*_Nullable)error;
 
+- (NSNumber *_Nullable)getScriptPathFeeRateWithWalletId:(NSString *_Nonnull)walletId transaction:(ObjTransaction *_Nonnull)transaction error:(NSError *_Nullable*_Nullable)error;
+
 @end
 #endif

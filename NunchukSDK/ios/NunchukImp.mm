@@ -638,6 +638,54 @@ dispatch_semaphore_t semaphore;
     }
 }
 
+- (ObjMasterSigner *)createHotKeyWithName:(NSString *)name error:(NSError **)error {
+    std::function<bool(int)> callback = [](int percent) {
+        return true;
+    };
+    try {
+        auto mnemonic = Utils::GenerateMnemonic();
+        auto signer = nunchukManager->nu->CreateSoftwareSigner([name UTF8String], mnemonic, [@"" UTF8String], callback);
+        signer.set_need_backup(true);
+        nunchukManager->nu->UpdateMasterSigner(signer);
+        return [[ObjMasterSigner alloc] initWithMasterSigner: &signer];
+    } catch (const BaseException& exception) {
+        *error = [[NSError alloc] initWithDomain:@"io.nunchuk.ios" code: exception.code() userInfo:@{@"message": [NSString stringWithUTF8String: exception.what()]}];
+        return NULL;
+    } catch (const std::exception& exception) {
+        *error = [[NSError alloc] initWithDomain:@"io.nunchuk.ios" code: NunchukSDKErrorUndefined userInfo:@{@"message": [NSString stringWithUTF8String: exception.what()]}];
+        return NULL;
+    }
+}
+
+- (NSString *)getHotKeyMnemonicWithSignerId:(NSString *)signerId error:(NSError **)error {
+    try {
+        return [NSString stringWithUTF8String: nunchukManager->nu->GetHotKeyMnemonic([signerId UTF8String]).c_str()];
+    } catch (const BaseException& exception) {
+        *error = [[NSError alloc] initWithDomain:@"io.nunchuk.ios" code: exception.code() userInfo:@{@"message": [NSString stringWithUTF8String: exception.what()]}];
+        return NULL;
+    } catch (const std::exception& exception) {
+        *error = [[NSError alloc] initWithDomain:@"io.nunchuk.ios" code: NunchukSDKErrorUndefined userInfo:@{@"message": [NSString stringWithUTF8String: exception.what()]}];
+        return NULL;
+    }
+}
+
+- (BOOL)setSignerNeedBackup:(NSString *)signerId needBackup:(BOOL)needBackup error:(NSError **)error {
+    try {
+        auto signer = nunchukManager->nu->GetMasterSigner([signerId UTF8String]);
+        if (signer.need_backup()) {
+            signer.set_need_backup(needBackup);
+            nunchukManager->nu->UpdateMasterSigner(signer);
+        }
+        return YES;
+    } catch (const BaseException& exception) {
+        *error = [[NSError alloc] initWithDomain:@"io.nunchuk.ios" code: exception.code() userInfo:@{@"message": [NSString stringWithUTF8String: exception.what()]}];
+        return NO;
+    } catch (const std::exception& exception) {
+        *error = [[NSError alloc] initWithDomain:@"io.nunchuk.ios" code: NunchukSDKErrorUndefined userInfo:@{@"message": [NSString stringWithUTF8String: exception.what()]}];
+        return NO;
+    }
+}
+
 - (ObjMasterSigner *)createSoftwareSignerFromMasterXprv:(NSString *)xprv name:(NSString *)name replace:(BOOL)replace error:(NSError * _Nullable __autoreleasing *)error {
     std::function<bool(int)> callback = [](int percent) {
         return true;

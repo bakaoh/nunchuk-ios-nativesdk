@@ -14,7 +14,7 @@
 using namespace nunchuk;
 @implementation ObjMasterSigner {
 }
-- (instancetype _Nonnull) initWithName: (NSString *)signerName signerId: (NSString *)signerId device: (ObjDevice *)device lastTimeHealthCheck: (bool)lastTimeHealthCheck isSoftware: (bool)isSoftware signerType: (SignerType)signerType inheritable: (BOOL)inheritable tags:(NSArray *)tags isVisible:(BOOL)isVisible {
+- (instancetype _Nonnull) initWithName: (NSString *)signerName signerId: (NSString *)signerId device: (ObjDevice *)device lastTimeHealthCheck: (bool)lastTimeHealthCheck isSoftware: (bool)isSoftware signerType: (SignerType)signerType inheritable: (BOOL)inheritable tags:(NSArray *)tags isVisible:(BOOL)isVisible needBackup:(BOOL)needBackup {
     ObjMasterSigner * signer = [[ObjMasterSigner alloc] init];
     signer.signerName = signerName;
     signer.signerId = signerId;
@@ -25,6 +25,7 @@ using namespace nunchuk;
     signer.inheritable = inheritable;
     signer.tags = tags;
     signer.isVisible = isVisible;
+    signer.needBackup = needBackup;
     return signer;
 }
 
@@ -41,7 +42,8 @@ using namespace nunchuk;
         [tags addObject:[NSString stringWithUTF8String:SignerTagToStr(tag).c_str()]];
     }
     BOOL isVisible = masterSigner->is_visible();
-    return [[ObjMasterSigner alloc] initWithName:name signerId:signerId device:device lastTimeHealthCheck:lastTimeHealthCheck isSoftware:isSoftware signerType:masterSigner->get_type() inheritable:inheritable tags:tags isVisible:isVisible];
+    BOOL needBackup = masterSigner->need_backup();
+    return [[ObjMasterSigner alloc] initWithName:name signerId:signerId device:device lastTimeHealthCheck:lastTimeHealthCheck isSoftware:isSoftware signerType:masterSigner->get_type() inheritable:inheritable tags:tags isVisible:isVisible needBackup:needBackup];
 }
 
 - (ObjCSignerType)parseSignerType:(SignerType)signerType {

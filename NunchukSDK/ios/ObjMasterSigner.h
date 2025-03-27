@@ -32,6 +32,7 @@ typedef enum ObjCSignerType {
 @property(nonatomic) bool inheritable;
 @property(nonatomic, strong, nonnull) NSArray *tags;
 @property(nonatomic, assign) BOOL isVisible;
+@property(nonatomic, assign) BOOL needBackup;
 
 @end
 #endif /* ObjMasterSigner_h */

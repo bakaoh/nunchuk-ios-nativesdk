@@ -672,10 +672,8 @@ dispatch_semaphore_t semaphore;
 - (BOOL)setSignerNeedBackup:(NSString *)signerId needBackup:(BOOL)needBackup error:(NSError **)error {
     try {
         auto signer = nunchukManager->nu->GetMasterSigner([signerId UTF8String]);
-        if (signer.need_backup()) {
-            signer.set_need_backup(needBackup);
-            nunchukManager->nu->UpdateMasterSigner(signer);
-        }
+        signer.set_need_backup(needBackup);
+        nunchukManager->nu->UpdateMasterSigner(signer);
         return YES;
     } catch (const BaseException& exception) {
         *error = [[NSError alloc] initWithDomain:@"io.nunchuk.ios" code: exception.code() userInfo:@{@"message": [NSString stringWithUTF8String: exception.what()]}];

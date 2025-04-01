@@ -657,6 +657,25 @@ dispatch_semaphore_t semaphore;
     }
 }
 
+- (ObjMasterSigner *)create12WordsHotKeyWithName:(NSString *)name error:(NSError **)error {
+    std::function<bool(int)> callback = [](int percent) {
+        return true;
+    };
+    try {
+        auto mnemonic = Utils::GenerateMnemonic12Words();
+        auto signer = nunchukManager->nu->CreateSoftwareSigner([name UTF8String], mnemonic, [@"" UTF8String], callback);
+        signer.set_need_backup(true);
+        nunchukManager->nu->UpdateMasterSigner(signer);
+        return [[ObjMasterSigner alloc] initWithMasterSigner: &signer];
+    } catch (const BaseException& exception) {
+        *error = [[NSError alloc] initWithDomain:@"io.nunchuk.ios" code: exception.code() userInfo:@{@"message": [NSString stringWithUTF8String: exception.what()]}];
+        return NULL;
+    } catch (const std::exception& exception) {
+        *error = [[NSError alloc] initWithDomain:@"io.nunchuk.ios" code: NunchukSDKErrorUndefined userInfo:@{@"message": [NSString stringWithUTF8String: exception.what()]}];
+        return NULL;
+    }
+}
+
 - (NSString *)getHotKeyMnemonicWithSignerId:(NSString *)signerId error:(NSError **)error {
     try {
         return [NSString stringWithUTF8String: nunchukManager->nu->GetHotKeyMnemonic([signerId UTF8String]).c_str()];

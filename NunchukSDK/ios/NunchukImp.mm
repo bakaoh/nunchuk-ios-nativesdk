@@ -2777,7 +2777,6 @@ dispatch_semaphore_t semaphore;
     NSError *error = [NSError errorWithDomain:@"io.nunchuk.ios" code: exception.code() userInfo:@{@"message": [NSString stringWithUTF8String: exception.what()]}];
     [self invalidateSessionWithError:error];
     return error;
-    
 }
 
 - (NSString *)healthStatusToString:(KeyHealthStatus)status {
@@ -3756,15 +3755,19 @@ dispatch_semaphore_t semaphore;
 
 // MARK: - NFC
 - (void)invalidateSessionWithError:(NSError *_Nullable)error {
+    // IMPORTANT: Setting an empty alert message first prevents the NFC error messages from being cut off.
+    // This resolves UI issues with long error messages that would otherwise be truncated.
+    [self.session setAlertMessage:@""];
     if (error == NULL) {
-        [self.session setAlertMessage:@""];
         [self.session invalidateSession];
     } else {
-        if (error.code == -6100) {
-            [self.session invalidateSessionWithErrorMessage:@"Card ID does not match. Please try a different card."];
-            return;
+        NSString *errorMessage = error.userInfo[@"message"];
+        if (errorMessage.length == 0) {
+            errorMessage = error.localizedDescription;
         }
-        [self.session invalidateSessionWithErrorMessage:error.userInfo[@"message"]];
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.6 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            [self.session invalidateSessionWithErrorMessage:errorMessage];
+        });
     }
 }
 

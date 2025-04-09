@@ -3634,16 +3634,6 @@ dispatch_semaphore_t semaphore;
         auto wl = Wallet([wallet.walletId UTF8String], wallet.m, wallet.n, remoteSigners, addressType, wallet.isEscrow, [wallet.createdAt timeIntervalSince1970]);
         auto newWallet = nunchukManager->nu->CreateWallet(wl, true);
         newWallet.set_name([name UTF8String]);
-        auto wTemplate = WalletTemplate::DEFAULT;
-        switch (wallet.walletTemplate) {
-            case DEFAULT:
-                wTemplate = WalletTemplate::DEFAULT;
-                break;
-            case DISABLE_KEY_PATH:
-                wTemplate = WalletTemplate::DISABLE_KEY_PATH;
-                break;
-        }
-        newWallet.set_wallet_template(wTemplate);
         nunchukManager->nu->UpdateWallet(newWallet);
         return [[ObjWallet alloc] initWithWallet:&newWallet];
     } catch (const BaseException& exception) {

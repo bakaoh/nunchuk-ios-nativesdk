@@ -618,6 +618,21 @@ dispatch_semaphore_t semaphore;
     }
 }
 
+- (BOOL)setWalletArchive:(NSString *)walletId isArchive:(BOOL)isArchive error:(NSError * _Nullable __autoreleasing *)outError {
+    try {
+        auto wallet = nunchukManager->nu->GetWallet([walletId UTF8String]);
+        wallet.set_archived(isArchive);
+        nunchukManager->nu->UpdateWallet(wallet);
+        return YES;
+    } catch (const BaseException& exception) {
+        *outError = [[NSError alloc] initWithDomain:@"io.nunchuk.ios" code: exception.code() userInfo:@{@"message": [NSString stringWithUTF8String: exception.what()]}];
+        return NO;
+    } catch (const std::exception& exception) {
+        *outError = [[NSError alloc] initWithDomain:@"io.nunchuk.ios" code: NunchukSDKErrorUndefined userInfo:@{@"message": [NSString stringWithUTF8String: exception.what()]}];
+        return NO;
+    }
+}
+
 -(ObjMasterSigner *)createSoftwareSignerWithName:(NSString *)raw_name mnemonic:(NSString *)mnemonic passphrase:(NSString *)passphrase replace:(BOOL)replace error:(NSError * _Nullable __autoreleasing *)outError {
     std::function<bool(int)> callback = [](int percent) {
         return true;

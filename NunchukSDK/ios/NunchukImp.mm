@@ -886,7 +886,7 @@ dispatch_semaphore_t semaphore;
     }
 }
 
--(ObjTransaction *)createTransactionWithWalletId:(NSString *)walletId outputs:(NSArray<StringIntPair *> *)outputs memo:(NSString *)memo feeRate:(long)feeRate subtractFeeFromAmount:(BOOL)subtractFeeFromAmount inputs:(NSArray *)inputs error:(NSError * _Nullable __autoreleasing *)outError {
+-(ObjTransaction *)createTransactionWithWalletId:(NSString *)walletId outputs:(NSArray<StringIntPair *> *)outputs memo:(NSString *)memo feeRate:(long)feeRate subtractFeeFromAmount:(BOOL)subtractFeeFromAmount inputs:(NSArray *)inputs antiFeeSniping:(BOOL)antiFeeSniping error:(NSError * _Nullable __autoreleasing *)outError {
     std::map<std::string, Amount> cOutputs;
     
     for(NSUInteger i = 0; i < outputs.count; i++) {
@@ -901,7 +901,7 @@ dispatch_semaphore_t semaphore;
     }
     
     try {
-        auto createTx = nunchukManager->nu->CreateTransaction(std::string([walletId UTF8String]), cOutputs, [memo UTF8String], coinInputs, feeRate, subtractFeeFromAmount);
+        auto createTx = nunchukManager->nu->CreateTransaction(std::string([walletId UTF8String]), cOutputs, [memo UTF8String], coinInputs, feeRate, subtractFeeFromAmount, {}, antiFeeSniping);
         auto tx = nunchukManager->nu->GetTransaction([walletId UTF8String], createTx.get_txid());
         return [[ObjTransaction alloc] initWithTransaction:&tx];
     } catch (const BaseException& exception) {
@@ -2111,9 +2111,9 @@ dispatch_semaphore_t semaphore;
     }
 }
 
-- (ObjTransaction *)replaceTransaction:(NSString *)transactionId walletId:(NSString *)walletId newFeeRate:(long)newFeeRate error:(NSError **)error {
+- (ObjTransaction *)replaceTransaction:(NSString *)transactionId walletId:(NSString *)walletId newFeeRate:(long)newFeeRate antiFeeSniping:(BOOL)antiFeeSniping error:(NSError **)error {
     try {
-        auto tx = nunchukManager->nu->ReplaceTransaction([walletId UTF8String], [transactionId UTF8String], newFeeRate);
+        auto tx = nunchukManager->nu->ReplaceTransaction([walletId UTF8String], [transactionId UTF8String], newFeeRate, antiFeeSniping);
         return [[ObjTransaction alloc] initWithTransaction:&tx];
     } catch (const BaseException& exception) {
         *error = [[NSError alloc] initWithDomain:@"io.nunchuk.ios" code: exception.code() userInfo:@{@"message": [NSString stringWithUTF8String: exception.what()]}];
@@ -2124,7 +2124,7 @@ dispatch_semaphore_t semaphore;
     }
 }
 
-- (ObjTransaction *)cancelRBFTransaction:(NSString *)transactionId walletId:(NSString *)walletId newFeeRate:(long)newFeeRate newAddress:(NSString *)newAddress error:(NSError **)error {
+- (ObjTransaction *)cancelRBFTransaction:(NSString *)transactionId walletId:(NSString *)walletId newFeeRate:(long)newFeeRate newAddress:(NSString *)newAddress antiFeeSniping:(BOOL)antiFeeSniping error:(NSError **)error {
     try {
         auto originTx = nunchukManager->nu->GetTransaction([walletId UTF8String], [transactionId UTF8String]);
         auto inputs = nunchukManager->nu->GetUnspentOutputsFromTxInputs([walletId UTF8String], originTx.get_inputs());
@@ -2134,7 +2134,7 @@ dispatch_semaphore_t semaphore;
         }
         std::map<std::string, Amount> outputs;
         outputs[[newAddress UTF8String]] = totalAmount;
-        auto tx = nunchukManager->nu->CreateTransaction([walletId UTF8String], outputs, [@"" UTF8String], inputs, newFeeRate, true, [transactionId UTF8String]);
+        auto tx = nunchukManager->nu->CreateTransaction([walletId UTF8String], outputs, [@"" UTF8String], inputs, newFeeRate, true, [transactionId UTF8String], antiFeeSniping);
         return [[ObjTransaction alloc] initWithTransaction:&tx];
     } catch (const BaseException& exception) {
         *error = [[NSError alloc] initWithDomain:@"io.nunchuk.ios" code: exception.code() userInfo:@{@"message": [NSString stringWithUTF8String: exception.what()]}];
@@ -4794,7 +4794,7 @@ dispatch_semaphore_t semaphore;
     }
 }
 
-- (NSArray *)createRollOverTransactions:(NSString *)sourceWalletId destinationWalletId:(NSString *)destinationWalletId tags:(NSArray *)tags collections:(NSArray *)collections feeRate:(long)feeRate error:(NSError **)error {
+- (NSArray *)createRollOverTransactions:(NSString *)sourceWalletId destinationWalletId:(NSString *)destinationWalletId tags:(NSArray *)tags collections:(NSArray *)collections feeRate:(long)feeRate antiFeeSniping:(BOOL)antiFeeSniping error:(NSError **)error {
     try {
         std::set<int> cTags;
         for (NSNumber *tag in tags) {
@@ -4805,7 +4805,7 @@ dispatch_semaphore_t semaphore;
             cCollections.insert([collection intValue]);
         }
         NSMutableArray *temp = [NSMutableArray new];
-        auto txs = nunchukManager->nu->CreateRollOverTransactions([sourceWalletId UTF8String], [destinationWalletId UTF8String], cTags, cCollections, feeRate);
+        auto txs = nunchukManager->nu->CreateRollOverTransactions([sourceWalletId UTF8String], [destinationWalletId UTF8String], cTags, cCollections, feeRate, antiFeeSniping);
         for (auto& tx : txs) {
             ObjTransaction *obj = [[ObjTransaction alloc] initWithTransaction: &tx];
             [temp addObject:obj];

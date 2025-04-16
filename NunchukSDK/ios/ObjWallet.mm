@@ -32,6 +32,7 @@ using namespace nunchuk;
     wallet.gapLimit = gapLimit;
     wallet.isNeedBackup = NO;
     wallet.walletTemplate = DEFAULT;
+    wallet.isArchived = NO;
     return wallet;
 }
 
@@ -75,6 +76,7 @@ using namespace nunchuk;
     objWallet.type = [self walletTypeStringFrom:wallet->get_wallet_type()];
     objWallet.gapLimit = wallet->get_gap_limit();
     objWallet.isNeedBackup = wallet->need_backup();
+    objWallet.isArchived = wallet->is_archived();
     auto wTemplate = wallet->get_wallet_template();
     switch (wTemplate) {
         case WalletTemplate::DEFAULT:

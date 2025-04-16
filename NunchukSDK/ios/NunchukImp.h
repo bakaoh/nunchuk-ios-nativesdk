@@ -110,6 +110,7 @@ extern const int FEE_RATE_ECONOMICAL;
 -(BOOL)consumeEvent:(ObjNunchukMatrixEvent *_Nonnull)event error:(NSError * _Nullable * _Nullable)outError;
 -(BOOL)updateWalletNameWithId:(NSString * _Nonnull)walletId name:(NSString * _Nonnull)name error:(NSError * _Nullable * _Nullable)outError;
 -(BOOL)updateWalletGapLimitWithId:(NSString * _Nonnull)walletId limit:(int)limit error:(NSError * _Nullable * _Nullable)outError;
+-(BOOL)setWalletArchive:(NSString * _Nonnull)walletId isArchive:(BOOL)isArchive error:(NSError * _Nullable * _Nullable)outError;
 -(BOOL)updateSignerName:(NSString* _Nullable)name path:(NSString *_Nullable)path fingerprint:(NSString *_Nullable)fingerPrint error:(NSError * _Nullable * _Nullable)outError;
 -(BOOL)updateSignerName:(NSString* _Nullable)name signerId:(NSString* _Nullable)signerId error:(NSError * _Nullable * _Nullable)outError;
 

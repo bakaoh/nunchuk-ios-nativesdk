@@ -25,6 +25,7 @@ typedef enum NunchukWalletTemplate {
 @property(nonatomic, strong, nullable) NSMutableArray* signers;
 @property(nonatomic) int n;
 @property(nonatomic, assign) BOOL isEscrow;
+@property(nonatomic, assign) BOOL isArchived;
 @property(nonatomic, strong, nullable) NSString *type;
 @property(nonatomic) int gapLimit;
 @property(nonatomic) BOOL isNeedBackup;

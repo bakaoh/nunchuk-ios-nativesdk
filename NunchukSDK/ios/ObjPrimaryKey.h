@@ -11,5 +11,6 @@
 @property (strong, nonatomic, nullable) NSString *masterFingerprint;
 @property (strong, nonatomic, nullable) NSString *account;
 @property (strong, nonatomic, nullable) NSString *address;
+@property (strong, nonatomic, nullable) NSString *decoyPIN;
 
 @end

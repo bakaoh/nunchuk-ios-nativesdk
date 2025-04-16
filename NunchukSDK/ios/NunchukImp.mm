@@ -723,12 +723,12 @@ dispatch_semaphore_t semaphore;
     }
 }
 
-- (ObjMasterSigner *)createPrimaryKeyWithName:(NSString *)name mnemonic:(NSString *)mnemonic passphrase:(NSString *)passphrase error:(NSError * _Nullable __autoreleasing *)outError {
+- (ObjMasterSigner *)createPrimaryKeyWithName:(NSString *)name mnemonic:(NSString *)mnemonic passphrase:(NSString *)passphrase decoyPIN:(NSString *)decoyPIN error:(NSError * _Nullable __autoreleasing *)outError {
     std::function<bool(int)> callback = [](int percent) {
         return true;
     };
     try {
-        MasterSigner signer = nunchukManager->nu->CreateSoftwareSigner([name UTF8String], [mnemonic UTF8String], [passphrase UTF8String], callback, YES);
+        MasterSigner signer = nunchukManager->nu->CreateSoftwareSigner([name UTF8String], [mnemonic UTF8String], [passphrase UTF8String], callback, YES, NO, [decoyPIN UTF8String]);
         return [[ObjMasterSigner alloc] initWithMasterSigner: &signer];
     } catch (const BaseException& exception) {
         *outError = [[NSError alloc] initWithDomain:@"io.nunchuk.ios" code: exception.code() userInfo:@{@"message": [NSString stringWithUTF8String: exception.what()]}];

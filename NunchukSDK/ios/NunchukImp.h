@@ -128,7 +128,7 @@ extern const int FEE_RATE_ECONOMICAL;
 - (ObjMasterSigner *_Nullable)create12WordsHotKeyWithName:(NSString *_Nonnull)name error:(NSError *_Nullable*_Nullable)error;
 - (NSString *_Nullable)getHotKeyMnemonicWithSignerId:(NSString *_Nonnull)signerId error:(NSError *_Nullable*_Nullable)error;
 - (BOOL)setSignerNeedBackup:(NSString *_Nonnull)signerId needBackup:(BOOL)needBackup error:(NSError *_Nullable*_Nullable)error;
-- (ObjMasterSigner *_Nullable)createPrimaryKeyWithName:(NSString *_Nonnull)name mnemonic:(NSString *_Nonnull)mnemonic passphrase:(NSString *_Nonnull)passphrase error:(NSError  *_Nullable*_Nullable)outError;
+- (ObjMasterSigner *_Nullable)createPrimaryKeyWithName:(NSString *_Nonnull)name mnemonic:(NSString *_Nonnull)mnemonic passphrase:(NSString *_Nonnull)passphrase decoyPIN:(NSString *_Nonnull)decoyPIN error:(NSError  *_Nullable*_Nullable)outError;
 -(ObjMasterSigner* _Nullable)getSignerWithId:(NSString * _Nonnull)signerId error:(NSError * _Nullable * _Nullable)outError;
 -(NSMutableArray<ObjMasterSigner*> * _Nullable)getMasterSigners:(NSError * _Nullable * _Nullable)outError;
 -(NSMutableArray<NSString*> *_Nullable)getBip39:(NSError * _Nullable * _Nullable)outError;

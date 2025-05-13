@@ -106,6 +106,11 @@ extern const int FEE_RATE_ECONOMICAL;
 -(ObjWallet *_Nullable)recoverHotWallet:(NSString* _Nonnull)mnemonic passphrase:(NSString *_Nonnull)passphrase replace:(BOOL)replace error:(NSError * _Nullable * _Nullable)outError;
 -(NSString * _Nullable)getHotWalletMnemonic:(NSString *_Nonnull)walletId passphrase:(NSString *_Nonnull)passphrase error:(NSError * _Nullable * _Nullable)outError;
 -(BOOL)confirmMnemonicHotWallet:(NSString * _Nonnull)walletId mnemonic:(NSString* _Nonnull)mnemonic passphrase:(NSString * _Nonnull)passphrase error:(NSError * _Nullable * _Nullable)outError;
+
+// Miniscript wallet
+-(ObjWallet *_Nullable)createMiniscriptWallet:(NSString *_Nonnull)name miniscript:(NSString *_Nonnull)miniscript addressType:(NSString *_Nonnull)addressType description:(NSString *_Nonnull)description allowUsedSigner:(BOOL)allowUsedSigner error:(NSError *_Nullable*_Nullable)error;
+-(ObjWallet *_Nullable)createMiniscriptWallet:(NSString *_Nonnull)name miniscript:(NSString *_Nonnull)miniscript addressType:(NSString *_Nonnull)addressType description:(NSString *_Nonnull)description allowUsedSigner:(BOOL)allowUsedSigner decoyPin:(NSString *_Nonnull)decoyPin error:(NSError *_Nullable*_Nullable)error;
+
 -(NSString*_Nullable)draftWalletWithName:(NSString* _Nullable)name numberKey:(int)numberKey signers:(NSMutableArray * _Nonnull)signers addressType:(NSString *_Nullable)addressType type:(NSString * _Nullable)type desc:(NSString * _Nullable)desc error:(NSError * _Nullable * _Nullable)outError;
 -(BOOL)consumeEvent:(ObjNunchukMatrixEvent *_Nonnull)event error:(NSError * _Nullable * _Nullable)outError;
 -(BOOL)updateWalletNameWithId:(NSString * _Nonnull)walletId name:(NSString * _Nonnull)name error:(NSError * _Nullable * _Nullable)outError;

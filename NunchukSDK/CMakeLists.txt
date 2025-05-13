@@ -47,6 +47,7 @@ set(SDK_SOURCES
   ios/ObjGroupConfig.mm
   ios/ObjGroupWalletConfig.mm
   ios/ObjGroupSandbox.mm
+  ios/ObjScriptNode.mm
 )
 
 set(PUBLIC_SDK_HEADERS
@@ -87,6 +88,7 @@ set(PUBLIC_SDK_HEADERS
   ios/ObjGroupConfig.h
   ios/ObjGroupWalletConfig.h
   ios/ObjGroupSandbox.h
+  ios/ObjScriptNode.h
 )
 
 # Headers
@@ -112,6 +114,7 @@ set(SDK_HEADERS
   extensions/ObjGroupMessage+Extension.h
   extensions/ObjGroupWalletConfig+Extension.h
   extensions/ObjGroupSandbox+Extension.h
+  extensions/ObjScriptNode+Extension.h
   ${PUBLIC_SDK_HEADERS}
 )
 

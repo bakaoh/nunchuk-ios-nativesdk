@@ -19,7 +19,7 @@ using namespace nunchuk;
     self = [super init];
     if (self) {
         _id = @[];
-        _type = SCRIPT_NODE_UNKNOWN;
+        _type = SCRIPT_NODE_NONE;
         _subs = @[];
         _keys = @[];
         _threshold = 0;
@@ -47,21 +47,49 @@ using namespace nunchuk;
         
         // Set the type
         auto nodeType = node.get_type();
-        if (nodeType == ScriptNode::Type::PK) {
-            _type = SCRIPT_NODE_PK;
-        } else if (nodeType == ScriptNode::Type::MULTI) {
-            _type = SCRIPT_NODE_MULTI;
-        } else if (nodeType == ScriptNode::Type::AND) {
-            _type = SCRIPT_NODE_AND;
-        } else if (nodeType == ScriptNode::Type::OR) {
-            _type = SCRIPT_NODE_OR;
-        } else if (nodeType == ScriptNode::Type::THRESH) {
-            _type = SCRIPT_NODE_THRESH;
-        } else if (nodeType == ScriptNode::Type::OLDER || 
-                  nodeType == ScriptNode::Type::AFTER) {
-            _type = SCRIPT_NODE_TIMEBASED;
-        } else {
-            _type = SCRIPT_NODE_UNKNOWN;
+        switch (nodeType) {
+            case ScriptNode::Type::NONE:
+                _type = SCRIPT_NODE_NONE;
+                break;
+            case ScriptNode::Type::PK:
+                _type = SCRIPT_NODE_PK;
+                break;
+            case ScriptNode::Type::OLDER:
+                _type = SCRIPT_NODE_OLDER;
+                break;
+            case ScriptNode::Type::AFTER:
+                _type = SCRIPT_NODE_AFTER;
+                break;
+            case ScriptNode::Type::HASH160:
+                _type = SCRIPT_NODE_HASH160;
+                break;
+            case ScriptNode::Type::HASH256:
+                _type = SCRIPT_NODE_HASH256;
+                break;
+            case ScriptNode::Type::RIPEMD160:
+                _type = SCRIPT_NODE_RIPEMD160;
+                break;
+            case ScriptNode::Type::SHA256:
+                _type = SCRIPT_NODE_SHA256;
+                break;
+            case ScriptNode::Type::AND:
+                _type = SCRIPT_NODE_AND;
+                break;
+            case ScriptNode::Type::OR:
+                _type = SCRIPT_NODE_OR;
+                break;
+            case ScriptNode::Type::ANDOR:
+                _type = SCRIPT_NODE_ANDOR;
+                break;
+            case ScriptNode::Type::THRESH:
+                _type = SCRIPT_NODE_THRESH;
+                break;
+            case ScriptNode::Type::MULTI:
+                _type = SCRIPT_NODE_MULTI;
+                break;
+            default:
+                _type = SCRIPT_NODE_NONE;
+                break;
         }
         
         // Set the keys
@@ -99,20 +127,32 @@ using namespace nunchuk;
 
 + (NSString *)typeToString:(ScriptNodeType)type {
     switch (type) {
+        case SCRIPT_NODE_NONE:
+            return @"NONE";
         case SCRIPT_NODE_PK:
             return @"PK";
-        case SCRIPT_NODE_MULTI:
-            return @"MULTI";
+        case SCRIPT_NODE_OLDER:
+            return @"OLDER";
+        case SCRIPT_NODE_AFTER:
+            return @"AFTER";
+        case SCRIPT_NODE_HASH160:
+            return @"HASH160";
+        case SCRIPT_NODE_HASH256:
+            return @"HASH256";
+        case SCRIPT_NODE_RIPEMD160:
+            return @"RIPEMD160";
+        case SCRIPT_NODE_SHA256:
+            return @"SHA256";
         case SCRIPT_NODE_AND:
             return @"AND";
         case SCRIPT_NODE_OR:
             return @"OR";
+        case SCRIPT_NODE_ANDOR:
+            return @"ANDOR";
         case SCRIPT_NODE_THRESH:
             return @"THRESH";
-        case SCRIPT_NODE_TIMEBASED:
-            return @"TIMEBASED";
-        default:
-            return @"UNKNOWN";
+        case SCRIPT_NODE_MULTI:
+            return @"MULTI";
     }
 }
 

@@ -35,10 +35,13 @@ typedef enum NCNDEFMessageType {
 - (NSString *_Nullable)generateMnemonic;
 - (NSString *_Nullable)generateMnemonic12Words;
 - (NSString *_Nullable)getPrimaryKeyAddressWithMnemonic:(NSString *_Nonnull)mnemonic passphrase:(NSString *_Nonnull)passphrase;
+- (NSString *_Nullable)getPrimaryKeyAddressWithXPRV:(NSString *_Nonnull)xprv;
 - (NSString *_Nullable)signLoginMessageWithMnemonic:(NSString *_Nonnull)mnemonic passphrase:(NSString *_Nonnull)passphrase message:(NSString *_Nonnull)message;
+- (NSString *_Nullable)signLoginMessageWithXPRV:(NSString *_Nonnull)xprv message:(NSString *_Nonnull)message;
 - (BOOL)isMnemonicValid:(NSString *_Nonnull)mnemonic;
 - (NSArray *_Nullable)getBip39:(NSError * _Nullable*_Nullable)error;
 - (NSString *_Nullable)getMasterFingerprintWithMnemonic:(NSString *_Nonnull)mnemonic passphrase:(NSString *_Nonnull)passphrase;
+- (NSString *_Nullable)getMasterFingerprintWithXPRV:(NSString *_Nonnull)xprv;
 - (NSArray *_Nullable)getPrimaryKeysWithStoragePath:(NSString *_Nonnull)storagePath chain:(ChainTypeEnum)chain;
 - (UInt64)amountFromValue:(NSString *_Nonnull)value;
 - (NSString *_Nonnull)valueFromAmount:(UInt64)amount;

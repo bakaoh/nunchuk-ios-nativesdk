@@ -63,9 +63,25 @@ using namespace nunchuk;
     }
 }
 
+- (NSString *)getPrimaryKeyAddressWithXPRV:(NSString *)xprv {
+    try {
+        return [NSString stringWithUTF8String: Utils::GetPrimaryKeyAddressFromMasterXprv([xprv UTF8String]).c_str()];
+    } catch (const std::exception& exception) {
+        return NULL;
+    }
+}
+
 - (NSString *)signLoginMessageWithMnemonic:(NSString *)mnemonic passphrase:(NSString *)passphrase message:(NSString *)message {
     try {
         return [NSString stringWithUTF8String: Utils::SignLoginMessage([mnemonic UTF8String], [passphrase UTF8String], [message UTF8String]).c_str()];
+    } catch (const std::exception& exception) {
+        return NULL;
+    }
+}
+
+- (NSString *)signLoginMessageWithXPRV:(NSString *)xprv message:(NSString *)message {
+    try {
+        return [NSString stringWithUTF8String: Utils::SignLoginMessageWithMasterXprv([xprv UTF8String], [message UTF8String]).c_str()];
     } catch (const std::exception& exception) {
         return NULL;
     }
@@ -96,6 +112,14 @@ using namespace nunchuk;
 - (NSString *)getMasterFingerprintWithMnemonic:(NSString *)mnemonic passphrase:(NSString *)passphrase {
     try {
         return [NSString stringWithUTF8String: Utils::GetMasterFingerprint([mnemonic UTF8String], [passphrase UTF8String]).c_str()];
+    } catch (const std::exception& exception) {
+        return NULL;
+    }
+}
+
+- (NSString *)getMasterFingerprintWithXPRV:(NSString *)xprv {
+    try {
+        return [NSString stringWithUTF8String: Utils::GetMasterFingerprintFromMasterXprv([xprv UTF8String]).c_str()];
     } catch (const std::exception& exception) {
         return NULL;
     }

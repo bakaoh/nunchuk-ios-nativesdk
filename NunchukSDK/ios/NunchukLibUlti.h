@@ -90,8 +90,8 @@ typedef enum NCNDEFMessageType {
 - (NSString *_Nullable)policyToMiniscript:(NSString *_Nonnull)policy error:(NSError *_Nullable*_Nullable)error;
 - (NSString *_Nullable)miniscriptTemplateToMiniscript:(NSString *_Nonnull)templete signers:(NSDictionary<NSString *, ObjSingleSigner *> *_Nonnull)signers error:(NSError *_Nullable*_Nullable)error;
 - (ObjScriptNode *_Nullable)miniscriptToScriptNode:(NSString *_Nonnull)miniscript error:(NSError *_Nullable*_Nullable)error;
-- (NSString *_Nullable)expandingMultisigMiniscriptTemplate:(int)m n:(int)n newM:(int)newM expandTime:(int)expandTime error:(NSError *_Nullable*_Nullable)error;
-- (NSString *_Nullable)decayingMultisigMiniscriptTemplate:(int)m n:(int)n newN:(int)newN decayTime:(int)decayTime error:(NSError *_Nullable*_Nullable)error;
+- (NSString *_Nullable)expandingMultisigMiniscriptTemplate:(int)m n:(int)n newN:(int)newN expandTime:(int)expandTime error:(NSError *_Nullable*_Nullable)error;
+- (NSString *_Nullable)decayingMultisigMiniscriptTemplate:(int)m n:(int)n newM:(int)newM decayTime:(int)decayTime error:(NSError *_Nullable*_Nullable)error;
 - (NSString *_Nullable)flexibleMultisigMiniscriptTemplate:(int)m n:(int)n newM:(int)newM newN:(int)newN expandingTime:(int)expandingTime error:(NSError *_Nullable*_Nullable)error;
 
 @end

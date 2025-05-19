@@ -866,10 +866,10 @@ using namespace nunchuk;
     }
 }
 
-- (NSString *_Nullable)expandingMultisigMiniscriptTemplate:(int)m n:(int)n newM:(int)newM expandTime:(int)expandTime error:(NSError *_Nullable*_Nullable)error {
+- (NSString *_Nullable)expandingMultisigMiniscriptTemplate:(int)m n:(int)n newN:(int)newN expandTime:(int)expandTime error:(NSError *_Nullable*_Nullable)error {
     try {
         Timelock timelock(Timelock::Based::HEIGHT_LOCK, Timelock::Type::ABSOLUTE, expandTime);
-        std::string result = Utils::ExpandingMultisigMiniscriptTemplate(m, n, newM, timelock);
+        std::string result = Utils::ExpandingMultisigMiniscriptTemplate(m, n, newN, timelock);
         return [NSString stringWithUTF8String:result.c_str()];
     } catch (const BaseException& exception) {
         if (error) {
@@ -884,10 +884,10 @@ using namespace nunchuk;
     }
 }
 
-- (NSString *_Nullable)decayingMultisigMiniscriptTemplate:(int)m n:(int)n newN:(int)newN decayTime:(int)decayTime error:(NSError *_Nullable*_Nullable)error {
+- (NSString *_Nullable)decayingMultisigMiniscriptTemplate:(int)m n:(int)n newM:(int)newM decayTime:(int)decayTime error:(NSError *_Nullable*_Nullable)error {
     try {
         Timelock timelock(Timelock::Based::HEIGHT_LOCK, Timelock::Type::ABSOLUTE, decayTime);
-        std::string result = Utils::DecayingMultisigMiniscriptTemplate(m, n, newN, timelock);
+        std::string result = Utils::DecayingMultisigMiniscriptTemplate(m, n, newM, timelock);
         return [NSString stringWithUTF8String:result.c_str()];
     } catch (const BaseException& exception) {
         if (error) {

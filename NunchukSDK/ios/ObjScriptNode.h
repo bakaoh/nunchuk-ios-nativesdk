@@ -34,8 +34,9 @@ typedef NS_ENUM(NSInteger, ScriptNodeType) {
 @property (nonatomic, assign) ScriptNodeType type;
 @property (nonatomic, strong) NSArray<ObjScriptNode *> *subs;
 @property (nonatomic, strong) NSArray<NSString *> *keys;
-@property (nonatomic, assign) int threshold;
-@property (nonatomic, assign) int lockTime;
+@property (nonatomic, strong) NSData *data;
+@property (nonatomic, assign) uint32_t k;  // Corresponds to k_ in C++
+@property (nonatomic, strong) NSDictionary<NSString *, NSString *> *signers;  // Additional mapping for signers
 
 #pragma mark - Utility Methods
 
@@ -44,8 +45,8 @@ typedef NS_ENUM(NSInteger, ScriptNodeType) {
 - (NSArray<NSString *> *)getId;
 - (NSArray<ObjScriptNode *> *)getSubs;
 - (NSArray<NSString *> *)getKeys;
-- (int)getThreshold;
-- (int)getLockTime;
+- (NSData *)getData;
+- (uint32_t)getK;
 
 @end
 

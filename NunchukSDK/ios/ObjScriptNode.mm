@@ -22,8 +22,8 @@ using namespace nunchuk;
         _type = SCRIPT_NODE_NONE;
         _subs = @[];
         _keys = @[];
-        _threshold = 0;
-        _lockTime = 0;
+        _data = [NSData data];
+        _k = 0;
     }
     return self;
 }
@@ -100,11 +100,12 @@ using namespace nunchuk;
         }
         _keys = [keysArray copy];
         
-        // Set the threshold
-        _threshold = (int)node.get_k();
+        // Set the data
+        const std::vector<unsigned char>& nodeData = node.get_data();
+        _data = [NSData dataWithBytes:nodeData.data() length:nodeData.size()];
         
-        // Set default lockTime
-        _lockTime = 0;
+        // Set the threshold (k value)
+        _k= node.get_k();
         
         // Process sub-nodes recursively, accessing C++ objects only by reference
         const std::vector<ScriptNode>& nodeSubs = node.get_subs();
@@ -172,12 +173,12 @@ using namespace nunchuk;
     return _keys;
 }
 
-- (int)getThreshold {
-    return _threshold;
+- (NSData *)getData {
+    return _data;
 }
 
-- (int)getLockTime {
-    return _lockTime;
+- (uint32_t)getK {
+    return _k;
 }
 
 @end

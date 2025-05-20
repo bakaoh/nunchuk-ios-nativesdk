@@ -85,14 +85,14 @@ typedef enum NCNDEFMessageType {
 - (NSArray *_Nullable)exportBBQRWallet:(ObjWallet *_Nonnull)wallet fragmentLength:(NSInteger)fragmentLength error:(NSError *_Nullable*_Nullable)error;
 
 // Miniscript utilities
-- (BOOL)isValidMiniscriptTemplate:(NSString *_Nonnull)templete;
+- (BOOL)isValidMiniscriptTemplate:(NSString *_Nonnull)templete addressType:(NSString *_Nonnull)addressType;
 - (BOOL)isValidPolicy:(NSString *_Nonnull)policy;
-- (NSString *_Nullable)policyToMiniscript:(NSString *_Nonnull)policy error:(NSError *_Nullable*_Nullable)error;
+- (NSString *_Nullable)policyToMiniscript:(NSString *_Nonnull)policy addressType:(NSString *_Nonnull)addressType error:(NSError *_Nullable*_Nullable)error;
 - (NSString *_Nullable)miniscriptTemplateToMiniscript:(NSString *_Nonnull)templete signers:(NSDictionary<NSString *, ObjSingleSigner *> *_Nonnull)signers error:(NSError *_Nullable*_Nullable)error;
 - (ObjScriptNode *_Nullable)miniscriptToScriptNode:(NSString *_Nonnull)miniscript error:(NSError *_Nullable*_Nullable)error;
-- (NSString *_Nullable)expandingMultisigMiniscriptTemplate:(int)m n:(int)n newN:(int)newN expandTime:(int)expandTime error:(NSError *_Nullable*_Nullable)error;
-- (NSString *_Nullable)decayingMultisigMiniscriptTemplate:(int)m n:(int)n newM:(int)newM decayTime:(int)decayTime error:(NSError *_Nullable*_Nullable)error;
-- (NSString *_Nullable)flexibleMultisigMiniscriptTemplate:(int)m n:(int)n newM:(int)newM newN:(int)newN expandingTime:(int)expandingTime error:(NSError *_Nullable*_Nullable)error;
+- (NSString *_Nullable)expandingMultisigMiniscriptTemplate:(int)m n:(int)n newN:(int)newN expandTime:(int)expandTime addressType:(NSString *_Nonnull)addressType error:(NSError *_Nullable*_Nullable)error;
+- (NSString *_Nullable)decayingMultisigMiniscriptTemplate:(int)m n:(int)n newM:(int)newM decayTime:(int)decayTime addressType:(NSString *_Nonnull)addressType error:(NSError *_Nullable*_Nullable)error;
+- (NSString *_Nullable)flexibleMultisigMiniscriptTemplate:(int)m n:(int)n newM:(int)newM newN:(int)newN reuseSigners:(BOOL)reuseSigners expandingTime:(int)expandingTime addressType:(NSString *_Nonnull)addressType error:(NSError *_Nullable*_Nullable)error;
 
 @end
 

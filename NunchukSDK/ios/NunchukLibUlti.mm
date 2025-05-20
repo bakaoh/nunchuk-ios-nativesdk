@@ -790,9 +790,10 @@ using namespace nunchuk;
 //
 // Miniscript utilities
 //
-- (BOOL)isValidMiniscriptTemplate:(NSString *_Nonnull)templete {
+- (BOOL)isValidMiniscriptTemplate:(NSString *_Nonnull)templete addressType:(NSString *_Nonnull)addressType {
     try {
-        return Utils::IsValidMiniscriptTemplate([templete UTF8String]);
+        AddressType cAddressType = [self addressTypeFromString:addressType];
+        return Utils::IsValidMiniscriptTemplate([templete UTF8String], cAddressType);
     } catch (const std::exception& exception) {
         return NO;
     }
@@ -806,9 +807,10 @@ using namespace nunchuk;
     }
 }
 
-- (NSString *_Nullable)policyToMiniscript:(NSString *_Nonnull)policy error:(NSError *_Nullable*_Nullable)error {
+- (NSString *_Nullable)policyToMiniscript:(NSString *_Nonnull)policy addressType:(NSString *_Nonnull)addressType error:(NSError *_Nullable*_Nullable)error {
     try {
-        std::string result = Utils::PolicyToMiniscript([policy UTF8String], {});
+        AddressType cAddressType = [self addressTypeFromString:addressType];
+        std::string result = Utils::PolicyToMiniscript([policy UTF8String], {}, cAddressType);
         return [NSString stringWithUTF8String:result.c_str()];
     } catch (const BaseException& exception) {
         if (error) {
@@ -866,10 +868,11 @@ using namespace nunchuk;
     }
 }
 
-- (NSString *_Nullable)expandingMultisigMiniscriptTemplate:(int)m n:(int)n newN:(int)newN expandTime:(int)expandTime error:(NSError *_Nullable*_Nullable)error {
+- (NSString *_Nullable)expandingMultisigMiniscriptTemplate:(int)m n:(int)n newN:(int)newN expandTime:(int)expandTime addressType:(NSString *_Nonnull)addressType error:(NSError *_Nullable*_Nullable)error {
     try {
+        AddressType cAddressType = [self addressTypeFromString:addressType];
         Timelock timelock(Timelock::Based::HEIGHT_LOCK, Timelock::Type::ABSOLUTE, expandTime);
-        std::string result = Utils::ExpandingMultisigMiniscriptTemplate(m, n, newN, timelock);
+        std::string result = Utils::ExpandingMultisigMiniscriptTemplate(m, n, newN, timelock, cAddressType);
         return [NSString stringWithUTF8String:result.c_str()];
     } catch (const BaseException& exception) {
         if (error) {
@@ -884,10 +887,11 @@ using namespace nunchuk;
     }
 }
 
-- (NSString *_Nullable)decayingMultisigMiniscriptTemplate:(int)m n:(int)n newM:(int)newM decayTime:(int)decayTime error:(NSError *_Nullable*_Nullable)error {
+- (NSString *_Nullable)decayingMultisigMiniscriptTemplate:(int)m n:(int)n newM:(int)newM decayTime:(int)decayTime addressType:(NSString *_Nonnull)addressType error:(NSError *_Nullable*_Nullable)error {
     try {
+        AddressType cAddressType = [self addressTypeFromString:addressType];
         Timelock timelock(Timelock::Based::HEIGHT_LOCK, Timelock::Type::ABSOLUTE, decayTime);
-        std::string result = Utils::DecayingMultisigMiniscriptTemplate(m, n, newM, timelock);
+        std::string result = Utils::DecayingMultisigMiniscriptTemplate(m, n, newM, timelock, cAddressType);
         return [NSString stringWithUTF8String:result.c_str()];
     } catch (const BaseException& exception) {
         if (error) {
@@ -902,10 +906,11 @@ using namespace nunchuk;
     }
 }
 
-- (NSString *_Nullable)flexibleMultisigMiniscriptTemplate:(int)m n:(int)n newM:(int)newM newN:(int)newN expandingTime:(int)expandingTime error:(NSError *_Nullable*_Nullable)error {
+- (NSString *_Nullable)flexibleMultisigMiniscriptTemplate:(int)m n:(int)n newM:(int)newM newN:(int)newN reuseSigners:(BOOL)reuseSigners expandingTime:(int)expandingTime addressType:(NSString *_Nonnull)addressType error:(NSError *_Nullable*_Nullable)error {
     try {
+        AddressType cAddressType = [self addressTypeFromString:addressType];
         Timelock timelock(Timelock::Based::HEIGHT_LOCK, Timelock::Type::ABSOLUTE, expandingTime);
-        std::string result = Utils::FlexibleMultisigMiniscriptTemplate(m, n, newM, newN, timelock);
+        std::string result = Utils::FlexibleMultisigMiniscriptTemplate(m, n, newM, newN, reuseSigners, timelock, cAddressType);
         return [NSString stringWithUTF8String:result.c_str()];
     } catch (const BaseException& exception) {
         if (error) {

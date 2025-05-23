@@ -3660,34 +3660,15 @@ dispatch_semaphore_t semaphore;
     }
 }
 
--(ObjWallet *)createMiniscriptWallet:(NSString *)name miniscript:(NSString *)miniscript addressType:(NSString *)addressType description:(NSString *)description allowUsedSigner:(BOOL)allowUsedSigner error:(NSError * _Nullable __autoreleasing *)outError {
-    try {
-        AddressType address_type = [self addressTypeFromString:addressType];
-        auto wallet = nunchukManager->nu->CreateMiniscriptWallet([name UTF8String], 
-                                                               [miniscript UTF8String], 
-                                                               address_type,
-                                                               [description UTF8String],
-                                                               allowUsedSigner,
-                                                               [@"" UTF8String]);
-        return [[ObjWallet alloc] initWithWallet:&wallet];
-    } catch (const BaseException& exception) {
-        *outError = [[NSError alloc] initWithDomain:@"io.nunchuk.ios" code: exception.code() userInfo:@{@"message": [NSString stringWithUTF8String: exception.what()]}];
-        return NULL;
-    } catch (const std::exception& exception) {
-        *outError = [[NSError alloc] initWithDomain:@"io.nunchuk.ios" code: NunchukSDKErrorUndefined userInfo:@{@"message": [NSString stringWithUTF8String: exception.what()]}];
-        return NULL;
-    }
-}
-
 -(ObjWallet *)createMiniscriptWallet:(NSString *)name miniscript:(NSString *)miniscript addressType:(NSString *)addressType description:(NSString *)description allowUsedSigner:(BOOL)allowUsedSigner decoyPin:(NSString *)decoyPin error:(NSError * _Nullable __autoreleasing *)outError {
     try {
         AddressType address_type = [self addressTypeFromString:addressType];
-        auto wallet = nunchukManager->nu->CreateMiniscriptWallet([name UTF8String], 
-                                                               [miniscript UTF8String], 
-                                                               address_type,
-                                                               [description UTF8String],
-                                                               allowUsedSigner,
-                                                               [decoyPin UTF8String]);
+        auto wallet = nunchukManager->nu->CreateMiniscriptWallet([name UTF8String],
+                                                                 [miniscript UTF8String],
+                                                                 address_type,
+                                                                 [description UTF8String],
+                                                                 allowUsedSigner,
+                                                                 [decoyPin UTF8String]);
         return [[ObjWallet alloc] initWithWallet:&wallet];
     } catch (const BaseException& exception) {
         *outError = [[NSError alloc] initWithDomain:@"io.nunchuk.ios" code: exception.code() userInfo:@{@"message": [NSString stringWithUTF8String: exception.what()]}];

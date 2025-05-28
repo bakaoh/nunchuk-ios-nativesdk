@@ -5467,5 +5467,44 @@ dispatch_semaphore_t semaphore;
     }
 }
 
+- (NSNumber *)getCurrentIndexFromMasterSigner:(NSString *)masterSignerId walletType:(NSString *)walletType addressType:(NSString *)addressType error:(NSError **)error {
+    try {
+        AddressType address_type = [self addressTypeFromString:addressType];
+        WalletType wallet_type = [self walletTypeFromString:walletType];
+        int index = nunchukManager->nu->GetCurrentIndexFromMasterSigner([masterSignerId UTF8String], wallet_type, address_type);
+        return [NSNumber numberWithInt:index];
+    } catch (const BaseException& exception) {
+        NSLog(@"[NunchukImp] getCurrentIndexFromMasterSigner exception: %s", exception.what());
+        *error = [[NSError alloc] initWithDomain:@"io.nunchuk.ios" code: exception.code() userInfo:@{@"message": [NSString stringWithUTF8String: exception.what()]}];
+        return nil;
+    } catch (const std::exception &e) {
+        NSLog(@"[NunchukImp] getCurrentIndexFromMasterSigner exception: %s", e.what());
+        if (error) {
+            *error = [NSError errorWithDomain:@"NunchukImp" code:NunchukSDKErrorUndefined userInfo:@{NSLocalizedDescriptionKey: [NSString stringWithFormat:@"%s", e.what()]}];
+        }
+        return nil;
+    }
+}
+
+- (ObjSingleSigner *)getSignerFromMasterSigner:(NSString *)masterSignerId walletType:(NSString *)walletType addressType:(NSString *)addressType index:(int)index error:(NSError **)error {
+    try {
+        AddressType address_type = [self addressTypeFromString:addressType];
+        WalletType wallet_type = [self walletTypeFromString:walletType];
+        // Get the signer with the specific index
+        auto singleSigner = nunchukManager->nu->GetSignerFromMasterSigner([masterSignerId UTF8String], wallet_type, address_type, index);
+        return [[ObjSingleSigner alloc] initWithSigner:&singleSigner];
+    } catch (const BaseException& exception) {
+        NSLog(@"[NunchukImp] getSignerFromMasterSigner exception: %s", exception.what());
+        *error = [[NSError alloc] initWithDomain:@"io.nunchuk.ios" code: exception.code() userInfo:@{@"message": [NSString stringWithUTF8String: exception.what()]}];
+        return nil;
+    } catch (const std::exception &e) {
+        NSLog(@"[NunchukImp] getSignerFromMasterSigner exception: %s", e.what());
+        if (error) {
+            *error = [NSError errorWithDomain:@"NunchukImp" code:NunchukSDKErrorUndefined userInfo:@{NSLocalizedDescriptionKey: [NSString stringWithFormat:@"%s", e.what()]}];
+        }
+        return nil;
+    }
+}
+
 @end
 

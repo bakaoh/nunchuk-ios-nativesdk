@@ -437,5 +437,10 @@ extern const int FEE_RATE_ECONOMICAL;
 
 // Miniscript wallet
 -(ObjWallet *_Nullable)createMiniscriptWallet:(NSString *_Nonnull)name miniscript:(NSString *_Nonnull)miniscript addressType:(NSString *_Nonnull)addressType description:(NSString *_Nonnull)description allowUsedSigner:(BOOL)allowUsedSigner decoyPin:(NSString *_Nonnull)decoyPin error:(NSError *_Nullable*_Nullable)error;
+
+- (NSNumber *_Nullable)getCurrentIndexFromMasterSigner:(NSString *_Nonnull)masterSignerId walletType:(NSString *_Nonnull)walletType addressType:(NSString *_Nonnull)addressType error:(NSError *_Nullable*_Nullable)error;
+
+- (ObjSingleSigner *_Nullable)getSignerFromMasterSigner:(NSString *_Nonnull)masterSignerId walletType:(NSString *_Nonnull)walletType addressType:(NSString *_Nonnull)addressType index:(int)index error:(NSError *_Nullable*_Nullable)error;
+
 @end
 #endif

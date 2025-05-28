@@ -30,6 +30,8 @@ typedef enum NunchukWalletTemplate {
 @property(nonatomic) int gapLimit;
 @property(nonatomic) BOOL isNeedBackup;
 @property(nonatomic, assign) NunchukWalletTemplate walletTemplate;
+@property(nonatomic, strong, nullable) NSString *miniscript;
+@property(nonatomic, readonly) BOOL isMiniscriptWallet;
 
 @end
 

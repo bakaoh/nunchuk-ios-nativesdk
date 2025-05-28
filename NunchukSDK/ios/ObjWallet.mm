@@ -18,7 +18,7 @@ using namespace nunchuk;
 
 @implementation ObjWallet {
 }
-- (instancetype) initWithName: (NSString * _Nonnull) walletId  : (NSString * _Nonnull) walletName : (NSString * _Nonnull) desc :
+- (instancetype) initWithName: (NSString * _Nonnull) walletId : (NSString * _Nonnull) walletName : (NSString * _Nonnull) desc :
     (NSString * _Nonnull) addressType : (NSDate* _Nonnull) createdAt : (NSString *) messageToSign : (int) m : (int) n : (int) gapLimit {
     ObjWallet * wallet = [[ObjWallet alloc] init];
     
@@ -33,6 +33,7 @@ using namespace nunchuk;
     wallet.isNeedBackup = NO;
     wallet.walletTemplate = DEFAULT;
     wallet.isArchived = NO;
+    wallet.miniscript = nil;
     return wallet;
 }
 
@@ -86,6 +87,14 @@ using namespace nunchuk;
             objWallet.walletTemplate = DISABLE_KEY_PATH;
             break;
     }
+    
+    // Set miniscript property for miniscript wallets
+    if (wallet->get_wallet_type() == WalletType::MINISCRIPT) {
+        objWallet.miniscript = [NSString stringWithUTF8String:wallet->get_miniscript(DescriptorPath::ANY).c_str()];
+    } else {
+        objWallet.miniscript = nil;
+    }
+    
     return objWallet;
 }
 
@@ -97,8 +106,14 @@ using namespace nunchuk;
         type = @"ESCROW";
     } else if (walletType == WalletType::MULTI_SIG) {
         type = @"MULTI_SIG";
+    } else if (walletType == WalletType::MINISCRIPT) {
+        type = @"MINISCRIPT";
     }
     return type;
+}
+
+- (BOOL)isMiniscriptWallet {
+    return [self.type isEqualToString:@"MINISCRIPT"] && self.miniscript != nil;
 }
 
 @end

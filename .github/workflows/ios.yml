@@ -2,18 +2,20 @@ name: Build iOS
 
 on:
   push:
-    branches:
-      - main
+    branches: [ "*" ]
+    tags:     [ "*" ]
   pull_request:
 
 jobs:
   build-ios:
     name: Build
-    runs-on: macos-latest
+    runs-on: macos-14
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
 
     - name: Install tools
       run: |
@@ -32,88 +34,29 @@ jobs:
     - name: Accept Xcode License
       run: sudo xcodebuild -license accept
 
-    - name: Restore submodules
-      id: cache-sub
-      uses: actions/cache/restore@v4
-      with:
-        path: ${{ github.workspace }}/NunchukSDK/libnunchuk
-        key: cache-sub
-
-    - name: Update submodules
-      working-directory: ${{ github.workspace }}
-      if: steps.cache-sub.outputs.cache-hit != 'true'
-      env:
-        GL_LOGIN: ${{ secrets.GL_LOGIN }}
-        GL_TOKEN: ${{ secrets.GL_TOKEN }}
-      run: |
-        echo -e "machine gitlab.com login $GL_LOGIN password $GL_TOKEN" > ~/.netrc
-        set -e
-        git submodule update --init --recursive --depth 1
-
     - name: Install deps
       working-directory: ${{ github.workspace }}
-      if: steps.cache-sub.outputs.cache-hit != 'true'
       env:
         IOS_SDK_VERSION: "18.1.sdk"
       run: |
         set -e
         bash ./install_dep.sh
 
-    - name: Save cache submodules
-      if: always() && steps.cache-sub.outputs.cache-hit != 'true'
-      id: cache-sub-save
-      uses: actions/cache/save@v4
-      with:
-        path: ${{ github.workspace }}/NunchukSDK/libnunchuk
-        key: ${{ steps.cache-sub.outputs.cache-primary-key }}
-    
-    - name: Restore cmake
-      id: cache-cmake
-      uses: actions/cache/restore@v4
-      with:
-        path: ${{ github.workspace }}/NunchukSDK/build
-        key: cache-cmake
-
     - name: Config cmake
-      if: steps.cache-cmake.outputs.cache-hit != 'true'
       working-directory: ${{ github.workspace }}/NunchukSDK/
       run: |
         set -e
         cmake -B build -G Xcode -DCMAKE_TOOLCHAIN_FILE=./ios.toolchain.cmake -DPLATFORM=OS64 -DCMAKE_WARN_DEPRECATED=FALSE
-
-    - name: Save cache cmake
-      if: always() && steps.cache-cmake.outputs.cache-hit != 'true'
-      id: cache-cmake-save
-      uses: actions/cache/save@v4
-      with:
-        path: ${{ github.workspace }}/NunchukSDK/build
-        key: ${{ steps.cache-cmake.outputs.cache-primary-key }}
-
-    - name: Restore build
-      id: cache-build
-      uses: actions/cache/restore@v4
-      with:
-        path: ${{ github.workspace }}/NunchukSDK/build
-        key: cache-build
 
     - name: Build
       working-directory: ${{ github.workspace }}/NunchukSDK/build
       if: steps.cache-build.outputs.cache-hit != 'true'
       run: |
         #xcodebuild -sdk iphoneos -arch arm64 -scheme nunchukSDK -configuration Release
-        xcodebuild archive -project nunchukWalletSDK.xcodeproj -scheme nunchukSDK -sdk iphoneos -arch arm64 -archivePath "$PWD/out" SKIP_INSTALL=NO
-
-    - name: Save build
-      if: always() && steps.cache-build.outputs.cache-hit != 'true'
-      id: cache-build-save
-      uses: actions/cache/save@v4
-      with:
-        path: ${{ github.workspace }}/NunchukSDK/build
-        key: ${{ steps.cache-build.outputs.cache-primary-key }}
+        xcodebuild archive -project nunchukWalletSDK.xcodeproj -scheme nunchukSDK -sdk iphoneos -arch arm64 -archivePath "$PWD/out" SKIP_INSTALL=NO -configuration Release
 
     - name: Upload Artifact
-      uses: 'actions/upload-artifact@v3'
+      uses: 'actions/upload-artifact@v4'
       with:
         name: upload
-        path: ${{ github.workspace }}/NunchukSDK/build/out
-
+        path: ${{ github.workspace }}/NunchukSDK/build

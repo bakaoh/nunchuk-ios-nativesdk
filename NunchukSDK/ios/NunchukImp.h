@@ -140,7 +140,7 @@ extern const int FEE_RATE_ECONOMICAL;
 -(BOOL)markAddressAsUsedWithWalletId:(NSString * _Nonnull)walletId address:(NSString *_Nonnull)address error:(NSError * _Nullable * _Nullable)outError;
 -(NSString * _Nullable)getAddressPathWithWalletId:(NSString * _Nonnull)walletId address:(NSString *_Nonnull)address error:(NSError * _Nullable * _Nullable)outError;
 -(BOOL)isMnemonicValid:(NSString * _Nonnull)mnemonic error:(NSError * _Nullable * _Nullable)outError;
--(ObjDraftTransaction* _Nullable)draftTransactionWithWalletId:(NSString * _Nonnull)walletId outputs:(NSArray<StringIntPair*> *_Nonnull)outputs inputs:(NSArray<ObjUnspentOutput*> *_Nonnull)input feeRate:(long)feeRate subtractFeeFromAmount:(BOOL)subtractFeeFromAmount error:(NSError * _Nullable * _Nullable)outError;
+-(ObjDraftTransaction* _Nullable)draftTransactionWithWalletId:(NSString * _Nonnull)walletId outputs:(NSArray<StringIntPair*> *_Nonnull)outputs inputs:(NSArray<ObjUnspentOutput*> *_Nonnull)input feeRate:(long)feeRate subtractFeeFromAmount:(BOOL)subtractFeeFromAmount useScriptPath:(BOOL)useScriptPath error:(NSError * _Nullable * _Nullable)outError;
 
 -(ObjTransaction* _Nullable)broadcastTransactionWithWalletId:(NSString * _Nonnull)walletId txId:(NSString * _Nonnull)txId error:(NSError * _Nullable * _Nullable)outError;
 -(BOOL)updateTransactionMemoWithWalletId:(NSString * _Nonnull)walletId txId:(NSString * _Nonnull)txId newMemo:(NSString * _Nullable)newMemo error:(NSError * _Nullable * _Nullable)outError;
@@ -151,7 +151,7 @@ extern const int FEE_RATE_ECONOMICAL;
 -(NSString *_Nullable)newAddressWithWalletId:(NSString * _Nullable)walletId error:(NSError * _Nullable * _Nullable)outError;
 -(ObjWallet *_Nullable)importBSMSWithFilePath:(NSString* _Nonnull)filePath walletName:(NSString* _Nonnull)walletName error:(NSError * _Nullable * _Nullable)outError;
 
--(ObjTransaction *_Nullable)createTransactionWithWalletId:(NSString * _Nonnull)walletId outputs:(NSArray<StringIntPair*> *_Nullable)outputs memo:(NSString * _Nonnull)memo feeRate:(long)feeRate subtractFeeFromAmount:(BOOL)subtractFeeFromAmount inputs:(NSArray *_Nonnull)inputs antiFeeSniping:(BOOL)antiFeeSniping error:(NSError * _Nullable * _Nullable)outError;
+-(ObjTransaction *_Nullable)createTransactionWithWalletId:(NSString * _Nonnull)walletId outputs:(NSArray<StringIntPair*> *_Nullable)outputs memo:(NSString * _Nonnull)memo feeRate:(long)feeRate subtractFeeFromAmount:(BOOL)subtractFeeFromAmount inputs:(NSArray *_Nonnull)inputs antiFeeSniping:(BOOL)antiFeeSniping useScriptPath:(BOOL)useScriptPath error:(NSError * _Nullable * _Nullable)outError;
 -(ObjTransaction *_Nullable)signTransactionWithWalletId:(NSString * _Nonnull)walletId txId:(NSString * _Nonnull)txId fingerprint:(NSString * _Nonnull)fingerPrint error:(NSError * _Nullable * _Nullable)outError;
 -(NSInteger)getTotalAmountWithWalletId:(NSString * _Nonnull)walletId txId:(NSString * _Nonnull)txId error:(NSError * _Nullable * _Nullable)outError;
 -(BOOL)sendPassphrase:(NSString * _Nonnull)passphrase signerId:(NSString *_Nonnull)signerId error:(NSError * _Nullable * _Nullable)outError;
@@ -216,8 +216,8 @@ extern const int FEE_RATE_ECONOMICAL;
 - (BOOL)hasSigner:(ObjSingleSigner *_Nonnull)signer;
 - (ObjWallet *_Nullable)parseKeystoneWallet:(NSArray *_Nonnull)data chain:(ChainTypeEnum)chain error:(NSError *_Nullable*_Nullable)error;
 - (void)enableLog:(BOOL)isEnabled;
-- (ObjTransaction *_Nullable)replaceTransaction:(NSString *_Nonnull)transactionId walletId:(NSString *_Nonnull)walletId newFeeRate:(long)newFeeRate antiFeeSniping:(BOOL)antiFeeSniping error:(NSError *_Nullable*_Nullable)error;
-- (ObjDraftTransaction *_Nullable)draftRBFTransactionWithWalletId:(NSString *_Nonnull)walletId transactionId:(NSString *_Nonnull)transactionId outputs:(NSArray<StringIntPair*> *_Nonnull)outputs feeRate:(long)feeRate subtractFeeFromAmount:(BOOL)subtractFeeFromAmount error:(NSError *_Nullable*_Nullable)outError;
+- (ObjTransaction *_Nullable)replaceTransaction:(NSString *_Nonnull)transactionId walletId:(NSString *_Nonnull)walletId newFeeRate:(long)newFeeRate antiFeeSniping:(BOOL)antiFeeSniping useScriptPath:(BOOL)useScriptPath error:(NSError *_Nullable*_Nullable)error;
+- (ObjDraftTransaction *_Nullable)draftRBFTransactionWithWalletId:(NSString *_Nonnull)walletId transactionId:(NSString *_Nonnull)transactionId outputs:(NSArray<StringIntPair*> *_Nonnull)outputs feeRate:(long)feeRate subtractFeeFromAmount:(BOOL)subtractFeeFromAmount useScriptPath:(BOOL)useScriptPath error:(NSError *_Nullable*_Nullable)outError;
 - (ObjNunchukMatrixEvent *_Nullable)signAirgapTransactionWithInitEventId:(NSString *_Nonnull)initEventId masterFingerprint:(NSString *_Nonnull)masterFingerprint error:(NSError *_Nullable*_Nullable)error;
 - (BOOL)clearPassPhraseWithSignerId:(NSString *_Nonnull)signerId error:(NSError *_Nullable*_Nullable)error;
 - (BOOL)setSelectedWallet:(NSString *_Nonnull)walletId error:(NSError *_Nullable*_Nullable)error;
@@ -338,8 +338,8 @@ extern const int FEE_RATE_ECONOMICAL;
 - (ObjWalletData *_Nullable)getWalletData:(NSString *_Nonnull)walletId error:(NSError *_Nullable*_Nullable)error;
 - (NSDictionary *_Nullable)customizeTapsignerWithCVC:(NSString *_Nonnull)cvc masterSignerId:(NSString *_Nonnull)masterSignerId path:(NSString *_Nonnull)path error:(NSError *_Nullable*_Nullable)error;
 
-- (ObjTransaction *_Nullable)cancelRBFTransaction:(NSString *_Nonnull)transactionId walletId:(NSString *_Nonnull)walletId newFeeRate:(long)newFeeRate newAddress:(NSString *_Nonnull)newAddress antiFeeSniping:(BOOL)antiFeeSniping error:(NSError *_Nullable*_Nullable)error;
-- (ObjDraftTransaction *_Nullable)draftCancelRBFTransactionWithWalletId:(NSString *_Nonnull)walletId transactionId:(NSString *_Nonnull)transactionId newAddress:(NSString *_Nonnull)newAddress newFeeRate:(long)newFeeRate error:(NSError *_Nullable*_Nullable)outError;
+- (ObjTransaction *_Nullable)cancelRBFTransaction:(NSString *_Nonnull)transactionId walletId:(NSString *_Nonnull)walletId newFeeRate:(long)newFeeRate newAddress:(NSString *_Nonnull)newAddress antiFeeSniping:(BOOL)antiFeeSniping useScriptPath:(BOOL)useScriptPath error:(NSError *_Nullable*_Nullable)error;
+- (ObjDraftTransaction *_Nullable)draftCancelRBFTransactionWithWalletId:(NSString *_Nonnull)walletId transactionId:(NSString *_Nonnull)transactionId newAddress:(NSString *_Nonnull)newAddress newFeeRate:(long)newFeeRate useScriptPath:(BOOL)useScriptPath error:(NSError *_Nullable*_Nullable)outError;
 - (NSArray *_Nullable)exportBCUR2:(NSString *_Nonnull)walletId fragmentLength:(NSInteger)fragmentLength error:(NSError *_Nullable*_Nullable)outError;
 - (NSArray<NSString *>*_Nullable)exportBBQRWalletWithId:(NSString *_Nonnull)walletId fragmentLength:(NSInteger)fragmentLength error:(NSError * _Nullable * _Nullable)outError;
 - (NSArray<NSString *>*_Nullable)exportBBQRTransactionWithWalletId:(NSString *_Nonnull)walletId txId:(NSString *_Nonnull)txId fragmentLength:(NSInteger)fragmentLength error:(NSError * _Nullable * _Nullable)outError;
@@ -348,9 +348,9 @@ extern const int FEE_RATE_ECONOMICAL;
 // Rollover
 
 - (NSNumber *_Nullable)estimateRollOverTransactionCount:(NSString *_Nonnull)walletId tags:(NSArray *_Nonnull)tags collections:(NSArray *_Nonnull)collections error:(NSError *_Nullable*_Nullable)error;
-- (NSDictionary *_Nullable)estimateRollOverAmount:(NSString *_Nonnull)sourceWalletId destinationWalletId:(NSString *_Nonnull)destinationWalletId tags:(NSArray *_Nonnull)tags collections:(NSArray *_Nonnull)collections feeRate:(long)feeRate error:(NSError *_Nullable*_Nullable)error;
-- (NSArray *_Nullable)draftRollOverTransactions:(NSString *_Nonnull)sourceWalletId destinationWalletId:(NSString *_Nonnull)destinationWalletId tags:(NSArray *_Nonnull)tags collections:(NSArray *_Nonnull)collections feeRate:(long)feeRate error:(NSError *_Nullable*_Nullable)error;
-- (NSArray *_Nullable)createRollOverTransactions:(NSString *_Nonnull)sourceWalletId destinationWalletId:(NSString *_Nonnull)destinationWalletId tags:(NSArray *_Nonnull)tags collections:(NSArray *_Nonnull)collections feeRate:(long)feeRate antiFeeSniping:(BOOL)antiFeeSniping error:(NSError *_Nullable*_Nullable)error;
+- (NSDictionary *_Nullable)estimateRollOverAmount:(NSString *_Nonnull)sourceWalletId destinationWalletId:(NSString *_Nonnull)destinationWalletId tags:(NSArray *_Nonnull)tags collections:(NSArray *_Nonnull)collections feeRate:(long)feeRate useScriptPath:(BOOL)useScriptPath error:(NSError *_Nullable*_Nullable)error;
+- (NSArray *_Nullable)draftRollOverTransactions:(NSString *_Nonnull)sourceWalletId destinationWalletId:(NSString *_Nonnull)destinationWalletId tags:(NSArray *_Nonnull)tags collections:(NSArray *_Nonnull)collections feeRate:(long)feeRate useScriptPath:(BOOL)useScriptPath error:(NSError *_Nullable*_Nullable)error;
+- (NSArray *_Nullable)createRollOverTransactions:(NSString *_Nonnull)sourceWalletId destinationWalletId:(NSString *_Nonnull)destinationWalletId tags:(NSArray *_Nonnull)tags collections:(NSArray *_Nonnull)collections feeRate:(long)feeRate antiFeeSniping:(BOOL)antiFeeSniping useScriptPath:(BOOL)useScriptPath error:(NSError *_Nullable*_Nullable)error;
 - (NSNumber *_Nullable)getAddressIndex:(NSString *_Nonnull)walletId appDisplayAddress:(NSString *_Nonnull)appDisplayAddress error:(NSError *_Nullable*_Nullable)error;
 
 // Value key set

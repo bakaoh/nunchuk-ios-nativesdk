@@ -868,10 +868,36 @@ using namespace nunchuk;
     }
 }
 
-- (NSString *_Nullable)expandingMultisigMiniscriptTemplate:(int)m n:(int)n newN:(int)newN expandTime:(int)expandTime addressType:(NSString *_Nonnull)addressType error:(NSError *_Nullable*_Nullable)error {
+- (Timelock::Type)timelockTypeFromString: (NSString *)timelockType {
+    if (std::strcmp([timelockType UTF8String], "absolute") == 0) {
+        return Timelock::Type::ABSOLUTE;
+    }
+    
+    if (std::strcmp([timelockType UTF8String], "relative") == 0) {
+        return Timelock::Type::RELATIVE;
+    }
+    
+    return Timelock::Type::ABSOLUTE;
+}
+
+- (Timelock::Based)timelockUnitFromString: (NSString *)timelockUnit {
+    if (std::strcmp([timelockUnit UTF8String], "timestamp") == 0) {
+        return Timelock::Based::TIME_LOCK;
+    }
+    
+    if (std::strcmp([timelockUnit UTF8String], "blockHeight") == 0) {
+        return Timelock::Based::HEIGHT_LOCK;
+    }
+    
+    return Timelock::Based::HEIGHT_LOCK;
+}
+
+- (NSString *_Nullable)expandingMultisigMiniscriptTemplate:(int)m n:(int)n newN:(int)newN expandTime:(int)expandTime timelockType:(NSString *_Nonnull)timelockType timelockUnit:(NSString *_Nonnull)timelockUnit addressType:(NSString *_Nonnull)addressType error:(NSError *_Nullable*_Nullable)error {
     try {
         AddressType cAddressType = [self addressTypeFromString:addressType];
-        Timelock timelock(Timelock::Based::HEIGHT_LOCK, Timelock::Type::ABSOLUTE, expandTime);
+        Timelock::Based cTimelockUnit = [self timelockUnitFromString:timelockUnit];
+        Timelock::Type cTimelockType = [self timelockTypeFromString:timelockType];
+        Timelock timelock(cTimelockUnit, cTimelockType, expandTime);
         std::string result = Utils::ExpandingMultisigMiniscriptTemplate(m, n, newN, timelock, cAddressType);
         return [NSString stringWithUTF8String:result.c_str()];
     } catch (const BaseException& exception) {
@@ -887,10 +913,12 @@ using namespace nunchuk;
     }
 }
 
-- (NSString *_Nullable)decayingMultisigMiniscriptTemplate:(int)m n:(int)n newM:(int)newM decayTime:(int)decayTime addressType:(NSString *_Nonnull)addressType error:(NSError *_Nullable*_Nullable)error {
+- (NSString *_Nullable)decayingMultisigMiniscriptTemplate:(int)m n:(int)n newM:(int)newM decayTime:(int)decayTime timelockType:(NSString *_Nonnull)timelockType timelockUnit:(NSString *_Nonnull)timelockUnit addressType:(NSString *_Nonnull)addressType error:(NSError *_Nullable*_Nullable)error {
     try {
         AddressType cAddressType = [self addressTypeFromString:addressType];
-        Timelock timelock(Timelock::Based::HEIGHT_LOCK, Timelock::Type::ABSOLUTE, decayTime);
+        Timelock::Based cTimelockUnit = [self timelockUnitFromString:timelockUnit];
+        Timelock::Type cTimelockType = [self timelockTypeFromString:timelockType];
+        Timelock timelock(cTimelockUnit, cTimelockType, decayTime);
         std::string result = Utils::DecayingMultisigMiniscriptTemplate(m, n, newM, timelock, cAddressType);
         return [NSString stringWithUTF8String:result.c_str()];
     } catch (const BaseException& exception) {
@@ -906,10 +934,12 @@ using namespace nunchuk;
     }
 }
 
-- (NSString *_Nullable)flexibleMultisigMiniscriptTemplate:(int)m n:(int)n newM:(int)newM newN:(int)newN reuseSigners:(BOOL)reuseSigners expandingTime:(int)expandingTime addressType:(NSString *_Nonnull)addressType error:(NSError *_Nullable*_Nullable)error {
+- (NSString *_Nullable)flexibleMultisigMiniscriptTemplate:(int)m n:(int)n newM:(int)newM newN:(int)newN reuseSigners:(BOOL)reuseSigners time:(int)time timelockType:(NSString *_Nonnull)timelockType timelockUnit:(NSString *_Nonnull)timelockUnit addressType:(NSString *_Nonnull)addressType error:(NSError *_Nullable*_Nullable)error {
     try {
         AddressType cAddressType = [self addressTypeFromString:addressType];
-        Timelock timelock(Timelock::Based::HEIGHT_LOCK, Timelock::Type::ABSOLUTE, expandingTime);
+        Timelock::Based cTimelockUnit = [self timelockUnitFromString:timelockUnit];
+        Timelock::Type cTimelockType = [self timelockTypeFromString:timelockType];
+        Timelock timelock(cTimelockUnit, cTimelockType, time);
         std::string result = Utils::FlexibleMultisigMiniscriptTemplate(m, n, newM, newN, reuseSigners, timelock, cAddressType);
         return [NSString stringWithUTF8String:result.c_str()];
     } catch (const BaseException& exception) {

@@ -986,6 +986,9 @@ dispatch_semaphore_t semaphore;
     
     try {
         auto oldTx = nunchukManager->nu->GetTransaction([walletId UTF8String], [transactionId UTF8String]);
+        if (oldTx.get_status() == TransactionStatus::CONFIRMED) {
+            throw BaseException(NunchukSDKErrorInvalidTxStatus, "Cannot replace transaction. The original transaction has already been confirmed");
+        }
         auto input = nunchukManager->nu->GetUnspentOutputsFromTxInputs([walletId UTF8String], oldTx.get_inputs());
         auto tx = nunchukManager->nu->DraftTransaction(std::string([walletId UTF8String]), cOutputs, input, feeRate, subtractFeeFromAmount, [transactionId UTF8String], useScriptPath);
         ObjTransaction *draftTx = [[ObjTransaction alloc] initWithTransaction:&tx];
@@ -1004,6 +1007,9 @@ dispatch_semaphore_t semaphore;
 - (ObjDraftTransaction *)draftCancelRBFTransactionWithWalletId:(NSString *)walletId transactionId:(NSString *)transactionId newAddress:(NSString *)newAddress newFeeRate:(long)newFeeRate useScriptPath:(BOOL)useScriptPath error:(NSError * _Nullable __autoreleasing *)outError {
     try {
         auto originTx = nunchukManager->nu->GetTransaction([walletId UTF8String], [transactionId UTF8String]);
+        if (originTx.get_status() == TransactionStatus::CONFIRMED) {
+            throw BaseException(NunchukSDKErrorInvalidTxStatus, "Cannot replace transaction. The original transaction has already been confirmed");
+        }
         auto inputs = nunchukManager->nu->GetUnspentOutputsFromTxInputs([walletId UTF8String], originTx.get_inputs());
         auto totalAmount = 0;
         for (auto input : inputs) {
@@ -2137,6 +2143,10 @@ dispatch_semaphore_t semaphore;
 
 - (ObjTransaction *)replaceTransaction:(NSString *)transactionId walletId:(NSString *)walletId newFeeRate:(long)newFeeRate antiFeeSniping:(BOOL)antiFeeSniping useScriptPath:(BOOL)useScriptPath error:(NSError **)error {
     try {
+        auto replaceTx = nunchukManager->nu->GetTransaction([walletId UTF8String], [transactionId UTF8String]);
+        if (replaceTx.get_status() == TransactionStatus::CONFIRMED) {
+            throw BaseException(NunchukSDKErrorInvalidTxStatus, "Cannot replace transaction. The original transaction has already been confirmed");
+        }
         auto tx = nunchukManager->nu->ReplaceTransaction([walletId UTF8String], [transactionId UTF8String], newFeeRate, antiFeeSniping, useScriptPath);
         return [[ObjTransaction alloc] initWithTransaction:&tx];
     } catch (const BaseException& exception) {
@@ -2151,6 +2161,9 @@ dispatch_semaphore_t semaphore;
 - (ObjTransaction *)cancelRBFTransaction:(NSString *)transactionId walletId:(NSString *)walletId newFeeRate:(long)newFeeRate newAddress:(NSString *)newAddress antiFeeSniping:(BOOL)antiFeeSniping useScriptPath:(BOOL)useScriptPath error:(NSError **)error {
     try {
         auto originTx = nunchukManager->nu->GetTransaction([walletId UTF8String], [transactionId UTF8String]);
+        if (originTx.get_status() == TransactionStatus::CONFIRMED) {
+            throw BaseException(NunchukSDKErrorInvalidTxStatus, "Cannot replace transaction. The original transaction has already been confirmed");
+        }
         auto inputs = nunchukManager->nu->GetUnspentOutputsFromTxInputs([walletId UTF8String], originTx.get_inputs());
         auto totalAmount = 0;
         for (auto input : inputs) {

@@ -39,7 +39,8 @@ typedef enum NunchukSDKError: NSInteger {
     NunchukSDKErrorCancelNFCSession = -1000001,
     NunchukSDKErrorSignerExist = -1000002,
     NunchukSDKErrorShouldHandleAsPortal= -1000003,
-    NunchukSDKErrorGroupSandboxFinalized= -1000004
+    NunchukSDKErrorGroupSandboxFinalized= -1000004,
+    NunchukSDKErrorInvalidTxStatus= -1000005
 } NunchukSDKError;
 
 typedef enum ConnectionStatusEnum {

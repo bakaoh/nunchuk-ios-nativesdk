@@ -442,6 +442,7 @@ extern const int FEE_RATE_ECONOMICAL;
 - (NSNumber *_Nullable)getCurrentIndexFromMasterSigner:(NSString *_Nonnull)masterSignerId walletType:(NSString *_Nonnull)walletType addressType:(NSString *_Nonnull)addressType error:(NSError *_Nullable*_Nullable)error;
 
 - (ObjSingleSigner *_Nullable)getSignerFromMasterSigner:(NSString *_Nonnull)masterSignerId walletType:(NSString *_Nonnull)walletType addressType:(NSString *_Nonnull)addressType index:(int)index error:(NSError *_Nullable*_Nullable)error;
-
+- (ObjSingleSigner *_Nullable)getSignerFromTapsignerMasterSigner:(NSString *_Nonnull)masterSignerId cvc:(NSString *_Nonnull)cvc walletType:(NSString *_Nonnull)walletType addressType:(NSString *_Nonnull)addressType index:(int)index error:(NSError *_Nullable*_Nullable)error;
+- (NSArray<ObjSingleSigner *> *_Nullable)getMultipleSignersFromTapsignerMasterSigner:(NSString *_Nonnull)masterSignerId cvc:(NSString *_Nonnull)cvc walletType:(NSString *_Nonnull)walletType addressType:(NSString *_Nonnull)addressType startIndex:(int)startIndex count:(int)count error:(NSError *_Nullable*_Nullable)error;
 @end
 #endif

@@ -790,10 +790,10 @@ using namespace nunchuk;
 //
 // Miniscript utilities
 //
-- (BOOL)isValidMiniscriptTemplate:(NSString *_Nonnull)templete addressType:(NSString *_Nonnull)addressType {
+- (BOOL)isValidMiniscriptTemplate:(NSString *_Nonnull)tmpl addressType:(NSString *_Nonnull)addressType {
     try {
         AddressType cAddressType = [self addressTypeFromString:addressType];
-        return Utils::IsValidMiniscriptTemplate([templete UTF8String], cAddressType);
+        return Utils::IsValidMiniscriptTemplate([tmpl UTF8String], cAddressType);
     } catch (const std::exception& exception) {
         return NO;
     }
@@ -807,7 +807,24 @@ using namespace nunchuk;
     }
 }
 
-- (NSString *_Nullable)policyToMiniscript:(NSString *_Nonnull)policy addressType:(NSString *_Nonnull)addressType error:(NSError *_Nullable*_Nullable)error {
+- (BOOL)isValidTapscriptTemplate:(NSString *_Nonnull)tmpl error:(NSError * _Nullable __autoreleasing *)error {
+    try {
+        std::string err;
+        bool result = Utils::IsValidTapscriptTemplate([tmpl UTF8String], err);
+        if (!result && error && !err.empty()) {
+            *error = [[NSError alloc] initWithDomain:@"io.nunchuk.ios" code:NunchukSDKErrorUndefined userInfo:@{ @"message": [NSString stringWithUTF8String:err.c_str()] }];
+            return NO;
+        }
+        return result;
+    } catch (const std::exception& exception) {
+        if (error) {
+            *error = [[NSError alloc] initWithDomain:@"io.nunchuk.ios" code:NunchukSDKErrorUndefined userInfo:@{ @"message": [NSString stringWithUTF8String:exception.what()] }];
+        }
+        return NO;
+    }
+}
+
+- (NSString *_Nullable)policyToMiniscript:(NSString *_Nonnull)policy addressType:(NSString *_Nonnull)addressType error:(NSError * _Nullable __autoreleasing *)error {
     try {
         AddressType cAddressType = [self addressTypeFromString:addressType];
         std::string result = Utils::PolicyToMiniscript([policy UTF8String], {}, cAddressType);
@@ -825,36 +842,13 @@ using namespace nunchuk;
     }
 }
 
-- (NSString *_Nullable)miniscriptTemplateToMiniscript:(NSString *_Nonnull)templete signers:(NSDictionary<NSString *, ObjSingleSigner *> *_Nonnull)signers error:(NSError *_Nullable*_Nullable)error {
+- (NSDictionary *_Nullable)getScriptNode:(NSString *_Nonnull)script error:(NSError * _Nullable __autoreleasing *)error {
     try {
-        std::map<std::string, SingleSigner> signerMap;
-        for (NSString *key in signers) {
-            id obj = [signers objectForKey:key];
-            ObjSingleSigner *remoteSigner = (ObjSingleSigner *)obj;
-            auto cSigner = SingleSigner(std::string([remoteSigner.signerName UTF8String]), std::string([remoteSigner.xpub UTF8String]), std::string([remoteSigner.publicKey UTF8String]), std::string([remoteSigner.bip32Path UTF8String]), std::string([remoteSigner.masterFingerPrint UTF8String]), false);
-            cSigner.set_type([self parseObjCSignerType:remoteSigner.type]);
-            signerMap[std::string([key UTF8String])] = cSigner;
-        }
-        
-        std::string result = Utils::MiniscriptTemplateToMiniscript([templete UTF8String], signerMap);
-        return [NSString stringWithUTF8String:result.c_str()];
-    } catch (const BaseException& exception) {
-        if (error) {
-            *error = [[NSError alloc] initWithDomain:@"io.nunchuk.ios" code: exception.code() userInfo:@{@"message": [NSString stringWithUTF8String: exception.what()]}];
-        }
-        return nil;
-    } catch (const std::exception& exception) {
-        if (error) {
-            *error = [[NSError alloc] initWithDomain:@"io.nunchuk.ios" code: NunchukSDKErrorUndefined userInfo:@{@"message": [NSString stringWithUTF8String: exception.what()]}];
-        }
-        return nil;
-    }
-}
-
-- (ObjScriptNode *_Nullable)miniscriptToScriptNode:(NSString *_Nonnull)miniscript error:(NSError *_Nullable*_Nullable)error {
-    try {
-        auto scriptNode = Utils::MiniscriptToScriptNode([miniscript UTF8String]);
-        return [[ObjScriptNode alloc] initWithScriptNode:scriptNode];
+        std::string keypath;
+        auto scriptNode = Utils::GetScriptNode([script UTF8String], keypath);
+        ObjScriptNode *objScriptNode = [[ObjScriptNode alloc] initWithScriptNode:scriptNode];
+        NSString *keyPathStr = [NSString stringWithUTF8String:keypath.c_str()];
+        return @{ @"scriptNode": objScriptNode, @"keyPath": keyPathStr };
     } catch (const BaseException& exception) {
         if (error) {
             *error = [[NSError alloc] initWithDomain:@"io.nunchuk.ios" code: exception.code() userInfo:@{@"message": [NSString stringWithUTF8String: exception.what()]}];

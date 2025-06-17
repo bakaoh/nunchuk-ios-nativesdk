@@ -3682,11 +3682,21 @@ dispatch_semaphore_t semaphore;
     }
 }
 
--(ObjWallet *)createMiniscriptWallet:(NSString *)name miniscript:(NSString *)miniscript addressType:(NSString *)addressType description:(NSString *)description allowUsedSigner:(BOOL)allowUsedSigner decoyPin:(NSString *)decoyPin error:(NSError * _Nullable __autoreleasing *)outError {
+-(ObjWallet *)createMiniscriptWallet:(NSString *)name miniscript:(NSString *)miniscript signers:(NSDictionary<NSString *, ObjSingleSigner *> *_Nonnull)signers addressType:(NSString *)addressType description:(NSString *)description allowUsedSigner:(BOOL)allowUsedSigner decoyPin:(NSString *)decoyPin error:(NSError * _Nullable __autoreleasing *)outError {
     try {
+        std::map<std::string, SingleSigner> signerMap;
+        for (NSString *key in signers) {
+            id obj = [signers objectForKey:key];
+            ObjSingleSigner *remoteSigner = (ObjSingleSigner *)obj;
+            auto cSigner = SingleSigner(std::string([remoteSigner.signerName UTF8String]), std::string([remoteSigner.xpub UTF8String]), std::string([remoteSigner.publicKey UTF8String]), std::string([remoteSigner.bip32Path UTF8String]), std::string([remoteSigner.masterFingerPrint UTF8String]), false);
+            cSigner.set_type([self parseObjCSignerType:remoteSigner.type]);
+            signerMap[std::string([key UTF8String])] = cSigner;
+        }
+        
         AddressType address_type = [self addressTypeFromString:addressType];
         auto wallet = nunchukManager->nu->CreateMiniscriptWallet([name UTF8String],
                                                                  [miniscript UTF8String],
+                                                                 signerMap,
                                                                  address_type,
                                                                  [description UTF8String],
                                                                  allowUsedSigner,

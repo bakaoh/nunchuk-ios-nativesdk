@@ -437,10 +437,8 @@ extern const int FEE_RATE_ECONOMICAL;
 - (NSNumber *_Nullable)getScriptPathFeeRateWithWalletId:(NSString *_Nonnull)walletId transaction:(ObjTransaction *_Nonnull)transaction error:(NSError *_Nullable*_Nullable)error;
 
 // Miniscript wallet
--(ObjWallet *_Nullable)createMiniscriptWallet:(NSString *_Nonnull)name miniscript:(NSString *_Nonnull)miniscript addressType:(NSString *_Nonnull)addressType description:(NSString *_Nonnull)description allowUsedSigner:(BOOL)allowUsedSigner decoyPin:(NSString *_Nonnull)decoyPin error:(NSError *_Nullable*_Nullable)error;
-
+- (ObjWallet *_Nullable)createMiniscriptWallet:(NSString *_Nonnull)name miniscript:(NSString *_Nonnull)miniscript signers:(NSDictionary<NSString *, ObjSingleSigner *> *_Nonnull)signers addressType:(NSString *_Nonnull)addressType description:(NSString *_Nonnull)description allowUsedSigner:(BOOL)allowUsedSigner decoyPin:(NSString *_Nonnull)decoyPin error:(NSError *_Nullable*_Nullable)error;
 - (NSNumber *_Nullable)getCurrentIndexFromMasterSigner:(NSString *_Nonnull)masterSignerId walletType:(NSString *_Nonnull)walletType addressType:(NSString *_Nonnull)addressType error:(NSError *_Nullable*_Nullable)error;
-
 - (ObjSingleSigner *_Nullable)getSignerFromMasterSigner:(NSString *_Nonnull)masterSignerId walletType:(NSString *_Nonnull)walletType addressType:(NSString *_Nonnull)addressType index:(int)index error:(NSError *_Nullable*_Nullable)error;
 - (ObjSingleSigner *_Nullable)getSignerFromTapsignerMasterSigner:(NSString *_Nonnull)masterSignerId cvc:(NSString *_Nonnull)cvc walletType:(NSString *_Nonnull)walletType addressType:(NSString *_Nonnull)addressType index:(int)index error:(NSError *_Nullable*_Nullable)error;
 - (NSArray<ObjSingleSigner *> *_Nullable)getMultipleSignersFromTapsignerMasterSigner:(NSString *_Nonnull)masterSignerId cvc:(NSString *_Nonnull)cvc walletType:(NSString *_Nonnull)walletType addressType:(NSString *_Nonnull)addressType startIndex:(int)startIndex count:(int)count error:(NSError *_Nullable*_Nullable)error;

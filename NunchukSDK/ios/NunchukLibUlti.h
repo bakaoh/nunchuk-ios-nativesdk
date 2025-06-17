@@ -85,11 +85,12 @@ typedef enum NCNDEFMessageType {
 - (NSArray *_Nullable)exportBBQRWallet:(ObjWallet *_Nonnull)wallet fragmentLength:(NSInteger)fragmentLength error:(NSError *_Nullable*_Nullable)error;
 
 // Miniscript utilities
-- (BOOL)isValidMiniscriptTemplate:(NSString *_Nonnull)templete addressType:(NSString *_Nonnull)addressType;
+- (BOOL)isValidMiniscriptTemplate:(NSString *_Nonnull)tmpl addressType:(NSString *_Nonnull)addressType;
 - (BOOL)isValidPolicy:(NSString *_Nonnull)policy;
+- (BOOL)isValidTapscriptTemplate:(NSString *_Nonnull)tmpl error:(NSError *_Nullable*_Nullable)error;
 - (NSString *_Nullable)policyToMiniscript:(NSString *_Nonnull)policy addressType:(NSString *_Nonnull)addressType error:(NSError *_Nullable*_Nullable)error;
-- (NSString *_Nullable)miniscriptTemplateToMiniscript:(NSString *_Nonnull)templete signers:(NSDictionary<NSString *, ObjSingleSigner *> *_Nonnull)signers error:(NSError *_Nullable*_Nullable)error;
-- (ObjScriptNode *_Nullable)miniscriptToScriptNode:(NSString *_Nonnull)miniscript error:(NSError *_Nullable*_Nullable)error;
+- (NSString *_Nullable)miniscriptTemplateToMiniscript:(NSString *_Nonnull)tmpl signers:(NSDictionary<NSString *, ObjSingleSigner *> *_Nonnull)signers error:(NSError *_Nullable*_Nullable)error;
+- (NSDictionary *_Nullable)getScriptNode:(NSString *_Nonnull)script error:(NSError *_Nullable*_Nullable)error;
 - (NSString *_Nullable)expandingMultisigMiniscriptTemplate:(int)m n:(int)n newN:(int)newN expandTime:(int)expandTime timelockType:(NSString *_Nonnull)timelockType timelockUnit:(NSString *_Nonnull)timelockUnit addressType:(NSString *_Nonnull)addressType error:(NSError *_Nullable*_Nullable)error;
 - (NSString *_Nullable)decayingMultisigMiniscriptTemplate:(int)m n:(int)n newM:(int)newM decayTime:(int)decayTime timelockType:(NSString *_Nonnull)timelockType timelockUnit:(NSString *_Nonnull)timelockUnit addressType:(NSString *_Nonnull)addressType error:(NSError *_Nullable*_Nullable)error;
 - (NSString *_Nullable)flexibleMultisigMiniscriptTemplate:(int)m n:(int)n newM:(int)newM newN:(int)newN reuseSigners:(BOOL)reuseSigners time:(int)time timelockType:(NSString *_Nonnull)timelockType timelockUnit:(NSString *_Nonnull)timelockUnit addressType:(NSString *_Nonnull)addressType error:(NSError *_Nullable*_Nullable)error;

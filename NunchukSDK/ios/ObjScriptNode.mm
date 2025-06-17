@@ -87,6 +87,9 @@ using namespace nunchuk;
             case ScriptNode::Type::MULTI:
                 _type = SCRIPT_NODE_MULTI;
                 break;
+            case ScriptNode::Type::OR_TAPROOT:
+                _type = SCRIPT_NODE_OR_TAPROOT;
+                break;
             default:
                 _type = SCRIPT_NODE_NONE;
                 break;

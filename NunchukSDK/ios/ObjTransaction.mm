@@ -22,10 +22,8 @@ using namespace nunchuk;
     NSMutableArray * objInput = [[NSMutableArray alloc] init];
     
     for(auto& input: transaction->get_inputs()) {
-        StringIntPair * pair = [[StringIntPair alloc] init];
-        pair.key = [[NSString alloc] initWithUTF8String:input.first.c_str()];
-        pair.value = input.second;
-        [objInput addObject:pair];
+        ObjTransactionInput *txInput = [[ObjTransactionInput alloc] initWithTxId:[[NSString alloc] initWithUTF8String:input.txid.c_str()] vout:input.vout nSequence:input.nSequence];
+        [objInput addObject:txInput];
     }
     obj.input = [objInput copy];
     NSMutableArray * objOutput = [[NSMutableArray alloc] init];
@@ -110,6 +108,18 @@ using namespace nunchuk;
             break;
     }
     return txStatus;
+}
+
+@end
+
+@implementation ObjTransactionInput {
+}
+
+- (instancetype _Nullable)initWithTxId:(NSString *_Nonnull)txId vout:(int64_t)vout nSequence:(int64_t)nSequence {
+    ObjTransactionInput *input = [ObjTransactionInput new];
+    input.txId = txId;
+    input.vout = vout;
+    input.nSequence = nSequence;
 }
 
 @end

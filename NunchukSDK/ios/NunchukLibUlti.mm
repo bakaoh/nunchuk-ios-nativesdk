@@ -886,13 +886,13 @@ using namespace nunchuk;
     return Timelock::Based::HEIGHT_LOCK;
 }
 
-- (NSString *_Nullable)expandingMultisigMiniscriptTemplate:(int)m n:(int)n newN:(int)newN expandTime:(int)expandTime timelockType:(NSString *_Nonnull)timelockType timelockUnit:(NSString *_Nonnull)timelockUnit addressType:(NSString *_Nonnull)addressType error:(NSError *_Nullable*_Nullable)error {
+- (NSString *_Nullable)expandingMultisigMiniscriptTemplate:(int)m n:(int)n newN:(int)newN reuseSigners:(BOOL)reuseSigners expandTime:(int)expandTime timelockType:(NSString *_Nonnull)timelockType timelockUnit:(NSString *_Nonnull)timelockUnit addressType:(NSString *_Nonnull)addressType error:(NSError *_Nullable*_Nullable)error {
     try {
         AddressType cAddressType = [self addressTypeFromString:addressType];
         Timelock::Based cTimelockUnit = [self timelockUnitFromString:timelockUnit];
         Timelock::Type cTimelockType = [self timelockTypeFromString:timelockType];
         Timelock timelock(cTimelockUnit, cTimelockType, expandTime);
-        std::string result = Utils::ExpandingMultisigMiniscriptTemplate(m, n, newN, timelock, cAddressType);
+        std::string result = Utils::ExpandingMultisigMiniscriptTemplate(m, n, newN, reuseSigners, timelock, cAddressType);
         return [NSString stringWithUTF8String:result.c_str()];
     } catch (const BaseException& exception) {
         if (error) {
@@ -907,13 +907,13 @@ using namespace nunchuk;
     }
 }
 
-- (NSString *_Nullable)decayingMultisigMiniscriptTemplate:(int)m n:(int)n newM:(int)newM decayTime:(int)decayTime timelockType:(NSString *_Nonnull)timelockType timelockUnit:(NSString *_Nonnull)timelockUnit addressType:(NSString *_Nonnull)addressType error:(NSError *_Nullable*_Nullable)error {
+- (NSString *_Nullable)decayingMultisigMiniscriptTemplate:(int)m n:(int)n newM:(int)newM reuseSigners:(BOOL)reuseSigners decayTime:(int)decayTime timelockType:(NSString *_Nonnull)timelockType timelockUnit:(NSString *_Nonnull)timelockUnit addressType:(NSString *_Nonnull)addressType error:(NSError *_Nullable*_Nullable)error {
     try {
         AddressType cAddressType = [self addressTypeFromString:addressType];
         Timelock::Based cTimelockUnit = [self timelockUnitFromString:timelockUnit];
         Timelock::Type cTimelockType = [self timelockTypeFromString:timelockType];
         Timelock timelock(cTimelockUnit, cTimelockType, decayTime);
-        std::string result = Utils::DecayingMultisigMiniscriptTemplate(m, n, newM, timelock, cAddressType);
+        std::string result = Utils::DecayingMultisigMiniscriptTemplate(m, n, newM, reuseSigners, timelock, cAddressType);
         return [NSString stringWithUTF8String:result.c_str()];
     } catch (const BaseException& exception) {
         if (error) {

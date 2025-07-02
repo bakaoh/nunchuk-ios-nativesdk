@@ -103,6 +103,7 @@ extern const int FEE_RATE_ECONOMICAL;
 - (NSString *_Nullable)createTaprootWalletWithName:(NSString *_Nonnull)name numberKey:(int)numberKey signers:(NSMutableArray *_Nonnull)signers type:(NSString *_Nonnull)type valueKeyEnabled:(BOOL)valueKeyEnabled error:(NSError *_Nullable*_Nullable)error;
 - (ObjWallet *_Nullable)createDecoyWallet:(NSString *_Nonnull)name numberKey:(int)numberKey signers:(NSMutableArray *_Nonnull)signers addressType:(NSString *_Nonnull)addressType type:(NSString *_Nonnull)type pin:(NSString *_Nonnull)pin error:(NSError *_Nullable*_Nullable)error;
 - (ObjWallet *_Nullable)createDecoyWallet:(NSString *_Nonnull)pin fromWalletId:(NSString *_Nonnull)walletId error:(NSError *_Nullable*_Nullable)error;
+- (void)createDecoyPIN:(NSString *_Nonnull)pin;
 -(ObjWallet* _Nullable)createHotWallet:(NSString * _Nonnull)passphrase error:(NSError * _Nullable * _Nullable)outError;
 -(ObjWallet *_Nullable)recoverHotWallet:(NSString* _Nonnull)mnemonic passphrase:(NSString *_Nonnull)passphrase replace:(BOOL)replace error:(NSError * _Nullable * _Nullable)outError;
 -(NSString * _Nullable)getHotWalletMnemonic:(NSString *_Nonnull)walletId passphrase:(NSString *_Nonnull)passphrase error:(NSError * _Nullable * _Nullable)outError;

@@ -259,7 +259,7 @@ dispatch_semaphore_t semaphore;
 
 - (ObjWallet *)createDecoyWallet:(NSString *)name numberKey:(int)numberKey signers:(NSMutableArray *)signers addressType:(NSString *)addressType type:(NSString *)type pin:(NSString *)pin error:(NSError * _Nullable __autoreleasing *)error {
     try {
-        [self createDecoyWallet:pin];
+        [self createDecoyPIN:pin];
         std::vector<SingleSigner> remoteSigners;
         for(unsigned long i = 0; i < signers.count; i++) {
             if ([[signers objectAtIndex:i] isKindOfClass:[ObjSingleSigner class]]) {
@@ -284,7 +284,7 @@ dispatch_semaphore_t semaphore;
 
 - (ObjWallet *)createDecoyWallet:(NSString *)pin fromWalletId:(NSString *)walletId error:(NSError * _Nullable __autoreleasing *)error {
     try {
-        [self createDecoyWallet:pin];
+        [self createDecoyPIN:pin];
         auto wallet = nunchukManager->nu->CloneWallet([walletId UTF8String], [pin UTF8String]);
         return [[ObjWallet alloc] initWithWallet:&wallet];
     } catch (const BaseException& exception) {
@@ -296,7 +296,7 @@ dispatch_semaphore_t semaphore;
     }
 }
 
-- (void)createDecoyWallet:(NSString *)pin {
+- (void)createDecoyPIN:(NSString *)pin {
     NSArray *paths = NSSearchPathForDirectoriesInDomains
     (NSDocumentDirectory, NSUserDomainMask, YES);
     NSString *storagePath = [paths objectAtIndex:0];

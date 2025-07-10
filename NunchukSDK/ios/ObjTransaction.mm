@@ -120,6 +120,7 @@ using namespace nunchuk;
     input.txId = txId;
     input.vout = vout;
     input.nSequence = nSequence;
+    return input;
 }
 
 @end

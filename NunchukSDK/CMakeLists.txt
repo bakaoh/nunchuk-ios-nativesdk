@@ -49,6 +49,7 @@ set(SDK_SOURCES
   ios/ObjGroupWalletConfig.mm
   ios/ObjGroupSandbox.mm
   ios/ObjScriptNode.mm
+  ios/ObjTimeLock.mm
 )
 
 set(PUBLIC_SDK_HEADERS
@@ -90,6 +91,7 @@ set(PUBLIC_SDK_HEADERS
   ios/ObjGroupWalletConfig.h
   ios/ObjGroupSandbox.h
   ios/ObjScriptNode.h
+  ios/ObjTimeLock.h
 )
 
 # Headers
@@ -116,6 +118,7 @@ set(SDK_HEADERS
   extensions/ObjGroupWalletConfig+Extension.h
   extensions/ObjGroupSandbox+Extension.h
   extensions/ObjScriptNode+Extension.h
+  extensions/ObjTimeLock+Extension.h
   ${PUBLIC_SDK_HEADERS}
 )
 

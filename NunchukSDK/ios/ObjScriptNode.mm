@@ -108,7 +108,7 @@ using namespace nunchuk;
         _data = [NSData dataWithBytes:nodeData.data() length:nodeData.size()];
         
         // Set the threshold (k value)
-        _k= node.get_k();
+        _k = node.get_k();
         
         // Process sub-nodes recursively, accessing C++ objects only by reference
         const std::vector<ScriptNode>& nodeSubs = node.get_subs();

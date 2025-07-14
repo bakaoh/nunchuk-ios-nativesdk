@@ -19,6 +19,8 @@
 #import <extensions/ObjTransactionLibrary.h>
 #import "extensions/ObjSingleSignerLibrary.h"
 #import <extensions/ObjScriptNode+Extension.h>
+#import <extensions/ObjTimeLock+Extension.h>
+#import "ObjTimeLock.h"
 
 using namespace nunchuk::ndef;
 using namespace nunchuk;
@@ -886,7 +888,12 @@ using namespace nunchuk;
     return Timelock::Based::HEIGHT_LOCK;
 }
 
-- (NSString *_Nullable)expandingMultisigMiniscriptTemplate:(int)m n:(int)n newN:(int)newN reuseSigners:(BOOL)reuseSigners expandTime:(int)expandTime timelockType:(NSString *_Nonnull)timelockType timelockUnit:(NSString *_Nonnull)timelockUnit addressType:(NSString *_Nonnull)addressType error:(NSError *_Nullable*_Nullable)error {
+- (ObjTimeLock *)timelockFromK: (long)k isAbsolute:(BOOL)isAbsolute {
+    Timelock timelock = Timelock::FromK(isAbsolute, k);
+    return [[ObjTimeLock alloc] initWithTimelock:&timelock];
+}
+
+- (NSString *_Nullable)expandingMultisigMiniscriptTemplate:(int)m n:(int)n newN:(int)newN reuseSigners:(BOOL)reuseSigners expandTime:(long)expandTime timelockType:(NSString *_Nonnull)timelockType timelockUnit:(NSString *_Nonnull)timelockUnit addressType:(NSString *_Nonnull)addressType error:(NSError *_Nullable*_Nullable)error {
     try {
         AddressType cAddressType = [self addressTypeFromString:addressType];
         Timelock::Based cTimelockUnit = [self timelockUnitFromString:timelockUnit];
@@ -907,7 +914,7 @@ using namespace nunchuk;
     }
 }
 
-- (NSString *_Nullable)decayingMultisigMiniscriptTemplate:(int)m n:(int)n newM:(int)newM reuseSigners:(BOOL)reuseSigners decayTime:(int)decayTime timelockType:(NSString *_Nonnull)timelockType timelockUnit:(NSString *_Nonnull)timelockUnit addressType:(NSString *_Nonnull)addressType error:(NSError *_Nullable*_Nullable)error {
+- (NSString *_Nullable)decayingMultisigMiniscriptTemplate:(int)m n:(int)n newM:(int)newM reuseSigners:(BOOL)reuseSigners decayTime:(long)decayTime timelockType:(NSString *_Nonnull)timelockType timelockUnit:(NSString *_Nonnull)timelockUnit addressType:(NSString *_Nonnull)addressType error:(NSError *_Nullable*_Nullable)error {
     try {
         AddressType cAddressType = [self addressTypeFromString:addressType];
         Timelock::Based cTimelockUnit = [self timelockUnitFromString:timelockUnit];
@@ -928,7 +935,7 @@ using namespace nunchuk;
     }
 }
 
-- (NSString *_Nullable)flexibleMultisigMiniscriptTemplate:(int)m n:(int)n newM:(int)newM newN:(int)newN reuseSigners:(BOOL)reuseSigners time:(int)time timelockType:(NSString *_Nonnull)timelockType timelockUnit:(NSString *_Nonnull)timelockUnit addressType:(NSString *_Nonnull)addressType error:(NSError *_Nullable*_Nullable)error {
+- (NSString *_Nullable)flexibleMultisigMiniscriptTemplate:(int)m n:(int)n newM:(int)newM newN:(int)newN reuseSigners:(BOOL)reuseSigners time:(long)time timelockType:(NSString *_Nonnull)timelockType timelockUnit:(NSString *_Nonnull)timelockUnit addressType:(NSString *_Nonnull)addressType error:(NSError *_Nullable*_Nullable)error {
     try {
         AddressType cAddressType = [self addressTypeFromString:addressType];
         Timelock::Based cTimelockUnit = [self timelockUnitFromString:timelockUnit];

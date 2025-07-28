@@ -5603,5 +5603,43 @@ dispatch_semaphore_t semaphore;
     }
 }
 
+- (NSArray<ObjSigningPathFee *> *)estimateFeeForSigningPaths:(NSString *)walletId outputs:(NSArray<StringIntPair *> *)outputs inputs:(NSArray<ObjUnspentOutput *> *)input feeRate:(long)feeRate subtractFeeFromAmount:(BOOL)subtractFeeFromAmount error:(NSError * _Nullable __autoreleasing *)error {
+    std::map<std::string, Amount> cOutputs;
+    std::vector<UnspentOutput> inputs;
+    for(NSUInteger i = 0; i < outputs.count; i++) {
+        StringIntPair * pair = outputs[i];
+        cOutputs[[pair.key UTF8String]] = pair.value;
+    }
+    
+    for(NSUInteger i = 0; i < input.count; i++) {
+        UnspentOutput cInput = [input[i] convertToC];
+        inputs.push_back(cInput);
+    }
+    try {
+        auto signingPaths = nunchukManager->nu->EstimateFeeForSigningPaths([walletId UTF8String], cOutputs, inputs, feeRate, subtractFeeFromAmount);
+        NSMutableArray *temp = [NSMutableArray new];
+        for (auto& item: signingPaths) {
+            SigningPath path = item.first;
+            NSMutableArray *scriptNodeIdArray = [NSMutableArray arrayWithCapacity:path.size()];
+            for (ScriptNodeId scriptNodeId: path) {
+                NSMutableArray *idArray = [NSMutableArray arrayWithCapacity:scriptNodeId.size()];
+                for (size_t idValue: scriptNodeId) {
+                    [idArray addObject:[NSString stringWithFormat:@"%zu", idValue]];
+                }
+                [scriptNodeIdArray addObject:idArray];
+            }
+            ObjSigningPathFee *obj = [[ObjSigningPathFee alloc] initWithSigningPaths:temp amount:item.second];
+            [temp addObject:obj];
+        }
+        return temp;
+    } catch (const BaseException& exception) {
+        *error = [[NSError alloc] initWithDomain:@"io.nunchuk.ios" code: exception.code() userInfo:@{@"message": [NSString stringWithUTF8String: exception.what()]}];
+        return NULL;
+    } catch (const std::exception& exception) {
+        *error = [[NSError alloc] initWithDomain:@"io.nunchuk.ios" code: NunchukSDKErrorUndefined userInfo:@{@"message": [NSString stringWithUTF8String: exception.what()]}];
+        return NULL;
+    }
+}
+
 @end
 

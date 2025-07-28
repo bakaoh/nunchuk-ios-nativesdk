@@ -33,6 +33,7 @@
 #import "ObjGroupConfig.h"
 #import "ObjGroupWalletConfig.h"
 #import "ObjGroupSandbox.h"
+#import "ObjSigningPath.h"
 
 typedef enum NunchukSDKError: NSInteger {
     NunchukSDKErrorUndefined = -1000000,
@@ -443,5 +444,7 @@ extern const int FEE_RATE_ECONOMICAL;
 - (ObjSingleSigner *_Nullable)getSignerFromMasterSigner:(NSString *_Nonnull)masterSignerId walletType:(NSString *_Nonnull)walletType addressType:(NSString *_Nonnull)addressType index:(int)index error:(NSError *_Nullable*_Nullable)error;
 - (ObjSingleSigner *_Nullable)getSignerFromTapsignerMasterSigner:(NSString *_Nonnull)masterSignerId cvc:(NSString *_Nonnull)cvc walletType:(NSString *_Nonnull)walletType addressType:(NSString *_Nonnull)addressType index:(int)index error:(NSError *_Nullable*_Nullable)error;
 - (NSArray<ObjSingleSigner *> *_Nullable)getMultipleSignersFromTapsignerMasterSigner:(NSString *_Nonnull)masterSignerId cvc:(NSString *_Nonnull)cvc walletType:(NSString *_Nonnull)walletType addressType:(NSString *_Nonnull)addressType startIndex:(int)startIndex count:(int)count error:(NSError *_Nullable*_Nullable)error;
+- (NSArray<ObjSigningPathFee *> *_Nullable)estimateFeeForSigningPaths:(NSString *_Nonnull)walletId outputs:(NSArray<StringIntPair *> *_Nonnull)outputs inputs:(NSArray<ObjUnspentOutput *> *_Nonnull)input feeRate:(long)feeRate subtractFeeFromAmount:(BOOL)subtractFeeFromAmount error:(NSError *_Nullable*_Nullable)error;
+
 @end
 #endif

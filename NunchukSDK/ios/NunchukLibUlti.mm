@@ -846,11 +846,14 @@ using namespace nunchuk;
 
 - (NSDictionary *_Nullable)getScriptNode:(NSString *_Nonnull)script error:(NSError * _Nullable __autoreleasing *)error {
     try {
-        std::string keypath;
-        auto scriptNode = Utils::GetScriptNode([script UTF8String], keypath);
+        std::vector<std::string> keypaths;
+        auto scriptNode = Utils::GetScriptNode([script UTF8String], keypaths);
         ObjScriptNode *objScriptNode = [[ObjScriptNode alloc] initWithScriptNode:scriptNode];
-        NSString *keyPathStr = [NSString stringWithUTF8String:keypath.c_str()];
-        return @{ @"scriptNode": objScriptNode, @"keyPath": keyPathStr };
+        NSMutableArray * keypathsArr = [[NSMutableArray alloc] init];
+        for(auto& keypath : keypaths) {
+            [keypathsArr addObject:[[NSString alloc] initWithUTF8String: keypath.c_str()]];
+        }
+        return @{ @"scriptNode": objScriptNode, @"keyPaths": keypathsArr };
     } catch (const BaseException& exception) {
         if (error) {
             *error = [[NSError alloc] initWithDomain:@"io.nunchuk.ios" code: exception.code() userInfo:@{@"message": [NSString stringWithUTF8String: exception.what()]}];

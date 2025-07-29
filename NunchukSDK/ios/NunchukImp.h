@@ -402,8 +402,9 @@ extern const int FEE_RATE_ECONOMICAL;
 - (ObjGroupSandbox *_Nullable)updateGroup:(NSString *_Nonnull)groupId 
                                      name:(NSString *_Nonnull)name 
                                         m:(int)m 
-                                        n:(int)n 
-                              addressType:(NSString *_Nonnull)addressType 
+                                        n:(int)n
+                               scriptTmpl:(NSString *_Nullable)scriptTmpl
+                              addressType:(NSString *_Nonnull)addressType
                                 error:(NSError *_Nullable*_Nullable)error;
 - (ObjGroupSandbox *_Nullable)finalizeGroup:(NSString *_Nonnull)groupId valueKeyset:(NSArray *_Nonnull)valueKeyset error:(NSError *_Nullable*_Nullable)error;
 - (BOOL)deleteGroup:(NSString *_Nonnull)groupId error:(NSError *_Nullable*_Nullable)error;

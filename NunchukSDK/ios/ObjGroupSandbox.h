@@ -17,6 +17,8 @@
 @property (nonatomic, assign) int m;
 @property (nonatomic, assign) int n;
 @property (nonatomic, strong) NSString *addressType;
+@property (nonatomic, strong) NSString *walletType;
+@property (nonatomic, strong, nullable) NSString *miniscriptTemplate;
 @property (nonatomic, strong) NSMutableArray<ObjSingleSigner *> *signers;
 @property (nonatomic, strong) NSArray<NSString *> *ephemeralKeys;
 @property (nonatomic, assign) BOOL isFinalized;

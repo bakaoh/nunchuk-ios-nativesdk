@@ -24,6 +24,7 @@ using namespace nunchuk;
         self.replaceWalletId = [NSString stringWithUTF8String:groupSandbox->get_replace_wallet_id().c_str()];
         self.pubkey = [NSString stringWithUTF8String:groupSandbox->get_pubkey().c_str()];
         self.url = [NSString stringWithUTF8String:groupSandbox->get_url().c_str()];
+        self.miniscriptTemplate = [NSString stringWithUTF8String:groupSandbox->get_miniscript_template().c_str()];
         self.m = groupSandbox->get_m();
         self.n = groupSandbox->get_n();
         
@@ -43,6 +44,24 @@ using namespace nunchuk;
                 break;
             default:
                 self.addressType = @"ANY";
+                break;
+        }
+        
+        switch (groupSandbox->get_wallet_type()) {
+            case WalletType::SINGLE_SIG:
+                self.walletType = @"SINGLE_SIG";
+                break;
+            case WalletType::MULTI_SIG:
+                self.walletType = @"MULTI_SIG";
+                break;
+            case WalletType::ESCROW:
+                self.walletType = @"ESCROW";
+                break;
+            case WalletType::MINISCRIPT:
+                self.walletType = @"MINISCRIPT";
+                break;
+            default:
+                self.walletType = @"ANY";
                 break;
         }
         

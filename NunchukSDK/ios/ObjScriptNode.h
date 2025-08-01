@@ -10,8 +10,6 @@
 
 #import <Foundation/Foundation.h>
 
-@class ObjScriptNode;
-
 typedef NS_ENUM(NSInteger, ScriptNodeType) {
     SCRIPT_NODE_NONE = 0,
     SCRIPT_NODE_PK,
@@ -38,16 +36,6 @@ typedef NS_ENUM(NSInteger, ScriptNodeType) {
 @property (nonatomic, strong) NSData *data;
 @property (nonatomic, assign) uint32_t k;  // Corresponds to k_ in C++
 @property (nonatomic, strong) NSDictionary<NSString *, NSString *> *signers;  // Additional mapping for signers
-
-#pragma mark - Utility Methods
-
-+ (NSString *)typeToString:(ScriptNodeType)type;
-- (ScriptNodeType)getType;
-- (NSArray<NSString *> *)getId;
-- (NSArray<ObjScriptNode *> *)getSubs;
-- (NSArray<NSString *> *)getKeys;
-- (NSData *)getData;
-- (uint32_t)getK;
 
 @end
 

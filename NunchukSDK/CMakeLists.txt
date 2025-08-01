@@ -51,6 +51,7 @@ set(SDK_SOURCES
   ios/ObjScriptNode.mm
   ios/ObjTimeLock.mm
   ios/ObjSigningPath.mm
+  ios/ObjScriptNodeTransaction.mm
 )
 
 set(PUBLIC_SDK_HEADERS
@@ -94,6 +95,7 @@ set(PUBLIC_SDK_HEADERS
   ios/ObjScriptNode.h
   ios/ObjTimeLock.h
   ios/ObjSigningPath.h
+  ios/ObjScriptNodeTransaction.h
 )
 
 # Headers

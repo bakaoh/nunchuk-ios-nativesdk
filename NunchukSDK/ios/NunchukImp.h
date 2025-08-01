@@ -144,7 +144,7 @@ extern const int FEE_RATE_ECONOMICAL;
 -(BOOL)markAddressAsUsedWithWalletId:(NSString * _Nonnull)walletId address:(NSString *_Nonnull)address error:(NSError * _Nullable * _Nullable)outError;
 -(NSString * _Nullable)getAddressPathWithWalletId:(NSString * _Nonnull)walletId address:(NSString *_Nonnull)address error:(NSError * _Nullable * _Nullable)outError;
 -(BOOL)isMnemonicValid:(NSString * _Nonnull)mnemonic error:(NSError * _Nullable * _Nullable)outError;
--(ObjDraftTransaction* _Nullable)draftTransactionWithWalletId:(NSString * _Nonnull)walletId outputs:(NSArray<StringIntPair*> *_Nonnull)outputs inputs:(NSArray<ObjUnspentOutput*> *_Nonnull)input feeRate:(long)feeRate subtractFeeFromAmount:(BOOL)subtractFeeFromAmount useScriptPath:(BOOL)useScriptPath error:(NSError * _Nullable * _Nullable)outError;
+-(ObjDraftTransaction* _Nullable)draftTransactionWithWalletId:(NSString * _Nonnull)walletId outputs:(NSArray<StringIntPair*> *_Nonnull)outputs inputs:(NSArray<ObjUnspentOutput*> *_Nonnull)input feeRate:(long)feeRate subtractFeeFromAmount:(BOOL)subtractFeeFromAmount useScriptPath:(BOOL)useScriptPath signingPath:(ObjSigningPath *_Nullable)signingPath error:(NSError * _Nullable * _Nullable)outError;
 
 -(ObjTransaction* _Nullable)broadcastTransactionWithWalletId:(NSString * _Nonnull)walletId txId:(NSString * _Nonnull)txId error:(NSError * _Nullable * _Nullable)outError;
 -(BOOL)updateTransactionMemoWithWalletId:(NSString * _Nonnull)walletId txId:(NSString * _Nonnull)txId newMemo:(NSString * _Nullable)newMemo error:(NSError * _Nullable * _Nullable)outError;
@@ -155,7 +155,7 @@ extern const int FEE_RATE_ECONOMICAL;
 -(NSString *_Nullable)newAddressWithWalletId:(NSString * _Nullable)walletId error:(NSError * _Nullable * _Nullable)outError;
 -(ObjWallet *_Nullable)importBSMSWithFilePath:(NSString* _Nonnull)filePath walletName:(NSString* _Nonnull)walletName error:(NSError * _Nullable * _Nullable)outError;
 
--(ObjTransaction *_Nullable)createTransactionWithWalletId:(NSString * _Nonnull)walletId outputs:(NSArray<StringIntPair*> *_Nullable)outputs memo:(NSString * _Nonnull)memo feeRate:(long)feeRate subtractFeeFromAmount:(BOOL)subtractFeeFromAmount inputs:(NSArray *_Nonnull)inputs antiFeeSniping:(BOOL)antiFeeSniping useScriptPath:(BOOL)useScriptPath error:(NSError * _Nullable * _Nullable)outError;
+-(ObjTransaction *_Nullable)createTransactionWithWalletId:(NSString * _Nonnull)walletId outputs:(NSArray<StringIntPair*> *_Nullable)outputs memo:(NSString * _Nonnull)memo feeRate:(long)feeRate subtractFeeFromAmount:(BOOL)subtractFeeFromAmount inputs:(NSArray *_Nonnull)inputs antiFeeSniping:(BOOL)antiFeeSniping useScriptPath:(BOOL)useScriptPath signingPath:(ObjSigningPath *_Nullable)signingPath error:(NSError * _Nullable * _Nullable)outError;
 -(ObjTransaction *_Nullable)signTransactionWithWalletId:(NSString * _Nonnull)walletId txId:(NSString * _Nonnull)txId fingerprint:(NSString * _Nonnull)fingerPrint error:(NSError * _Nullable * _Nullable)outError;
 -(NSInteger)getTotalAmountWithWalletId:(NSString * _Nonnull)walletId txId:(NSString * _Nonnull)txId error:(NSError * _Nullable * _Nullable)outError;
 -(BOOL)sendPassphrase:(NSString * _Nonnull)passphrase signerId:(NSString *_Nonnull)signerId error:(NSError * _Nullable * _Nullable)outError;

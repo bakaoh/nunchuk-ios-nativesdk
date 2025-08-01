@@ -1,5 +1,5 @@
 //
-//  ObjSigningPath.m
+//  ObjScriptNodeTransaction.m
 //  nunchukSDK
 //
 //

@@ -1,5 +1,5 @@
 //
-//  ObjSigningPath.h
+//  ObjScriptNodeTransaction.h
 //  example-ios
 //
 //

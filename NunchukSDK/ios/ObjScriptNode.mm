@@ -157,6 +157,8 @@ using namespace nunchuk;
             return @"THRESH";
         case SCRIPT_NODE_MULTI:
             return @"MULTI";
+        case SCRIPT_NODE_OR_TAPROOT:
+            return @"OR_TAPROOT";
     }
 }
 

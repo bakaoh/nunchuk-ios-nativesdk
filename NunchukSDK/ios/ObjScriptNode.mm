@@ -162,28 +162,4 @@ using namespace nunchuk;
     }
 }
 
-- (ScriptNodeType)getType {
-    return _type;
-}
-
-- (NSArray<NSString *> *)getId {
-    return _id;
-}
-
-- (NSArray<ObjScriptNode *> *)getSubs {
-    return _subs;
-}
-
-- (NSArray<NSString *> *)getKeys {
-    return _keys;
-}
-
-- (NSData *)getData {
-    return _data;
-}
-
-- (uint32_t)getK {
-    return _k;
-}
-
 @end

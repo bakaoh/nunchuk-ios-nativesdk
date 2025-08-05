@@ -959,6 +959,32 @@ using namespace nunchuk;
     }
 }
 
+- (NSDictionary *_Nullable)getScriptNodeSatisfiable:(NSString *_Nonnull)script psbt:(NSString *_Nonnull)psbt {
+    try {
+        std::vector<std::string> keypaths;
+        auto scriptNode = Utils::GetScriptNode([script UTF8String], keypaths);
+        return [self getNodeSatisfiable:scriptNode psbt:psbt];
+    } catch (const BaseException& exception) {
+        return nil;
+    }
+}
 
+- (NSDictionary *)getNodeSatisfiable:(const ScriptNode &)node psbt:(NSString *_Nonnull)psbt {
+    const std::vector<size_t>& nodeId = node.get_id();
+    NSMutableArray *idArray = [NSMutableArray arrayWithCapacity:nodeId.size()];
+    for (size_t idValue : nodeId) {
+        [idArray addObject:[NSString stringWithFormat:@"%zu", idValue]];
+    }
+    NSString *nodeIdStr = [idArray componentsJoinedByString:@"."];
+    NSMutableDictionary *dict = [NSMutableDictionary new];
+    [dict setObject:[NSNumber numberWithBool:node.is_satisfiable([psbt UTF8String])] forKey:nodeIdStr];
+    
+    const std::vector<ScriptNode>& subs = node.get_subs();
+    for (const ScriptNode& subNode : subs) {
+        NSDictionary *subDict = [self getNodeSatisfiable:subNode psbt:psbt];
+        [dict addEntriesFromDictionary:subDict];
+    }
+    return dict;
+}
 
 @end

@@ -906,7 +906,9 @@ dispatch_semaphore_t semaphore;
     for (NSArray *array in signingPath.scriptNodeIds) {
         ScriptNodeId nodeId;
         for (NSString *idStr in array) {
-            nodeId.push_back(idStr.intValue);
+            const char *cString = [idStr UTF8String];
+            size_t convertedSize = strtoull(cString, NULL, 10);
+            nodeId.push_back(convertedSize);
         }
         signing_path.push_back(nodeId);
     }
@@ -5661,6 +5663,32 @@ dispatch_semaphore_t semaphore;
     } catch (const std::exception& exception) {
         *error = [[NSError alloc] initWithDomain:@"io.nunchuk.ios" code: NunchukSDKErrorUndefined userInfo:@{@"message": [NSString stringWithUTF8String: exception.what()]}];
         return NULL;
+    }
+}
+
+- (NSDictionary *)getTimelockedUntilWithWalletId:(NSString *)walletId transactionId:(NSString *)transactionId {
+    try {
+        auto timelocked = nunchukManager->nu->GetTimelockedUntil([walletId UTF8String], [transactionId UTF8String]);
+        NSMutableDictionary *dict = [NSMutableDictionary new];
+        if (timelocked.first != UNDETERMINED_TIMELOCK_VALUE) {
+            [dict setObject:[NSNumber numberWithLongLong:timelocked.first] forKey:@"value"];
+        }
+        TimeLockBased based = [self getTimeLockBased:timelocked.second];
+        [dict setObject:[NSNumber numberWithInt:based] forKey:@"based"];
+        return dict;
+    } catch (const BaseException& exception) {
+        return NULL;
+    }
+}
+
+- (TimeLockBased)getTimeLockBased:(Timelock::Based)based {
+    switch (based) {
+        case Timelock::Based::NONE:
+            return NONE;
+        case Timelock::Based::TIME_LOCK:
+            return TIME_LOCK;
+        case Timelock::Based::HEIGHT_LOCK:
+            return HEIGHT_LOCK;
     }
 }
 

@@ -50,6 +50,7 @@ set(SDK_SOURCES
   ios/ObjGroupSandbox.mm
   ios/ObjScriptNode.mm
   ios/ObjTimeLock.mm
+  ios/ObjSigningPath.mm
 )
 
 set(PUBLIC_SDK_HEADERS
@@ -92,6 +93,7 @@ set(PUBLIC_SDK_HEADERS
   ios/ObjGroupSandbox.h
   ios/ObjScriptNode.h
   ios/ObjTimeLock.h
+  ios/ObjSigningPath.h
 )
 
 # Headers

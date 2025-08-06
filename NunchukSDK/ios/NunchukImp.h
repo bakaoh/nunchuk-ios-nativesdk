@@ -400,11 +400,11 @@ extern const int FEE_RATE_ECONOMICAL;
                                          error:(NSError *_Nullable*_Nullable)error;
 - (ObjGroupSandbox *_Nullable)addSignerToGroup:(NSString *_Nonnull)groupId 
                                         signer:(ObjSingleSigner *_Nonnull)signer 
-                                       keyName:(NSString *_Nonnull)keyName 
+                                         keyId:(NSString *_Nonnull)keyId
                                          error:(NSError *_Nullable*_Nullable)error;
 - (ObjGroupSandbox *_Nullable)removeSignerFromGroup:(NSString *_Nonnull)groupId index:(int)index error:(NSError *_Nullable*_Nullable)error;
-- (ObjGroupSandbox *_Nullable)removeSignerFromGroup:(NSString *_Nonnull)groupId keyName:(NSString *_Nonnull)keyName error:(NSError *_Nullable*_Nullable)error;
-- (ObjGroupSandbox *_Nullable)updateGroup:(NSString *_Nonnull)groupId 
+- (ObjGroupSandbox *_Nullable)removeSignerFromGroup:(NSString *_Nonnull)groupId keyId:(NSString *_Nonnull)keyId error:(NSError *_Nullable*_Nullable)error;
+- (ObjGroupSandbox *_Nullable)updateGroup:(NSString *_Nonnull)groupId
                                      name:(NSString *_Nonnull)name 
                                         m:(int)m 
                                         n:(int)n
@@ -421,7 +421,7 @@ extern const int FEE_RATE_ECONOMICAL;
                                        value:(BOOL)value 
                                        error:(NSError *_Nullable*_Nullable)error;
 - (ObjGroupSandbox *_Nullable)setSlotOccupied:(NSString *_Nonnull)groupId
-                                     keyName:(NSString *_Nonnull)keyName
+                                        keyId:(NSString *_Nonnull)keyId
                                        value:(BOOL)value
                                        error:(NSError *_Nullable*_Nullable)error;
 - (NSString *_Nullable)getGroupDeviceUID:(NSError *_Nullable*_Nullable)error;

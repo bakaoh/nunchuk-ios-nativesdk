@@ -23,6 +23,8 @@
 @property (nonatomic, strong) NSArray<NSString *> *ephemeralKeys;
 @property (nonatomic, assign) BOOL isFinalized;
 @property (nonatomic, strong) NSDictionary<NSNumber *, NSArray *> *occupiedSlots; // [index: [timestamp, deviceUID]]
+@property (nonatomic, strong) NSDictionary<NSString *, ObjSingleSigner *> *namedSigners; // [name: ObjSingleSigner]
+@property (nonatomic, strong) NSDictionary<NSString *, NSArray *> *namedOccupied; // [name: [timestamp, deviceUID]]
 
 @end
 

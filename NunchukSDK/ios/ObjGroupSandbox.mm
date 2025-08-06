@@ -94,6 +94,28 @@ using namespace nunchuk;
             [slots setObject:slotInfo forKey:key];
         }
         self.occupiedSlots = slots;
+        
+        // Add named signers mapping
+        NSMutableDictionary *namedSignersDict = [NSMutableDictionary new];
+        const auto& namedSigners = groupSandbox->get_named_signers();
+        for (const auto& pair : namedSigners) {
+            NSString *key = [NSString stringWithUTF8String:pair.first.c_str()];  // name
+            auto signer = pair.second;
+            ObjSingleSigner *objSigner = [[ObjSingleSigner alloc] initWithSigner:&signer];
+            [namedSignersDict setObject:objSigner forKey:key];
+        }
+        self.namedSigners = namedSignersDict;
+        
+        // Add named occupied mapping
+        NSMutableDictionary *namedOccupiedDict = [NSMutableDictionary new];
+        const auto& namedOccupied = groupSandbox->get_named_occupied();
+        for (const auto& pair : namedOccupied) {
+            NSString *key = [NSString stringWithUTF8String:pair.first.c_str()];  // name
+            auto value = pair.second;  // std::pair<time_t, std::string>
+            NSArray *slotInfo = @[@(value.first), [NSString stringWithUTF8String:value.second.c_str()]];
+            [namedOccupiedDict setObject:slotInfo forKey:key];
+        }
+        self.namedOccupied = namedOccupiedDict;
     }
     return self;
 }

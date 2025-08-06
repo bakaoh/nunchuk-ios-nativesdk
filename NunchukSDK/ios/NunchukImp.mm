@@ -5179,9 +5179,36 @@ dispatch_semaphore_t semaphore;
     }
 }
 
+- (ObjGroupSandbox *)addSignerToGroup:(NSString *)groupId signer:(ObjSingleSigner *)signer keyName:(NSString *)keyName error:(NSError **)error {
+    try {
+        auto cppSigner = SingleSigner(std::string([signer.signerName UTF8String]), std::string([signer.xpub UTF8String]), std::string([signer.publicKey UTF8String]), std::string([signer.bip32Path UTF8String]), std::string([signer.masterFingerPrint UTF8String]), false);
+        auto group = nunchukManager->nu->AddSignerToGroup([groupId UTF8String], cppSigner, [keyName UTF8String]);
+        return [[ObjGroupSandbox alloc] initWithGroupSandbox:&group];
+    } catch (const BaseException& exception) {
+        *error = [[NSError alloc] initWithDomain:@"io.nunchuk.ios" code:exception.code() userInfo:@{@"message": [NSString stringWithUTF8String:exception.what()]}];
+        return NULL;
+    } catch (const std::exception& exception) {
+        *error = [[NSError alloc] initWithDomain:@"io.nunchuk.ios" code:NunchukSDKErrorUndefined userInfo:@{@"message": [NSString stringWithUTF8String:exception.what()]}];
+        return NULL;
+    }
+}
+
 - (ObjGroupSandbox *)removeSignerFromGroup:(NSString *)groupId index:(int)index error:(NSError **)error {
     try {
         auto group = nunchukManager->nu->RemoveSignerFromGroup([groupId UTF8String], index);
+        return [[ObjGroupSandbox alloc] initWithGroupSandbox:&group];
+    } catch (const BaseException& exception) {
+        *error = [[NSError alloc] initWithDomain:@"io.nunchuk.ios" code:exception.code() userInfo:@{@"message": [NSString stringWithUTF8String:exception.what()]}];
+        return NULL;
+    } catch (const std::exception& exception) {
+        *error = [[NSError alloc] initWithDomain:@"io.nunchuk.ios" code:NunchukSDKErrorUndefined userInfo:@{@"message": [NSString stringWithUTF8String:exception.what()]}];
+        return NULL;
+    }
+}
+
+- (ObjGroupSandbox *)removeSignerFromGroup:(NSString *)groupId keyName:(NSString *)keyName error:(NSError **)error {
+    try {
+        auto group = nunchukManager->nu->RemoveSignerFromGroup([groupId UTF8String], [keyName UTF8String]);
         return [[ObjGroupSandbox alloc] initWithGroupSandbox:&group];
     } catch (const BaseException& exception) {
         *error = [[NSError alloc] initWithDomain:@"io.nunchuk.ios" code:exception.code() userInfo:@{@"message": [NSString stringWithUTF8String:exception.what()]}];
@@ -5276,6 +5303,19 @@ dispatch_semaphore_t semaphore;
 - (ObjGroupSandbox *)setSlotOccupied:(NSString *)groupId index:(int)index value:(BOOL)value error:(NSError **)error {
     try {
         auto group = nunchukManager->nu->SetSlotOccupied([groupId UTF8String], index, value);
+        return [[ObjGroupSandbox alloc] initWithGroupSandbox:&group];
+    } catch (const BaseException& exception) {
+        *error = [[NSError alloc] initWithDomain:@"io.nunchuk.ios" code:exception.code() userInfo:@{@"message": [NSString stringWithUTF8String:exception.what()]}];
+        return NULL;
+    } catch (const std::exception& exception) {
+        *error = [[NSError alloc] initWithDomain:@"io.nunchuk.ios" code:NunchukSDKErrorUndefined userInfo:@{@"message": [NSString stringWithUTF8String:exception.what()]}];
+        return NULL;
+    }
+}
+
+- (ObjGroupSandbox *)setSlotOccupied:(NSString *)groupId keyName:(NSString *)keyName value:(BOOL)value error:(NSError **)error {
+    try {
+        auto group = nunchukManager->nu->SetSlotOccupied([groupId UTF8String], [keyName UTF8String], value);
         return [[ObjGroupSandbox alloc] initWithGroupSandbox:&group];
     } catch (const BaseException& exception) {
         *error = [[NSError alloc] initWithDomain:@"io.nunchuk.ios" code:exception.code() userInfo:@{@"message": [NSString stringWithUTF8String:exception.what()]}];

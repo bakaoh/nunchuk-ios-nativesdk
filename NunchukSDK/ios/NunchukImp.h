@@ -398,7 +398,12 @@ extern const int FEE_RATE_ECONOMICAL;
                                         signer:(ObjSingleSigner *_Nonnull)signer 
                                          index:(int)index 
                                          error:(NSError *_Nullable*_Nullable)error;
+- (ObjGroupSandbox *_Nullable)addSignerToGroup:(NSString *_Nonnull)groupId 
+                                        signer:(ObjSingleSigner *_Nonnull)signer 
+                                       keyName:(NSString *_Nonnull)keyName 
+                                         error:(NSError *_Nullable*_Nullable)error;
 - (ObjGroupSandbox *_Nullable)removeSignerFromGroup:(NSString *_Nonnull)groupId index:(int)index error:(NSError *_Nullable*_Nullable)error;
+- (ObjGroupSandbox *_Nullable)removeSignerFromGroup:(NSString *_Nonnull)groupId keyName:(NSString *_Nonnull)keyName error:(NSError *_Nullable*_Nullable)error;
 - (ObjGroupSandbox *_Nullable)updateGroup:(NSString *_Nonnull)groupId 
                                      name:(NSString *_Nonnull)name 
                                         m:(int)m 
@@ -414,6 +419,10 @@ extern const int FEE_RATE_ECONOMICAL;
 - (ObjGroupSandbox *_Nullable)setSlotOccupied:(NSString *_Nonnull)groupId 
                                        index:(int)index 
                                        value:(BOOL)value 
+                                       error:(NSError *_Nullable*_Nullable)error;
+- (ObjGroupSandbox *_Nullable)setSlotOccupied:(NSString *_Nonnull)groupId
+                                     keyName:(NSString *_Nonnull)keyName
+                                       value:(BOOL)value
                                        error:(NSError *_Nullable*_Nullable)error;
 - (NSString *_Nullable)getGroupDeviceUID:(NSError *_Nullable*_Nullable)error;
 - (NSArray *_Nullable)getGroupWallets:(NSError *_Nullable*_Nullable)error;

@@ -30,6 +30,7 @@ typedef enum CoinStatusEnum {
 @property (nonatomic, assign) int64_t blockTime;
 @property (nonatomic, assign) int64_t scheduledTime;
 @property(nonatomic, assign) CoinStatusEnum status;
+@property(nonatomic, strong, nullable) NSArray<NSNumber*>* timelocks;
 
 @end
 #endif /* UnspentOutput_h */

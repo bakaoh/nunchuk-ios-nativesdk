@@ -447,6 +447,7 @@ extern const int FEE_RATE_ECONOMICAL;
 - (NSArray<ObjSigningPathFee *> *_Nullable)estimateFeeForSigningPaths:(NSString *_Nonnull)walletId outputs:(NSArray<StringIntPair *> *_Nonnull)outputs inputs:(NSArray<ObjUnspentOutput *> *_Nonnull)input feeRate:(long)feeRate subtractFeeFromAmount:(BOOL)subtractFeeFromAmount error:(NSError *_Nullable*_Nullable)error;
 - (NSDictionary *_Nullable)getTimelockedUntilWithWalletId:(NSString *_Nonnull)walletId transactionId:(NSString *_Nonnull)transactionId;
 - (NSDictionary *_Nullable)getScriptNodeSatisfiable:(NSString *_Nonnull)script transactionId:(NSString *_Nonnull)transactionId walletId:(NSString *_Nonnull)walletId;
+- (NSDictionary *_Nullable)getCoinsGroupedBySubPolicies:(NSString *_Nonnull)script coins:(NSArray *_Nonnull)coins;
 
 @end
 #endif

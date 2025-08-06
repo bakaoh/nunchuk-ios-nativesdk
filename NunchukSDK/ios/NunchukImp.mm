@@ -47,6 +47,8 @@
 #import <extensions/ObjGroupWalletConfig+Extension.h>
 #import "ObjGroupSandbox.h"
 #import <extensions/ObjGroupSandbox+Extension.h>
+#import "ObjCoinGroup.h"
+#import <extensions/ObjCoinGroup+Extension.h>
 
 using namespace nunchuk;
 using namespace tap_protocol;
@@ -5689,6 +5691,55 @@ dispatch_semaphore_t semaphore;
             return TIME_LOCK;
         case Timelock::Based::HEIGHT_LOCK:
             return HEIGHT_LOCK;
+    }
+}
+
+- (NSDictionary *_Nullable)getCoinsGroupedBySubPolicies:(NSString *_Nonnull)script coins:(NSArray *_Nonnull)coins {
+    try {
+        std::vector<std::string> keypaths;
+        auto scriptNode = Utils::GetScriptNode([script UTF8String], keypaths);
+        return [self getCoinsGroupedBySubPoliciesWithNode:scriptNode coins:coins];
+    } catch (const BaseException& exception) {
+        return nil;
+    }
+}
+
+- (NSDictionary *)getCoinsGroupedBySubPoliciesWithNode:(const ScriptNode &)node coins:(NSArray *_Nonnull)coins {
+    NSMutableDictionary *dict = [NSMutableDictionary new];
+    try {
+        ScriptNode::Type type = node.get_type();
+        if (type == ScriptNode::Type::ANDOR
+            || type == ScriptNode::Type::OR
+            || type == ScriptNode::Type::THRESH
+            || type == ScriptNode::Type::OR_TAPROOT) {
+            for (ObjUnspentOutput *coin in coins) {
+                coinsC.push_back([coin convertToC]);
+            }
+            auto groups = Utils::GetCoinsGroupedBySubPolicies(node, coinsC, nunchukManager->nu->GetChainTip());
+            if (groups.size() > 0) {
+                NSMutableArray *array = [[NSMutableArray alloc] initWithCapacity:groups.size()];
+                for (auto &group : groups) {
+                    ObjCoinGroup *obj = [[ObjCoinGroup alloc] initWithCoinGroup:group];
+                    [array addObject:obj];
+                }
+                const std::vector<size_t>& nodeId = node.get_id();
+                NSMutableArray *idArray = [NSMutableArray arrayWithCapacity:nodeId.size()];
+                for (size_t idValue : nodeId) {
+                    [idArray addObject:[NSString stringWithFormat:@"%zu", idValue]];
+                }
+                NSString *nodeIdStr = [idArray componentsJoinedByString:@"."];
+                std::vector<UnspentOutput> coinsC;
+                [dict setObject:array forKey:nodeIdStr];
+            }
+        }
+        const std::vector<ScriptNode>& subs = node.get_subs();
+        for (const ScriptNode& subNode : subs) {
+            NSDictionary *subDict = [self getCoinsGroupedBySubPoliciesWithNode:subNode coins:coins];
+            [dict addEntriesFromDictionary:subDict];
+        }
+        return dict;
+    } catch (const BaseException& exception) {
+        return nil;
     }
 }
 

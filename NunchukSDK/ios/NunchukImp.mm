@@ -5544,55 +5544,6 @@ dispatch_semaphore_t semaphore;
     }
 }
 
-- (ObjSingleSigner *)getSignerFromMasterSigner:(NSString *)masterSignerId walletType:(NSString *)walletType addressType:(NSString *)addressType index:(int)index error:(NSError **)error {
-    try {
-        AddressType cAddressType = [self addressTypeFromString:addressType];
-        WalletType cWalletType = [self walletTypeFromString:walletType];
-        auto singleSigner = nunchukManager->nu->GetSignerFromMasterSigner([masterSignerId UTF8String], cWalletType, cAddressType, index);
-        return [[ObjSingleSigner alloc] initWithSigner:&singleSigner];
-    } catch (const BaseException& exception) {
-        NSLog(@"[NunchukImp] getSignerFromMasterSigner exception: %s", exception.what());
-        *error = [[NSError alloc] initWithDomain:@"io.nunchuk.ios" code: exception.code() userInfo:@{@"message": [NSString stringWithUTF8String: exception.what()]}];
-        return nil;
-    } catch (const std::exception &e) {
-        NSLog(@"[NunchukImp] getSignerFromMasterSigner exception: %s", e.what());
-        if (error) {
-            *error = [NSError errorWithDomain:@"NunchukImp" code:NunchukSDKErrorUndefined userInfo:@{NSLocalizedDescriptionKey: [NSString stringWithFormat:@"%s", e.what()]}];
-        }
-        return nil;
-    }
-}
-
-- (ObjSingleSigner *)getSignerFromTapsignerMasterSigner:(NSString *)masterSignerId cvc:(NSString *)cvc walletType:(NSString *)walletType addressType:(NSString *)addressType index:(int)index error:(NSError **)error {
-    try {
-        std::unique_ptr<Tapsigner> card = [self createTapsignerWithError:error];
-        if (*error != NULL) {
-            if ((*error).code == TapProtocolException::RATE_LIMIT) {
-                if (![self waitTapsigner:card.get() error:error]) {
-                    [self invalidateSessionWithError:*error];
-                    return NULL;
-                }
-            } else {
-                [self invalidateSessionWithError:*error];
-                return NULL;
-            }
-        }
-        TapsignerStatus status = nunchukManager->nu->BackupTapsigner(card.get(), [cvc UTF8String], [masterSignerId UTF8String]);
-        AddressType cAddressType = [self addressTypeFromString:addressType];
-        WalletType cWalletType = [self walletTypeFromString:walletType];
-        auto singleSigner = nunchukManager->nu->GetSignerFromTapsignerMasterSigner(card.get(), [cvc UTF8String], [masterSignerId UTF8String], cWalletType, cAddressType, index);
-        [self invalidateSessionWithError:NULL];
-        return [[ObjSingleSigner alloc] initWithSigner:&singleSigner];
-    } catch (const BaseException& exception) {
-        *error = [self handleNFCException:exception];
-        return NULL;
-    } catch (const std::exception& exception) {
-        [self invalidateSessionWithError:*error];
-        *error = [NSError errorWithDomain:@"io.nunchuk.ios" code: NunchukSDKErrorUndefined userInfo:@{@"message": [NSString stringWithUTF8String: exception.what()]}];
-        return NULL;
-    }
-}
-
 - (NSArray<ObjSingleSigner *> *)getMultipleSignersFromTapsignerMasterSigner:(NSString *)masterSignerId cvc:(NSString *)cvc walletType:(NSString *)walletType addressType:(NSString *)addressType startIndex:(int)startIndex count:(int)count error:(NSError **)error {
     try {
         std::unique_ptr<Tapsigner> card = [self createTapsignerWithError:error];

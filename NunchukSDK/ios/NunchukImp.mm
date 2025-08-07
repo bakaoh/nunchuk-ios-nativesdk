@@ -5706,6 +5706,7 @@ dispatch_semaphore_t semaphore;
 
 - (NSDictionary *)getCoinsGroupedBySubPoliciesWithNode:(const ScriptNode &)node coins:(NSArray *_Nonnull)coins {
     NSMutableDictionary *dict = [NSMutableDictionary new];
+    std::vector<UnspentOutput> coinsC;
     try {
         ScriptNode::Type type = node.get_type();
         if (type == ScriptNode::Type::ANDOR

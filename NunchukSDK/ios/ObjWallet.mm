@@ -34,6 +34,7 @@ using namespace nunchuk;
     wallet.walletTemplate = DEFAULT;
     wallet.isArchived = NO;
     wallet.miniscript = nil;
+    wallet.descriptor = nil;
     return wallet;
 }
 
@@ -95,6 +96,7 @@ using namespace nunchuk;
         objWallet.miniscript = nil;
     }
     
+    objWallet.descriptor = [NSString stringWithUTF8String:wallet->get_descriptor(DescriptorPath::EXTERNAL_INTERNAL).c_str()];
     return objWallet;
 }
 

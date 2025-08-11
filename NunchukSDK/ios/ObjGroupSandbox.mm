@@ -24,6 +24,7 @@ using namespace nunchuk;
         self.replaceWalletId = [NSString stringWithUTF8String:groupSandbox->get_replace_wallet_id().c_str()];
         self.pubkey = [NSString stringWithUTF8String:groupSandbox->get_pubkey().c_str()];
         self.url = [NSString stringWithUTF8String:groupSandbox->get_url().c_str()];
+        self.miniscriptTemplate = [NSString stringWithUTF8String:groupSandbox->get_miniscript_template().c_str()];
         self.m = groupSandbox->get_m();
         self.n = groupSandbox->get_n();
         
@@ -43,6 +44,24 @@ using namespace nunchuk;
                 break;
             default:
                 self.addressType = @"ANY";
+                break;
+        }
+        
+        switch (groupSandbox->get_wallet_type()) {
+            case WalletType::SINGLE_SIG:
+                self.walletType = @"SINGLE_SIG";
+                break;
+            case WalletType::MULTI_SIG:
+                self.walletType = @"MULTI_SIG";
+                break;
+            case WalletType::ESCROW:
+                self.walletType = @"ESCROW";
+                break;
+            case WalletType::MINISCRIPT:
+                self.walletType = @"MINISCRIPT";
+                break;
+            default:
+                self.walletType = @"ANY";
                 break;
         }
         
@@ -75,6 +94,32 @@ using namespace nunchuk;
             [slots setObject:slotInfo forKey:key];
         }
         self.occupiedSlots = slots;
+        
+        // Add named signers mapping
+        NSMutableDictionary *namedSignersDict = [NSMutableDictionary new];
+        if (!groupSandbox->get_miniscript_template().empty()) {
+            const auto& namedSigners = groupSandbox->get_named_signers();
+            for (const auto& pair : namedSigners) {
+                NSString *key = [NSString stringWithUTF8String:pair.first.c_str()];
+                auto signer = pair.second;
+                ObjSingleSigner *objSigner = [[ObjSingleSigner alloc] initWithSigner:&signer];
+                [namedSignersDict setObject:objSigner forKey:key];
+            }
+        }
+        self.namedSigners = namedSignersDict;
+        
+        // Add named occupied mapping
+        NSMutableDictionary *namedOccupiedSlotsDict = [NSMutableDictionary new];
+        if (!groupSandbox->get_miniscript_template().empty()) {
+            const auto& namedOccupiedSlots = groupSandbox->get_named_occupied();
+            for (const auto& pair : namedOccupiedSlots) {
+                NSString *key = [NSString stringWithUTF8String:pair.first.c_str()];  // name
+                auto value = pair.second;  // std::pair<time_t, std::string>
+                NSArray *slotInfo = @[@(value.first), [NSString stringWithUTF8String:value.second.c_str()]];
+                [namedOccupiedSlotsDict setObject:slotInfo forKey:key];
+            }
+        }
+        self.namedOccupiedSlots = namedOccupiedSlotsDict;
     }
     return self;
 }

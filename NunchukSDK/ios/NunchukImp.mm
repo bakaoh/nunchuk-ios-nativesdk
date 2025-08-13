@@ -5743,5 +5743,23 @@ dispatch_semaphore_t semaphore;
     }
 }
 
+- (BOOL)IsPreferScriptPath:(NSString *)walletId txId:(NSString *)txId {
+    try {
+        auto wallet = nunchukManager->nu->GetWallet([walletId UTF8String]);
+        return nunchukManager->nu->IsPreferScriptPath(wallet, [txId UTF8String]);
+    } catch (const BaseException& exception) {
+        return YES;
+    }
+}
+
+- (void)setPreferScriptPath:(NSString *)walletId txId:(NSString *)txId preferScriptPath:(BOOL)preferScriptPath {
+    try {
+        auto wallet = nunchukManager->nu->GetWallet([walletId UTF8String]);
+        nunchukManager->nu->SetPreferScriptPath(wallet, [txId UTF8String], preferScriptPath);
+    } catch (const BaseException& exception) {
+        return;
+    }
+}
+
 @end
 

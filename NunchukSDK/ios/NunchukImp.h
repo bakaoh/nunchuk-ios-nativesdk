@@ -456,6 +456,8 @@ extern const int FEE_RATE_ECONOMICAL;
 - (NSDictionary *_Nullable)getTimelockedUntilWithWalletId:(NSString *_Nonnull)walletId transactionId:(NSString *_Nonnull)transactionId;
 - (NSDictionary *_Nullable)getScriptNodeSatisfiable:(NSString *_Nonnull)script transactionId:(NSString *_Nonnull)transactionId walletId:(NSString *_Nonnull)walletId;
 - (NSDictionary *_Nullable)getCoinsGroupedBySubPolicies:(NSString *_Nonnull)script coins:(NSArray *_Nonnull)coins;
+- (BOOL)IsPreferScriptPath:(NSString *_Nonnull)walletId txId:(NSString *_Nonnull)txId;
+- (void)setPreferScriptPath:(NSString *_Nonnull)walletId txId:(NSString *_Nonnull)txId preferScriptPath:(BOOL)preferScriptPath;
 
 @end
 #endif

@@ -987,4 +987,15 @@ using namespace nunchuk;
     return dict;
 }
 
+- (BOOL)isPreimageRevealed:(NSString *)psbtOrHexTx hash:(NSData *)hash {
+    try {
+        const uint8_t *hashBytes = (const uint8_t *)[hash bytes];
+        NSUInteger dataLength = [hash length];
+        std::vector<uint8_t> hashC(hashBytes, hashBytes + dataLength);
+        return Utils::IsPreimageRevealed([psbtOrHexTx UTF8String], hashC);
+    } catch (const BaseException& exception) {
+        return FALSE;
+    }
+}
+
 @end

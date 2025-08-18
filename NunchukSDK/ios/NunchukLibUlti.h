@@ -96,6 +96,7 @@ typedef enum NCNDEFMessageType {
 - (NSString *_Nullable)decayingMultisigMiniscriptTemplate:(int)m n:(int)n newM:(int)newM reuseSigners:(BOOL)reuseSigners decayTime:(long)decayTime timelockType:(NSString *_Nonnull)timelockType timelockUnit:(NSString *_Nonnull)timelockUnit addressType:(NSString *_Nonnull)addressType error:(NSError *_Nullable*_Nullable)error;
 - (NSString *_Nullable)flexibleMultisigMiniscriptTemplate:(int)m n:(int)n newM:(int)newM newN:(int)newN reuseSigners:(BOOL)reuseSigners time:(long)time timelockType:(NSString *_Nonnull)timelockType timelockUnit:(NSString *_Nonnull)timelockUnit addressType:(NSString *_Nonnull)addressType error:(NSError *_Nullable*_Nullable)error;
 - (NSDictionary *_Nullable)getScriptNodeSatisfiable:(NSString *_Nonnull)script psbt:(NSString *_Nonnull)psbt;
+- (BOOL)isPreimageRevealed:(NSString *_Nonnull)psbtOrHexTx hash:(NSData *_Nonnull)hash;
 
 @end
 

@@ -1003,7 +1003,7 @@ dispatch_semaphore_t semaphore;
     }
 }
 
-- (ObjDraftTransaction *)draftRBFTransactionWithWalletId:(NSString *)walletId transactionId:(NSString *)transactionId outputs:(NSArray<StringIntPair *> *)outputs feeRate:(long)feeRate subtractFeeFromAmount:(BOOL)subtractFeeFromAmount useScriptPath:(BOOL)useScriptPath error:(NSError * _Nullable __autoreleasing *)outError {
+- (ObjDraftTransaction *)draftRBFTransactionWithWalletId:(NSString *)walletId transactionId:(NSString *)transactionId outputs:(NSArray<StringIntPair *> *)outputs feeRate:(long)feeRate subtractFeeFromAmount:(BOOL)subtractFeeFromAmount useScriptPath:(BOOL)useScriptPath signingPath:(ObjSigningPath *_Nullable)signingPath error:(NSError * _Nullable __autoreleasing *)outError {
     std::map<std::string, Amount> cOutputs;
     for (NSUInteger i = 0; i < outputs.count; i++) {
         StringIntPair * pair = outputs[i];
@@ -1016,7 +1016,12 @@ dispatch_semaphore_t semaphore;
             throw BaseException(NunchukSDKErrorInvalidTxStatus, "Cannot replace transaction. The original transaction has already been confirmed");
         }
         auto input = nunchukManager->nu->GetUnspentOutputsFromTxInputs([walletId UTF8String], oldTx.get_inputs());
-        auto tx = nunchukManager->nu->DraftTransaction(std::string([walletId UTF8String]), cOutputs, input, feeRate, subtractFeeFromAmount, [transactionId UTF8String], useScriptPath);
+        Transaction tx;
+        if (signingPath == nil) {
+            tx = nunchukManager->nu->DraftTransaction(std::string([walletId UTF8String]), cOutputs, input, feeRate, subtractFeeFromAmount, [transactionId UTF8String], useScriptPath);
+        } else {
+            tx = nunchukManager->nu->DraftTransaction(std::string([walletId UTF8String]), cOutputs, input, feeRate, subtractFeeFromAmount, [transactionId UTF8String], useScriptPath, [self getSigningPathFrom:signingPath]);
+        }
         ObjTransaction *draftTx = [[ObjTransaction alloc] initWithTransaction:&tx];
         Amount packageFeeRate{0};
         auto isCPFP = nunchukManager->nu->IsCPFP([walletId UTF8String], tx, packageFeeRate);
@@ -1030,7 +1035,7 @@ dispatch_semaphore_t semaphore;
     }
 }
 
-- (ObjDraftTransaction *)draftCancelRBFTransactionWithWalletId:(NSString *)walletId transactionId:(NSString *)transactionId newAddress:(NSString *)newAddress newFeeRate:(long)newFeeRate useScriptPath:(BOOL)useScriptPath error:(NSError * _Nullable __autoreleasing *)outError {
+- (ObjDraftTransaction *)draftCancelRBFTransactionWithWalletId:(NSString *)walletId transactionId:(NSString *)transactionId newAddress:(NSString *)newAddress newFeeRate:(long)newFeeRate useScriptPath:(BOOL)useScriptPath signingPath:(ObjSigningPath *)signingPath error:(NSError * _Nullable __autoreleasing *)outError {
     try {
         auto originTx = nunchukManager->nu->GetTransaction([walletId UTF8String], [transactionId UTF8String]);
         if (originTx.get_status() == TransactionStatus::CONFIRMED) {
@@ -1043,7 +1048,12 @@ dispatch_semaphore_t semaphore;
         }
         std::map<std::string, Amount> outputs;
         outputs[[newAddress UTF8String]] = totalAmount;
-        auto tx = nunchukManager->nu->DraftTransaction(std::string([walletId UTF8String]), outputs, inputs, newFeeRate, YES, [transactionId UTF8String], useScriptPath);
+        Transaction tx;
+        if (signingPath == nil) {
+            tx = nunchukManager->nu->DraftTransaction(std::string([walletId UTF8String]), outputs, inputs, newFeeRate, YES, [transactionId UTF8String], useScriptPath);
+        } else {
+            tx = nunchukManager->nu->DraftTransaction(std::string([walletId UTF8String]), outputs, inputs, newFeeRate, YES, [transactionId UTF8String], useScriptPath, [self getSigningPathFrom:signingPath]);
+        }
         ObjTransaction *draftTx = [[ObjTransaction alloc] initWithTransaction:&tx];
         Amount packageFeeRate{0};
         auto isCPFP = nunchukManager->nu->IsCPFP([walletId UTF8String], tx, packageFeeRate);
@@ -2167,13 +2177,18 @@ dispatch_semaphore_t semaphore;
     }
 }
 
-- (ObjTransaction *)replaceTransaction:(NSString *)transactionId walletId:(NSString *)walletId newFeeRate:(long)newFeeRate antiFeeSniping:(BOOL)antiFeeSniping useScriptPath:(BOOL)useScriptPath error:(NSError **)error {
+- (ObjTransaction *)replaceTransaction:(NSString *)transactionId walletId:(NSString *)walletId newFeeRate:(long)newFeeRate antiFeeSniping:(BOOL)antiFeeSniping useScriptPath:(BOOL)useScriptPath signingPath:(ObjSigningPath *)signingPath error:(NSError **)error {
     try {
         auto replaceTx = nunchukManager->nu->GetTransaction([walletId UTF8String], [transactionId UTF8String]);
         if (replaceTx.get_status() == TransactionStatus::CONFIRMED) {
             throw BaseException(NunchukSDKErrorInvalidTxStatus, "Cannot replace transaction. The original transaction has already been confirmed");
         }
-        auto tx = nunchukManager->nu->ReplaceTransaction([walletId UTF8String], [transactionId UTF8String], newFeeRate, antiFeeSniping, useScriptPath);
+        Transaction tx;
+        if (signingPath == nil) {
+            tx = nunchukManager->nu->ReplaceTransaction([walletId UTF8String], [transactionId UTF8String], newFeeRate, antiFeeSniping, useScriptPath);
+        } else {
+            tx = nunchukManager->nu->ReplaceTransaction([walletId UTF8String], [transactionId UTF8String], newFeeRate, antiFeeSniping, useScriptPath, [self getSigningPathFrom:signingPath]);
+        }
         return [[ObjTransaction alloc] initWithTransaction:&tx];
     } catch (const BaseException& exception) {
         *error = [[NSError alloc] initWithDomain:@"io.nunchuk.ios" code: exception.code() userInfo:@{@"message": [NSString stringWithUTF8String: exception.what()]}];
@@ -2184,7 +2199,7 @@ dispatch_semaphore_t semaphore;
     }
 }
 
-- (ObjTransaction *)cancelRBFTransaction:(NSString *)transactionId walletId:(NSString *)walletId newFeeRate:(long)newFeeRate newAddress:(NSString *)newAddress antiFeeSniping:(BOOL)antiFeeSniping useScriptPath:(BOOL)useScriptPath error:(NSError **)error {
+- (ObjTransaction *)cancelRBFTransaction:(NSString *)transactionId walletId:(NSString *)walletId newFeeRate:(long)newFeeRate newAddress:(NSString *)newAddress antiFeeSniping:(BOOL)antiFeeSniping useScriptPath:(BOOL)useScriptPath signingPath:(ObjSigningPath *)signingPath error:(NSError **)error {
     try {
         auto originTx = nunchukManager->nu->GetTransaction([walletId UTF8String], [transactionId UTF8String]);
         if (originTx.get_status() == TransactionStatus::CONFIRMED) {
@@ -2197,7 +2212,12 @@ dispatch_semaphore_t semaphore;
         }
         std::map<std::string, Amount> outputs;
         outputs[[newAddress UTF8String]] = totalAmount;
-        auto tx = nunchukManager->nu->CreateTransaction([walletId UTF8String], outputs, [@"" UTF8String], inputs, newFeeRate, true, [transactionId UTF8String], antiFeeSniping, useScriptPath);
+        Transaction tx;
+        if (signingPath == nil) {
+            tx = nunchukManager->nu->CreateTransaction([walletId UTF8String], outputs, [@"" UTF8String], inputs, newFeeRate, true, [transactionId UTF8String], antiFeeSniping, useScriptPath);
+        } else {
+            tx = nunchukManager->nu->CreateTransaction([walletId UTF8String], outputs, [@"" UTF8String], inputs, newFeeRate, true, [transactionId UTF8String], antiFeeSniping, useScriptPath, [self getSigningPathFrom:signingPath]);
+        }
         return [[ObjTransaction alloc] initWithTransaction:&tx];
     } catch (const BaseException& exception) {
         *error = [[NSError alloc] initWithDomain:@"io.nunchuk.ios" code: exception.code() userInfo:@{@"message": [NSString stringWithUTF8String: exception.what()]}];
@@ -5743,7 +5763,7 @@ dispatch_semaphore_t semaphore;
     }
 }
 
-- (BOOL)IsPreferScriptPath:(NSString *)walletId txId:(NSString *)txId {
+- (BOOL)isPreferScriptPath:(NSString *)walletId txId:(NSString *)txId {
     try {
         auto wallet = nunchukManager->nu->GetWallet([walletId UTF8String]);
         return nunchukManager->nu->IsPreferScriptPath(wallet, [txId UTF8String]);
@@ -5761,5 +5781,114 @@ dispatch_semaphore_t semaphore;
     }
 }
 
-@end
+- (NSDictionary *_Nullable)getScriptNodeKeySetStatus:(NSString *_Nonnull)script walletId:(NSString *_Nonnull)walletId txId:(NSString *_Nonnull)txId {
+    try {
+        Transaction tx = nunchukManager->nu->GetTransaction([walletId UTF8String], [txId UTF8String]);
+        std::vector<std::string> keypaths;
+        auto scriptNode = Utils::GetScriptNode([script UTF8String], keypaths);
+        return [self getNodeKeySetStatus:scriptNode tx:tx];
+    } catch (const BaseException& exception) {
+        return nil;
+    }
+}
 
+- (NSDictionary *)getNodeKeySetStatus:(const ScriptNode &)node tx:(Transaction)tx {
+    try {
+        NSMutableDictionary *dict = [NSMutableDictionary new];
+        ScriptNode::Type type = node.get_type();
+        if (type == ScriptNode::Type::MUSIG) {
+            auto keySetStatus = node.get_keyset_status(tx);
+            const std::vector<size_t>& nodeId = node.get_id();
+            NSMutableArray *idArray = [NSMutableArray arrayWithCapacity:nodeId.size()];
+            for (size_t idValue : nodeId) {
+                [idArray addObject:[NSString stringWithFormat:@"%zu", idValue]];
+            }
+            NSString *nodeIdStr = [idArray componentsJoinedByString:@"."];
+            ObjKeySetStatus *obj = [[ObjKeySetStatus alloc] initKeySetStatus: &keySetStatus];
+            [dict setObject:obj forKey:nodeIdStr];
+        }
+        const std::vector<ScriptNode>& subs = node.get_subs();
+        for (const ScriptNode& subNode : subs) {
+            NSDictionary *subDict = [self getNodeKeySetStatus:subNode tx:tx];
+            if (subDict != NULL) {
+                [dict addEntriesFromDictionary:subDict];
+            }
+        }
+        return dict;
+    } catch (const BaseException& exception) {
+        return nil;
+    }
+}
+
+- (NSArray<ObjUnspentOutput *> *)getTimelockedCoins:(NSString *)script walletId:(NSString *_Nonnull)walletId {
+    try {
+        auto coins = nunchukManager->nu->GetUnspentOutputs([walletId UTF8String]);
+        int64_t maxLockValue;
+        auto unlockedCoins = Utils::GetTimelockedCoins([script UTF8String], coins, maxLockValue, nunchukManager->nu->GetChainTip());
+        NSMutableArray *array = [NSMutableArray array];
+        for (auto &coin : unlockedCoins) {
+            ObjUnspentOutput *obj = [[ObjUnspentOutput alloc] initWithUnspentOutput:&coin];
+            [array addObject:obj];
+        }
+        return array;
+    } catch (const BaseException& exception) {
+        return nil;
+    }
+}
+
+- (BOOL)revealPreimage:(NSString *)walletId txId:(NSString *)txId hash:(NSData *)hash preImage:(NSString *)preImage {
+    try {
+        const uint8_t *hashBytes = (const uint8_t *)[hash bytes];
+        NSUInteger dataLength = [hash length];
+        std::vector<uint8_t> hashC(hashBytes, hashBytes + dataLength);
+        const char *preImageArray = [preImage UTF8String];
+        std::vector<uint8_t> preimageC;
+        for (size_t i = 0; preImageArray[i] != '\0'; ++i) {
+            preimageC.push_back(static_cast<uint8_t>(preImageArray[i]));
+        }
+        return nunchukManager->nu->RevealPreimage([walletId UTF8String], [txId UTF8String], hashC, preimageC);
+    } catch (const BaseException& exception) {
+        return FALSE;
+    }
+}
+
+- (NSArray<ObjSigningPathFee *> *)estimateFeeForRBFSigningPaths:(NSString *)walletId txId:(NSString *)txId newAddress:(NSString *)newAddress feeRate:(long)feeRate subtractFeeFromAmount:(BOOL)subtractFeeFromAmount error:(NSError * _Nullable __autoreleasing *)error {
+    try {
+        auto tx = nunchukManager->nu->GetTransaction([walletId UTF8String], [txId UTF8String]);
+        if (tx.get_status() == TransactionStatus::CONFIRMED) {
+            throw BaseException(NunchukSDKErrorInvalidTxStatus, "Cannot replace transaction. The original transaction has already been confirmed");
+        }
+        auto inputs = nunchukManager->nu->GetUnspentOutputsFromTxInputs([walletId UTF8String], tx.get_inputs());
+        auto totalAmount = 0;
+        for (auto input : inputs) {
+            totalAmount += input.get_amount();
+        }
+        std::map<std::string, Amount> outputs;
+        outputs[[newAddress UTF8String]] = totalAmount;
+        auto signingPaths = nunchukManager->nu->EstimateFeeForSigningPaths([walletId UTF8String], outputs, inputs, feeRate, subtractFeeFromAmount);
+        NSMutableArray *temp = [NSMutableArray new];
+        for (auto& item: signingPaths) {
+            SigningPath path = item.first;
+            NSMutableArray *scriptNodeIdArray = [NSMutableArray arrayWithCapacity:path.size()];
+            for (ScriptNodeId scriptNodeId: path) {
+                NSMutableArray *idArray = [NSMutableArray arrayWithCapacity:scriptNodeId.size()];
+                for (size_t idValue: scriptNodeId) {
+                    [idArray addObject:[NSString stringWithFormat:@"%zu", idValue]];
+                }
+                [scriptNodeIdArray addObject:idArray];
+            }
+            ObjSigningPath *signingPathObj = [[ObjSigningPath alloc] initWithScriptNodeIds:scriptNodeIdArray];
+            ObjSigningPathFee *obj = [[ObjSigningPathFee alloc] initWithSigningPath:signingPathObj amount:item.second];
+            [temp addObject:obj];
+        }
+        return temp;
+    } catch (const BaseException& exception) {
+        *error = [[NSError alloc] initWithDomain:@"io.nunchuk.ios" code: exception.code() userInfo:@{@"message": [NSString stringWithUTF8String: exception.what()]}];
+        return NULL;
+    } catch (const std::exception& exception) {
+        *error = [[NSError alloc] initWithDomain:@"io.nunchuk.ios" code: NunchukSDKErrorUndefined userInfo:@{@"message": [NSString stringWithUTF8String: exception.what()]}];
+        return NULL;
+    }
+}
+
+@end

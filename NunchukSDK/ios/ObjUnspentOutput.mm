@@ -10,6 +10,7 @@
 #import <extensions/ObjUnspentOutputLibrary.h>
 #import "ObjTransaction.h"
 #import <extensions/ObjTransactionLibrary.h>
+#import "ObjTimeLock.h"
 
 @implementation ObjUnspentOutput
 
@@ -28,11 +29,24 @@
     objOutput.scheduledTime = output->get_schedule_time();
     objOutput.status = [self getCoinStats:output->get_status()];
     std::vector<int64_t> timelocksC = output->get_timelocks();
-    NSMutableArray *array = [[NSMutableArray alloc] initWithCapacity:timelocksC.size()];
+    NSMutableArray *timelockArray = [[NSMutableArray alloc] initWithCapacity:timelocksC.size()];
     for (int64_t value : timelocksC) {
-        [array addObject:[NSNumber numberWithLongLong:value]];
+        [timelockArray addObject:[NSNumber numberWithLongLong:value]];
     }
-    self.timelocks = array;
+    self.timelocks = timelockArray;
+    std::vector<int> tagsC = output->get_tags();
+    NSMutableArray *tagArray = [[NSMutableArray alloc] initWithCapacity:tagsC.size()];
+    for (int value : tagsC) {
+        [tagArray addObject:[NSNumber numberWithInt:value]];
+    }
+    self.tag = tagArray;
+    std::vector<int> collectionsC = output->get_collections();
+    NSMutableArray *collectionArray = [[NSMutableArray alloc] initWithCapacity:collectionsC.size()];
+    for (int value : collectionsC) {
+        [collectionArray addObject:[NSNumber numberWithInt:value]];
+    }
+    self.collections = collectionArray;
+    self.timeLockBased = [self getTimeLockBased:output->get_lock_based()];
     return objOutput;
 }
 
@@ -55,6 +69,17 @@
         timelocksC.push_back([value longLongValue]);
     }
     objInC.set_timelocks(timelocksC);
+    std::vector<int> tagsC;
+    for (NSNumber *value in self.timelocks) {
+        tagsC.push_back([value intValue]);
+    }
+    objInC.set_tags(tagsC);
+    std::vector<int> collectionsC;
+    for (NSNumber *value in self.timelocks) {
+        collectionsC.push_back([value intValue]);
+    }
+    objInC.set_collections(collectionsC);
+    
     return objInC;
 }
 
@@ -93,6 +118,17 @@
             return nunchuk::CoinStatus::SPENT;
         default:
             return nunchuk::CoinStatus::SPENT;
+    }
+}
+
+- (TimeLockBased)getTimeLockBased:(Timelock::Based)based {
+    switch (based) {
+        case Timelock::Based::NONE:
+            return NONE;
+        case Timelock::Based::TIME_LOCK:
+            return TIME_LOCK;
+        case Timelock::Based::HEIGHT_LOCK:
+            return HEIGHT_LOCK;
     }
 }
 

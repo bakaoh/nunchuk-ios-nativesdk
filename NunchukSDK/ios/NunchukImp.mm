@@ -3619,7 +3619,12 @@ dispatch_semaphore_t semaphore;
 
 - (NSString *)getColdCardExportData:(NSString *)walletId error:(NSError * _Nullable __autoreleasing *)error {
     try {
-        return [NSString stringWithUTF8String:nunchukManager->nu->GetWalletExportData(std::string([walletId UTF8String]), ExportFormat::COLDCARD).c_str()];
+        auto wallet = nunchukManager->nu->GetWallet([walletId UTF8String]);
+        if (wallet.get_wallet_type() == WalletType::MINISCRIPT) {
+            return [NSString stringWithUTF8String:wallet.get_descriptor(DescriptorPath::EXTERNAL_ALL).c_str()];
+        } else {
+            return [NSString stringWithUTF8String:nunchukManager->nu->GetWalletExportData(std::string([walletId UTF8String]), ExportFormat::COLDCARD).c_str()];
+        }
     } catch (const BaseException& exception) {
         *error = [[NSError alloc] initWithDomain:@"io.nunchuk.ios" code: exception.code() userInfo:@{@"message": [NSString stringWithUTF8String: exception.what()]}];
         return NULL;

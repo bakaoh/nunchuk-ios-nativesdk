@@ -1833,7 +1833,12 @@ dispatch_semaphore_t semaphore;
 - (NSArray<NSString *> *)exportBBQRWalletWithId:(NSString *)walletId fragmentLength:(NSInteger)fragmentLength error:(NSError * _Nullable __autoreleasing *)outError {
     try {
         auto wallet = nunchukManager->nu->GetWallet([walletId UTF8String]);
-        auto datas = Utils::ExportBBQRWallet(wallet, ExportFormat::COLDCARD, 1, fragmentLength);
+        std::vector<std::string> datas;
+        if (wallet.get_wallet_type() == WalletType::MINISCRIPT) {
+            datas = Utils::ExportBBQRWallet(wallet, ExportFormat::DESCRIPTOR_EXTERNAL_ALL, 1, fragmentLength);
+        } else {
+            datas = Utils::ExportBBQRWallet(wallet, ExportFormat::COLDCARD, 1, fragmentLength);
+        }
         NSMutableArray *bbqrs = [[NSMutableArray alloc] init];
         for (auto &data: datas) {
             [bbqrs addObject: [NSString stringWithUTF8String:data.c_str()]];
@@ -3672,6 +3677,8 @@ dispatch_semaphore_t semaphore;
             return ExportFormat::CSV;
         case BSMS:
             return ExportFormat::BSMS;
+        case DESCRIPTOR_EXTERNAL_ALL:
+            return ExportFormat::DESCRIPTOR_EXTERNAL_ALL;
     }
 }
 

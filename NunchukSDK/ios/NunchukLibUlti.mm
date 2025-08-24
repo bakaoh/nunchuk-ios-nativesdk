@@ -874,14 +874,14 @@ using namespace nunchuk;
 
 - (Timelock::Type)timelockTypeFromString: (NSString *)timelockType {
     if (std::strcmp([timelockType UTF8String], "absolute") == 0) {
-        return Timelock::Type::ABSOLUTE;
+        return Timelock::Type::LOCKTYPE_ABSOLUTE;
     }
     
     if (std::strcmp([timelockType UTF8String], "relative") == 0) {
-        return Timelock::Type::RELATIVE;
+        return Timelock::Type::LOCKTYPE_RELATIVE;
     }
     
-    return Timelock::Type::ABSOLUTE;
+    return Timelock::Type::LOCKTYPE_ABSOLUTE;
 }
 
 - (Timelock::Based)timelockUnitFromString: (NSString *)timelockUnit {

@@ -774,9 +774,14 @@ using namespace nunchuk;
         }
         AddressType addressType = [self addressTypeFromString: wallet.addressType];
         auto obj = Wallet([wallet.walletId UTF8String], [wallet.walletName UTF8String], wallet.m, wallet.n, signers, addressType, wallet.isEscrow, [wallet.createdAt timeIntervalSince1970]);
-        auto datas = Utils::ExportBBQRWallet(obj, ExportFormat::COLDCARD, 1, fragmentLength);
+        std::vector<std::string> qrs;
+        if (wallet.isMiniscriptWallet) {
+            qrs = Utils::ExportBBQRWallet(obj, ExportFormat::DESCRIPTOR_EXTERNAL_ALL, 1, fragmentLength);
+        } else {
+            qrs = Utils::ExportBBQRWallet(obj, ExportFormat::COLDCARD, 1, fragmentLength);
+        }
         NSMutableArray *bbqrs = [[NSMutableArray alloc] init];
-        for (auto &data: datas) {
+        for (auto &data: qrs) {
             [bbqrs addObject: [NSString stringWithUTF8String:data.c_str()]];
         }
         return bbqrs;

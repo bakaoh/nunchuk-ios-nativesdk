@@ -56,7 +56,8 @@ typedef enum NunchukExportFormat {
     COLDCARD,
     COBO,
     CSV,
-    BSMS
+    BSMS,
+    DESCRIPTOR_EXTERNAL_ALL
 } NunchukExportFormat;
 
 typedef enum KeyHealthStatus {

@@ -403,7 +403,23 @@ dispatch_semaphore_t semaphore;
 
 -(BOOL)exportWalletWithId:(NSString *)walletId filePath:(NSString *)filePath format:(NSString *)walletFormat error:(NSError * _Nullable __autoreleasing *)outError {
     try {
-        return nunchukManager->exportWallet([walletId UTF8String], [filePath UTF8String], [walletFormat UTF8String] );
+        ExportFormat format = ExportFormat::COLDCARD;
+        if ([walletFormat isEqualToString:@"COBO"]) {
+            format = ExportFormat::COBO;
+        } else if ([walletFormat isEqualToString:@"BSMS"]) {
+            format = ExportFormat::BSMS;
+        } else if ([walletFormat isEqualToString:@"DB"]) {
+            format = ExportFormat::DB;
+        } else if ([walletFormat isEqualToString:@"COLDCARD"]) {
+            format = ExportFormat::COLDCARD;
+        } else if ([walletFormat isEqualToString:@"DESCRIPTOR"]) {
+            format = ExportFormat::DESCRIPTOR;
+        } else if ([walletFormat isEqualToString:@"CSV"]) {
+            format = ExportFormat::CSV;
+        } else if ([walletFormat isEqualToString:@"DESCRIPTOR_EXTERNAL_ALL"]) {
+            format = ExportFormat::DESCRIPTOR_EXTERNAL_ALL;
+        }
+        return nunchukManager->nu->ExportWallet([walletId UTF8String], [filePath UTF8String], format);
     } catch (const BaseException& exception) {
         *outError = [[NSError alloc] initWithDomain:@"io.nunchuk.ios" code: exception.code() userInfo:@{@"message": [NSString stringWithUTF8String: exception.what()]}];
         return NO;
@@ -1833,7 +1849,12 @@ dispatch_semaphore_t semaphore;
 - (NSArray<NSString *> *)exportBBQRWalletWithId:(NSString *)walletId fragmentLength:(NSInteger)fragmentLength error:(NSError * _Nullable __autoreleasing *)outError {
     try {
         auto wallet = nunchukManager->nu->GetWallet([walletId UTF8String]);
-        auto datas = Utils::ExportBBQRWallet(wallet, ExportFormat::COLDCARD, 1, fragmentLength);
+        std::vector<std::string> datas;
+        if (wallet.get_wallet_type() == WalletType::MINISCRIPT) {
+            datas = Utils::ExportBBQRWallet(wallet, ExportFormat::DESCRIPTOR_EXTERNAL_ALL, 1, fragmentLength);
+        } else {
+            datas = Utils::ExportBBQRWallet(wallet, ExportFormat::COLDCARD, 1, fragmentLength);
+        }
         NSMutableArray *bbqrs = [[NSMutableArray alloc] init];
         for (auto &data: datas) {
             [bbqrs addObject: [NSString stringWithUTF8String:data.c_str()]];
@@ -3619,7 +3640,12 @@ dispatch_semaphore_t semaphore;
 
 - (NSString *)getColdCardExportData:(NSString *)walletId error:(NSError * _Nullable __autoreleasing *)error {
     try {
-        return [NSString stringWithUTF8String:nunchukManager->nu->GetWalletExportData(std::string([walletId UTF8String]), ExportFormat::COLDCARD).c_str()];
+        auto wallet = nunchukManager->nu->GetWallet([walletId UTF8String]);
+        if (wallet.get_wallet_type() == WalletType::MINISCRIPT) {
+            return [NSString stringWithUTF8String:wallet.get_descriptor(DescriptorPath::EXTERNAL_ALL).c_str()];
+        } else {
+            return [NSString stringWithUTF8String:nunchukManager->nu->GetWalletExportData(std::string([walletId UTF8String]), ExportFormat::COLDCARD).c_str()];
+        }
     } catch (const BaseException& exception) {
         *error = [[NSError alloc] initWithDomain:@"io.nunchuk.ios" code: exception.code() userInfo:@{@"message": [NSString stringWithUTF8String: exception.what()]}];
         return NULL;
@@ -3667,6 +3693,8 @@ dispatch_semaphore_t semaphore;
             return ExportFormat::CSV;
         case BSMS:
             return ExportFormat::BSMS;
+        case DESCRIPTOR_EXTERNAL_ALL:
+            return ExportFormat::DESCRIPTOR_EXTERNAL_ALL;
     }
 }
 

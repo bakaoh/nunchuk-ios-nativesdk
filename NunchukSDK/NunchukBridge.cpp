@@ -84,19 +84,7 @@ void NunchukManager::updateWalletName(const char* walletId, const char* name) {
     wallet.set_name(name);
     this->nu->UpdateWallet(wallet);
 }
-bool NunchukManager::exportWallet(const char* walletId, const char* filePath, const char* format) {
-    ExportFormat eFormat = ExportFormat::COLDCARD;
-    if (strcmp(format, "COBO") == 0) {
-        eFormat = ExportFormat::COBO;
-    }
-    if (strcmp(format, "BSMS") == 0) {
-        eFormat = ExportFormat::BSMS;
-    }
-    if (strcmp(format, "DB") == 0) {
-        eFormat = ExportFormat::DB;
-    }
-    return this->nu->ExportWallet(walletId, filePath, eFormat);
-}
+
 RoomWallet NunchukManager::getRoomWallet(const char* roomId) {
     return this->nuMatrix->GetRoomWallet(roomId);
 }

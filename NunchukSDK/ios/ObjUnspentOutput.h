@@ -34,7 +34,7 @@ typedef enum CoinStatusEnum {
 @property (nonatomic, assign) CoinStatusEnum status;
 @property (nonatomic, strong, nullable) NSArray<NSNumber*>* timelocks;
 @property (nonatomic, assign) TimeLockBased timeLockBased;
-@property (nonatomic, strong, nullable) NSArray<NSNumber*>* tag;
+@property (nonatomic, strong, nullable) NSArray<NSNumber*>* tags;
 @property (nonatomic, strong, nullable) NSArray<NSNumber*>* collections;
 
 @end

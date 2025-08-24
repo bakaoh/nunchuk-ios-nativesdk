@@ -33,20 +33,20 @@
     for (int64_t value : timelocksC) {
         [timelockArray addObject:[NSNumber numberWithLongLong:value]];
     }
-    self.timelocks = timelockArray;
+    objOutput.timelocks = [NSArray arrayWithArray:timelockArray];
     std::vector<int> tagsC = output->get_tags();
     NSMutableArray *tagArray = [[NSMutableArray alloc] initWithCapacity:tagsC.size()];
     for (int value : tagsC) {
         [tagArray addObject:[NSNumber numberWithInt:value]];
     }
-    self.tag = tagArray;
+    objOutput.tags = [NSArray arrayWithArray:tagArray];
     std::vector<int> collectionsC = output->get_collections();
     NSMutableArray *collectionArray = [[NSMutableArray alloc] initWithCapacity:collectionsC.size()];
     for (int value : collectionsC) {
         [collectionArray addObject:[NSNumber numberWithInt:value]];
     }
-    self.collections = collectionArray;
-    self.timeLockBased = [self getTimeLockBased:output->get_lock_based()];
+    objOutput.collections = [NSArray arrayWithArray:collectionArray];
+    objOutput.timeLockBased = [self getTimeLockBased:output->get_lock_based()];
     return objOutput;
 }
 
@@ -70,12 +70,12 @@
     }
     objInC.set_timelocks(timelocksC);
     std::vector<int> tagsC;
-    for (NSNumber *value in self.timelocks) {
+    for (NSNumber *value in self.tags) {
         tagsC.push_back([value intValue]);
     }
     objInC.set_tags(tagsC);
     std::vector<int> collectionsC;
-    for (NSNumber *value in self.timelocks) {
+    for (NSNumber *value in self.collections) {
         collectionsC.push_back([value intValue]);
     }
     objInC.set_collections(collectionsC);

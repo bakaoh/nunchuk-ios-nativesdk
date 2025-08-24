@@ -5900,4 +5900,23 @@ dispatch_semaphore_t semaphore;
     }
 }
 
+- (NSArray<ObjSingleSigner *> *)getTransactionSigners:(NSString *)walletId txId:(NSString *)txId error:(NSError * _Nullable __autoreleasing *)error {
+    try {
+        auto signers = nunchukManager->nu->GetTransactionSigners([walletId UTF8String], [txId UTF8String]);
+        NSMutableArray *array = [[NSMutableArray alloc] initWithCapacity:signers.size()];
+        for(unsigned i = 0; i < signers.size(); i++) {
+            auto signer = signers.at(i);
+            ObjSingleSigner * objSigner = [[ObjSingleSigner alloc] initWithSigner: &signer];
+            [array addObject: objSigner];
+        }
+        return array;
+    } catch (const BaseException& exception) {
+        *error = [[NSError alloc] initWithDomain:@"io.nunchuk.ios" code: exception.code() userInfo:@{@"message": [NSString stringWithUTF8String: exception.what()]}];
+        return NULL;
+    } catch (const std::exception& exception) {
+        *error = [[NSError alloc] initWithDomain:@"io.nunchuk.ios" code: NunchukSDKErrorUndefined userInfo:@{@"message": [NSString stringWithUTF8String: exception.what()]}];
+        return NULL;
+    }
+}
+
 @end

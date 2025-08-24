@@ -462,6 +462,7 @@ extern const int FEE_RATE_ECONOMICAL;
 - (NSArray<ObjUnspentOutput *> *_Nullable)getTimelockedCoins:(NSString *_Nonnull)script walletId:(NSString *_Nonnull)walletId;
 - (BOOL)revealPreimage:(NSString *_Nonnull)walletId txId:(NSString *_Nonnull)txId hash:(NSData *_Nonnull)hash preImage:(NSString *_Nonnull)preImage;
 - (NSArray<ObjSigningPathFee *> *_Nullable)estimateFeeForRBFSigningPaths:(NSString *_Nonnull)walletId txId:(NSString *_Nonnull)txId newAddress:(NSString *_Nonnull)newAddress feeRate:(long)feeRate subtractFeeFromAmount:(BOOL)subtractFeeFromAmount error:(NSError *_Nullable*_Nullable)error;
+- (NSArray<ObjSingleSigner *> *_Nullable)getTransactionSigners:(NSString *_Nonnull)walletId txId:(NSString *_Nonnull)txId error:(NSError *_Nullable*_Nullable)error;
 
 @end
 #endif

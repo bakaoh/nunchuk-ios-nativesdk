@@ -90,11 +90,14 @@ using namespace nunchuk;
             case ScriptNode::Type::OR_TAPROOT:
                 _type = SCRIPT_NODE_OR_TAPROOT;
                 break;
+            case ScriptNode::Type::MUSIG:
+                _type = SCRIPT_NODE_MUSIG;
+                break;
             default:
                 _type = SCRIPT_NODE_NONE;
                 break;
         }
-        
+
         // Set the keys
         std::vector<std::string> nodeKeys = node.get_keys();
         NSMutableArray *keysArray = [NSMutableArray arrayWithCapacity:nodeKeys.size()];

@@ -5850,10 +5850,15 @@ dispatch_semaphore_t semaphore;
         const uint8_t *hashBytes = (const uint8_t *)[hash bytes];
         NSUInteger dataLength = [hash length];
         std::vector<uint8_t> hashC(hashBytes, hashBytes + dataLength);
-        const char *preImageArray = [preImage UTF8String];
         std::vector<uint8_t> preimageC;
-        for (size_t i = 0; preImageArray[i] != '\0'; ++i) {
-            preimageC.push_back(static_cast<uint8_t>(preImageArray[i]));
+        std::string preImageArray = [preImage UTF8String];
+        if (preImageArray.length() % 2 != 0) {
+            return FALSE;
+        }
+        for (size_t i = 0; i < preImageArray.length(); i += 2) {
+            std::string byteString = preImageArray.substr(i, 2);
+            unsigned long byteValue = std::strtoul(byteString.c_str(), nullptr, 16);
+            preimageC.push_back(static_cast<uint8_t>(byteValue));
         }
         return nunchukManager->nu->RevealPreimage([walletId UTF8String], [txId UTF8String], hashC, preimageC);
     } catch (const BaseException& exception) {

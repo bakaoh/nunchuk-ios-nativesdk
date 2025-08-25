@@ -24,7 +24,8 @@ typedef NS_ENUM(NSInteger, ScriptNodeType) {
     SCRIPT_NODE_ANDOR,
     SCRIPT_NODE_THRESH,
     SCRIPT_NODE_MULTI,
-    SCRIPT_NODE_OR_TAPROOT
+    SCRIPT_NODE_OR_TAPROOT,
+    SCRIPT_NODE_MUSIG
 };
 
 @interface ObjScriptNode : NSObject

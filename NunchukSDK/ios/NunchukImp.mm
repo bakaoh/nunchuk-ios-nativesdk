@@ -3667,9 +3667,14 @@ dispatch_semaphore_t semaphore;
             }
         }
         AddressType addressType = [self addressTypeFromString: wallet.addressType];
-        auto obj = Wallet([wallet.walletId UTF8String], [wallet.walletName UTF8String], wallet.m, wallet.n, signers, addressType, wallet.isEscrow, [wallet.createdAt timeIntervalSince1970]);
         auto exportFormat = [self parseExportFormat:format];
-        return [NSString stringWithUTF8String:nunchukManager->nu->GetWalletExportData(obj, exportFormat).c_str()];
+        if (wallet.isMiniscriptWallet) {
+            auto obj = Wallet([wallet.miniscript UTF8String], signers, addressType, wallet.m);
+            return [NSString stringWithUTF8String:nunchukManager->nu->GetWalletExportData(obj, exportFormat).c_str()];
+        } else {
+            auto obj = Wallet([wallet.walletId UTF8String], [wallet.walletName UTF8String], wallet.m, wallet.n, signers, addressType, wallet.isEscrow, [wallet.createdAt timeIntervalSince1970]);
+            return [NSString stringWithUTF8String:nunchukManager->nu->GetWalletExportData(obj, exportFormat).c_str()];
+        }
     } catch (const BaseException& exception) {
         *error = [[NSError alloc] initWithDomain:@"io.nunchuk.ios" code: exception.code() userInfo:@{@"message": [NSString stringWithUTF8String: exception.what()]}];
         return NULL;

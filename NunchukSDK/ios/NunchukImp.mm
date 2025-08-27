@@ -1009,7 +1009,13 @@ dispatch_semaphore_t semaphore;
                 [keysetArray addObject:obj];
             }
         }
-        return [[ObjDraftTransaction alloc] initWithTransaction:draftTx IsCPFP:isCPFP packageFeeRate:packageFeeRate keySets:keysetArray];
+        auto inputCoins = nunchukManager->nu->GetCoinsFromTxInputs([walletId UTF8String], tx.get_inputs());
+        NSMutableArray *coinArray = [NSMutableArray array];
+        for (auto &input : inputCoins) {
+            ObjUnspentOutput *obj = [[ObjUnspentOutput alloc] initWithUnspentOutput:&input];
+            [coinArray addObject:obj];
+        }
+        return [[ObjDraftTransaction alloc] initWithTransaction:draftTx IsCPFP:isCPFP packageFeeRate:packageFeeRate keySets:keysetArray inputCoins:coinArray];
     } catch (const BaseException& exception) {
         *outError = [[NSError alloc] initWithDomain:@"io.nunchuk.ios" code: exception.code() userInfo:@{@"message": [NSString stringWithUTF8String: exception.what()]}];
         return NULL;
@@ -1041,7 +1047,13 @@ dispatch_semaphore_t semaphore;
         ObjTransaction *draftTx = [[ObjTransaction alloc] initWithTransaction:&tx];
         Amount packageFeeRate{0};
         auto isCPFP = nunchukManager->nu->IsCPFP([walletId UTF8String], tx, packageFeeRate);
-        return [[ObjDraftTransaction alloc] initWithTransaction:draftTx IsCPFP:isCPFP packageFeeRate:packageFeeRate keySets:@[]];
+        auto inputCoins = nunchukManager->nu->GetCoinsFromTxInputs([walletId UTF8String], tx.get_inputs());
+        NSMutableArray *coinArray = [NSMutableArray array];
+        for (auto &input : inputCoins) {
+            ObjUnspentOutput *obj = [[ObjUnspentOutput alloc] initWithUnspentOutput:&input];
+            [coinArray addObject:obj];
+        }
+        return [[ObjDraftTransaction alloc] initWithTransaction:draftTx IsCPFP:isCPFP packageFeeRate:packageFeeRate keySets:@[] inputCoins:coinArray];
     } catch (const BaseException& exception) {
         *outError = [[NSError alloc] initWithDomain:@"io.nunchuk.ios" code: exception.code() userInfo:@{@"message": [NSString stringWithUTF8String: exception.what()]}];
         return NULL;
@@ -1073,7 +1085,13 @@ dispatch_semaphore_t semaphore;
         ObjTransaction *draftTx = [[ObjTransaction alloc] initWithTransaction:&tx];
         Amount packageFeeRate{0};
         auto isCPFP = nunchukManager->nu->IsCPFP([walletId UTF8String], tx, packageFeeRate);
-        return [[ObjDraftTransaction alloc] initWithTransaction:draftTx IsCPFP:isCPFP packageFeeRate:packageFeeRate keySets:@[]];
+        auto inputCoins = nunchukManager->nu->GetCoinsFromTxInputs([walletId UTF8String], tx.get_inputs());
+        NSMutableArray *coinArray = [NSMutableArray array];
+        for (auto &input : inputCoins) {
+            ObjUnspentOutput *obj = [[ObjUnspentOutput alloc] initWithUnspentOutput:&input];
+            [coinArray addObject:obj];
+        }
+        return [[ObjDraftTransaction alloc] initWithTransaction:draftTx IsCPFP:isCPFP packageFeeRate:packageFeeRate keySets:@[] inputCoins:coinArray];
     } catch (const BaseException& exception) {
         *outError = [[NSError alloc] initWithDomain:@"io.nunchuk.ios" code: exception.code() userInfo:@{@"message": [NSString stringWithUTF8String: exception.what()]}];
         return NULL;
@@ -5845,6 +5863,26 @@ dispatch_semaphore_t semaphore;
             [array addObject:obj];
         }
         return array;
+    } catch (const BaseException& exception) {
+        return nil;
+    }
+}
+
+- (NSDictionary *)getTimelockedCoinsFromCoins:(NSArray<ObjUnspentOutput *> *)coins script:(NSString *)script {
+    try {
+        std::vector<UnspentOutput> coinInputs;
+        for (ObjUnspentOutput *input in coins) {
+            UnspentOutput cInput = [input convertToC];
+            coinInputs.push_back(cInput);
+        }
+        int64_t maxLockValue;
+        auto timelockedCoins = Utils::GetTimelockedCoins([script UTF8String], coinInputs, maxLockValue, nunchukManager->nu->GetChainTip());
+        NSMutableArray *array = [NSMutableArray array];
+        for (auto &coin : timelockedCoins) {
+            ObjUnspentOutput *obj = [[ObjUnspentOutput alloc] initWithUnspentOutput:&coin];
+            [array addObject:obj];
+        }
+        return @{ @"coins": array, @"max_value": [NSNumber numberWithLongLong:maxLockValue] };
     } catch (const BaseException& exception) {
         return nil;
     }

@@ -460,6 +460,7 @@ extern const int FEE_RATE_ECONOMICAL;
 - (void)setPreferScriptPath:(NSString *_Nonnull)walletId txId:(NSString *_Nonnull)txId preferScriptPath:(BOOL)preferScriptPath;
 - (NSDictionary *_Nullable)getScriptNodeKeySetStatus:(NSString *_Nonnull)script walletId:(NSString *_Nonnull)walletId txId:(NSString *_Nonnull)txId;
 - (NSArray<ObjUnspentOutput *> *_Nullable)getTimelockedCoins:(NSString *_Nonnull)script walletId:(NSString *_Nonnull)walletId;
+- (NSDictionary *_Nullable)getTimelockedCoinsFromCoins:(NSArray<ObjUnspentOutput *> *_Nonnull)coins script:(NSString *_Nonnull)script;
 - (BOOL)revealPreimage:(NSString *_Nonnull)walletId txId:(NSString *_Nonnull)txId hash:(NSData *_Nonnull)hash preImage:(NSString *_Nonnull)preImage;
 - (NSArray<ObjSigningPathFee *> *_Nullable)estimateFeeForRBFSigningPaths:(NSString *_Nonnull)walletId txId:(NSString *_Nonnull)txId newAddress:(NSString *_Nonnull)newAddress feeRate:(long)feeRate subtractFeeFromAmount:(BOOL)subtractFeeFromAmount error:(NSError *_Nullable*_Nullable)error;
 - (NSArray<ObjSingleSigner *> *_Nullable)getTransactionSigners:(NSString *_Nonnull)walletId txId:(NSString *_Nonnull)txId error:(NSError *_Nullable*_Nullable)error;

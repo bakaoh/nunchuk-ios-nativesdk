@@ -4083,8 +4083,10 @@ dispatch_semaphore_t semaphore;
 
 - (ObjTransaction *)signClaimTransaction:(NSString *)masterSignerId psbt:(NSString *)psbt subAmount:(UInt64)subAmount fee:(UInt64)fee feeRate:(UInt64)feeRate error:(NSError * _Nullable __autoreleasing *)error {
     try {
-        Wallet wallet = Wallet(false);
         SingleSigner signer = nunchukManager->nu->GetDefaultSignerFromMasterSigner([masterSignerId UTF8String], WalletType::MULTI_SIG, AddressType::NATIVE_SEGWIT);
+        std::vector<SingleSigner>signers;
+        signers.push_back(signer);
+        Wallet wallet = Wallet("", 1, 1, signers, AddressType::NATIVE_SEGWIT, false, 0, true);
         wallet.set_signers({signer});
         Transaction tx = Utils::DecodeTx(wallet, [psbt UTF8String], subAmount, fee, feeRate);
         Transaction signedTx = nunchukManager->nu->SignTransaction(wallet, tx, Device([masterSignerId UTF8String]));

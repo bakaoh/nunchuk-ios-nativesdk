@@ -5646,7 +5646,12 @@ dispatch_semaphore_t semaphore;
     }
 }
 
-- (NSArray<ObjSingleSigner *> *)getMultipleSignersFromTapsignerMasterSigner:(NSString *)masterSignerId cvc:(NSString *)cvc walletType:(NSString *)walletType addressType:(NSString *)addressType startIndex:(int)startIndex count:(int)count error:(NSError **)error {
+- (NSArray<ObjSingleSigner *> *)getMultipleSignersFromTapsignerMasterSigner:(NSString *)masterSignerId 
+                                                                       cvc:(NSString *)cvc 
+                                                                walletType:(NSString *)walletType 
+                                                               addressType:(NSString *)addressType 
+                                                                   indices:(NSArray<NSNumber *> *)indices 
+                                                                     error:(NSError **)error {
     try {
         std::unique_ptr<Tapsigner> card = [self createTapsignerWithError:error];
         if (*error != NULL) {
@@ -5664,8 +5669,8 @@ dispatch_semaphore_t semaphore;
         AddressType cAddressType = [self addressTypeFromString:addressType];
         WalletType cWalletType = [self walletTypeFromString:walletType];
         NSMutableArray<ObjSingleSigner *> *signers = [NSMutableArray array];
-        for (int i = 0; i < count; i++) {
-            int index = startIndex + i;
+        for (NSNumber *indexNumber in indices) {
+            int index = [indexNumber intValue];
             auto singleSigner = nunchukManager->nu->GetSignerFromTapsignerMasterSigner(card.get(), [cvc UTF8String], [masterSignerId UTF8String], cWalletType, cAddressType, index);
             [signers addObject:[[ObjSingleSigner alloc] initWithSigner:&singleSigner]];
         }

@@ -451,7 +451,7 @@ extern const int FEE_RATE_ECONOMICAL;
 
 // Miniscript wallet
 - (ObjWallet *_Nullable)createMiniscriptWallet:(NSString *_Nonnull)name miniscript:(NSString *_Nonnull)miniscript signers:(NSDictionary<NSString *, ObjSingleSigner *> *_Nonnull)signers addressType:(NSString *_Nonnull)addressType description:(NSString *_Nonnull)description allowUsedSigner:(BOOL)allowUsedSigner decoyPin:(NSString *_Nonnull)decoyPin error:(NSError *_Nullable*_Nullable)error;
-- (NSArray<ObjSingleSigner *> *_Nullable)getMultipleSignersFromTapsignerMasterSigner:(NSString *_Nonnull)masterSignerId cvc:(NSString *_Nonnull)cvc walletType:(NSString *_Nonnull)walletType addressType:(NSString *_Nonnull)addressType startIndex:(int)startIndex count:(int)count error:(NSError *_Nullable*_Nullable)error;
+- (NSArray<ObjSingleSigner *> *_Nullable)getMultipleSignersFromTapsignerMasterSigner:(NSString *_Nonnull)masterSignerId cvc:(NSString *_Nonnull)cvc walletType:(NSString *_Nonnull)walletType addressType:(NSString *_Nonnull)addressType indices:(NSArray<NSNumber *> *_Nonnull)indices error:(NSError *_Nullable*_Nullable)error;
 - (NSArray<ObjSigningPathFee *> *_Nullable)estimateFeeForSigningPaths:(NSString *_Nonnull)walletId outputs:(NSArray<StringIntPair *> *_Nonnull)outputs inputs:(NSArray<ObjUnspentOutput *> *_Nonnull)input feeRate:(long)feeRate subtractFeeFromAmount:(BOOL)subtractFeeFromAmount error:(NSError *_Nullable*_Nullable)error;
 - (NSDictionary *_Nullable)getTimelockedUntilWithWalletId:(NSString *_Nonnull)walletId transactionId:(NSString *_Nonnull)transactionId;
 - (NSDictionary *_Nullable)getScriptNodeSatisfiable:(NSString *_Nonnull)script transactionId:(NSString *_Nonnull)transactionId walletId:(NSString *_Nonnull)walletId;

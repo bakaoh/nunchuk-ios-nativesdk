@@ -33,6 +33,7 @@
 #import "ObjGroupConfig.h"
 #import "ObjGroupWalletConfig.h"
 #import "ObjGroupSandbox.h"
+#import "ObjSigningPath.h"
 
 typedef enum NunchukSDKError: NSInteger {
     NunchukSDKErrorUndefined = -1000000,
@@ -55,7 +56,8 @@ typedef enum NunchukExportFormat {
     COLDCARD,
     COBO,
     CSV,
-    BSMS
+    BSMS,
+    DESCRIPTOR_EXTERNAL_ALL
 } NunchukExportFormat;
 
 typedef enum KeyHealthStatus {
@@ -108,6 +110,7 @@ extern const int FEE_RATE_ECONOMICAL;
 -(ObjWallet *_Nullable)recoverHotWallet:(NSString* _Nonnull)mnemonic passphrase:(NSString *_Nonnull)passphrase replace:(BOOL)replace error:(NSError * _Nullable * _Nullable)outError;
 -(NSString * _Nullable)getHotWalletMnemonic:(NSString *_Nonnull)walletId passphrase:(NSString *_Nonnull)passphrase error:(NSError * _Nullable * _Nullable)outError;
 -(BOOL)confirmMnemonicHotWallet:(NSString * _Nonnull)walletId mnemonic:(NSString* _Nonnull)mnemonic passphrase:(NSString * _Nonnull)passphrase error:(NSError * _Nullable * _Nullable)outError;
+
 -(NSString*_Nullable)draftWalletWithName:(NSString* _Nullable)name numberKey:(int)numberKey signers:(NSMutableArray * _Nonnull)signers addressType:(NSString *_Nullable)addressType type:(NSString * _Nullable)type desc:(NSString * _Nullable)desc error:(NSError * _Nullable * _Nullable)outError;
 -(BOOL)consumeEvent:(ObjNunchukMatrixEvent *_Nonnull)event error:(NSError * _Nullable * _Nullable)outError;
 -(BOOL)updateWalletNameWithId:(NSString * _Nonnull)walletId name:(NSString * _Nonnull)name error:(NSError * _Nullable * _Nullable)outError;
@@ -142,7 +145,7 @@ extern const int FEE_RATE_ECONOMICAL;
 -(BOOL)markAddressAsUsedWithWalletId:(NSString * _Nonnull)walletId address:(NSString *_Nonnull)address error:(NSError * _Nullable * _Nullable)outError;
 -(NSString * _Nullable)getAddressPathWithWalletId:(NSString * _Nonnull)walletId address:(NSString *_Nonnull)address error:(NSError * _Nullable * _Nullable)outError;
 -(BOOL)isMnemonicValid:(NSString * _Nonnull)mnemonic error:(NSError * _Nullable * _Nullable)outError;
--(ObjDraftTransaction* _Nullable)draftTransactionWithWalletId:(NSString * _Nonnull)walletId outputs:(NSArray<StringIntPair*> *_Nonnull)outputs inputs:(NSArray<ObjUnspentOutput*> *_Nonnull)input feeRate:(long)feeRate subtractFeeFromAmount:(BOOL)subtractFeeFromAmount useScriptPath:(BOOL)useScriptPath error:(NSError * _Nullable * _Nullable)outError;
+-(ObjDraftTransaction* _Nullable)draftTransactionWithWalletId:(NSString * _Nonnull)walletId outputs:(NSArray<StringIntPair*> *_Nonnull)outputs inputs:(NSArray<ObjUnspentOutput*> *_Nonnull)input feeRate:(long)feeRate subtractFeeFromAmount:(BOOL)subtractFeeFromAmount useScriptPath:(BOOL)useScriptPath signingPath:(ObjSigningPath *_Nullable)signingPath error:(NSError * _Nullable * _Nullable)outError;
 
 -(ObjTransaction* _Nullable)broadcastTransactionWithWalletId:(NSString * _Nonnull)walletId txId:(NSString * _Nonnull)txId error:(NSError * _Nullable * _Nullable)outError;
 -(BOOL)updateTransactionMemoWithWalletId:(NSString * _Nonnull)walletId txId:(NSString * _Nonnull)txId newMemo:(NSString * _Nullable)newMemo error:(NSError * _Nullable * _Nullable)outError;
@@ -153,7 +156,7 @@ extern const int FEE_RATE_ECONOMICAL;
 -(NSString *_Nullable)newAddressWithWalletId:(NSString * _Nullable)walletId error:(NSError * _Nullable * _Nullable)outError;
 -(ObjWallet *_Nullable)importBSMSWithFilePath:(NSString* _Nonnull)filePath walletName:(NSString* _Nonnull)walletName error:(NSError * _Nullable * _Nullable)outError;
 
--(ObjTransaction *_Nullable)createTransactionWithWalletId:(NSString * _Nonnull)walletId outputs:(NSArray<StringIntPair*> *_Nullable)outputs memo:(NSString * _Nonnull)memo feeRate:(long)feeRate subtractFeeFromAmount:(BOOL)subtractFeeFromAmount inputs:(NSArray *_Nonnull)inputs antiFeeSniping:(BOOL)antiFeeSniping useScriptPath:(BOOL)useScriptPath error:(NSError * _Nullable * _Nullable)outError;
+-(ObjTransaction *_Nullable)createTransactionWithWalletId:(NSString * _Nonnull)walletId outputs:(NSArray<StringIntPair*> *_Nullable)outputs memo:(NSString * _Nonnull)memo feeRate:(long)feeRate subtractFeeFromAmount:(BOOL)subtractFeeFromAmount inputs:(NSArray *_Nonnull)inputs antiFeeSniping:(BOOL)antiFeeSniping useScriptPath:(BOOL)useScriptPath signingPath:(ObjSigningPath *_Nullable)signingPath error:(NSError * _Nullable * _Nullable)outError;
 -(ObjTransaction *_Nullable)signTransactionWithWalletId:(NSString * _Nonnull)walletId txId:(NSString * _Nonnull)txId fingerprint:(NSString * _Nonnull)fingerPrint error:(NSError * _Nullable * _Nullable)outError;
 -(NSInteger)getTotalAmountWithWalletId:(NSString * _Nonnull)walletId txId:(NSString * _Nonnull)txId error:(NSError * _Nullable * _Nullable)outError;
 -(BOOL)sendPassphrase:(NSString * _Nonnull)passphrase signerId:(NSString *_Nonnull)signerId error:(NSError * _Nullable * _Nullable)outError;
@@ -218,8 +221,8 @@ extern const int FEE_RATE_ECONOMICAL;
 - (BOOL)hasSigner:(ObjSingleSigner *_Nonnull)signer;
 - (ObjWallet *_Nullable)parseKeystoneWallet:(NSArray *_Nonnull)data chain:(ChainTypeEnum)chain error:(NSError *_Nullable*_Nullable)error;
 - (void)enableLog:(BOOL)isEnabled;
-- (ObjTransaction *_Nullable)replaceTransaction:(NSString *_Nonnull)transactionId walletId:(NSString *_Nonnull)walletId newFeeRate:(long)newFeeRate antiFeeSniping:(BOOL)antiFeeSniping useScriptPath:(BOOL)useScriptPath error:(NSError *_Nullable*_Nullable)error;
-- (ObjDraftTransaction *_Nullable)draftRBFTransactionWithWalletId:(NSString *_Nonnull)walletId transactionId:(NSString *_Nonnull)transactionId outputs:(NSArray<StringIntPair*> *_Nonnull)outputs feeRate:(long)feeRate subtractFeeFromAmount:(BOOL)subtractFeeFromAmount useScriptPath:(BOOL)useScriptPath error:(NSError *_Nullable*_Nullable)outError;
+- (ObjTransaction *_Nullable)replaceTransaction:(NSString *_Nonnull)transactionId walletId:(NSString *_Nonnull)walletId newFeeRate:(long)newFeeRate antiFeeSniping:(BOOL)antiFeeSniping useScriptPath:(BOOL)useScriptPath signingPath:(ObjSigningPath *_Nullable)signingPath error:(NSError *_Nullable*_Nullable)error;
+- (ObjDraftTransaction *_Nullable)draftRBFTransactionWithWalletId:(NSString *_Nonnull)walletId transactionId:(NSString *_Nonnull)transactionId outputs:(NSArray<StringIntPair*> *_Nonnull)outputs feeRate:(long)feeRate subtractFeeFromAmount:(BOOL)subtractFeeFromAmount useScriptPath:(BOOL)useScriptPath signingPath:(ObjSigningPath *_Nullable)signingPath error:(NSError *_Nullable*_Nullable)outError;
 - (ObjNunchukMatrixEvent *_Nullable)signAirgapTransactionWithInitEventId:(NSString *_Nonnull)initEventId masterFingerprint:(NSString *_Nonnull)masterFingerprint error:(NSError *_Nullable*_Nullable)error;
 - (BOOL)clearPassPhraseWithSignerId:(NSString *_Nonnull)signerId error:(NSError *_Nullable*_Nullable)error;
 - (BOOL)setSelectedWallet:(NSString *_Nonnull)walletId error:(NSError *_Nullable*_Nullable)error;
@@ -340,8 +343,8 @@ extern const int FEE_RATE_ECONOMICAL;
 - (ObjWalletData *_Nullable)getWalletData:(NSString *_Nonnull)walletId error:(NSError *_Nullable*_Nullable)error;
 - (NSDictionary *_Nullable)customizeTapsignerWithCVC:(NSString *_Nonnull)cvc masterSignerId:(NSString *_Nonnull)masterSignerId path:(NSString *_Nonnull)path error:(NSError *_Nullable*_Nullable)error;
 
-- (ObjTransaction *_Nullable)cancelRBFTransaction:(NSString *_Nonnull)transactionId walletId:(NSString *_Nonnull)walletId newFeeRate:(long)newFeeRate newAddress:(NSString *_Nonnull)newAddress antiFeeSniping:(BOOL)antiFeeSniping useScriptPath:(BOOL)useScriptPath error:(NSError *_Nullable*_Nullable)error;
-- (ObjDraftTransaction *_Nullable)draftCancelRBFTransactionWithWalletId:(NSString *_Nonnull)walletId transactionId:(NSString *_Nonnull)transactionId newAddress:(NSString *_Nonnull)newAddress newFeeRate:(long)newFeeRate useScriptPath:(BOOL)useScriptPath error:(NSError *_Nullable*_Nullable)outError;
+- (ObjTransaction *_Nullable)cancelRBFTransaction:(NSString *_Nonnull)transactionId walletId:(NSString *_Nonnull)walletId newFeeRate:(long)newFeeRate newAddress:(NSString *_Nonnull)newAddress antiFeeSniping:(BOOL)antiFeeSniping useScriptPath:(BOOL)useScriptPath signingPath:(ObjSigningPath *_Nullable)signingPath error:(NSError *_Nullable*_Nullable)error;
+- (ObjDraftTransaction *_Nullable)draftCancelRBFTransactionWithWalletId:(NSString *_Nonnull)walletId transactionId:(NSString *_Nonnull)transactionId newAddress:(NSString *_Nonnull)newAddress newFeeRate:(long)newFeeRate useScriptPath:(BOOL)useScriptPath signingPath:(ObjSigningPath *_Nullable)signingPath error:(NSError *_Nullable*_Nullable)outError;
 - (NSArray *_Nullable)exportBCUR2:(NSString *_Nonnull)walletId fragmentLength:(NSInteger)fragmentLength error:(NSError *_Nullable*_Nullable)outError;
 - (NSArray<NSString *>*_Nullable)exportBBQRWalletWithId:(NSString *_Nonnull)walletId fragmentLength:(NSInteger)fragmentLength error:(NSError * _Nullable * _Nullable)outError;
 - (NSArray<NSString *>*_Nullable)exportBBQRTransactionWithWalletId:(NSString *_Nonnull)walletId txId:(NSString *_Nonnull)txId fragmentLength:(NSInteger)fragmentLength error:(NSError * _Nullable * _Nullable)outError;
@@ -397,12 +400,18 @@ extern const int FEE_RATE_ECONOMICAL;
                                         signer:(ObjSingleSigner *_Nonnull)signer 
                                          index:(int)index 
                                          error:(NSError *_Nullable*_Nullable)error;
+- (ObjGroupSandbox *_Nullable)addSignerToGroup:(NSString *_Nonnull)groupId 
+                                        signer:(ObjSingleSigner *_Nonnull)signer 
+                                         keyId:(NSString *_Nonnull)keyId
+                                         error:(NSError *_Nullable*_Nullable)error;
 - (ObjGroupSandbox *_Nullable)removeSignerFromGroup:(NSString *_Nonnull)groupId index:(int)index error:(NSError *_Nullable*_Nullable)error;
-- (ObjGroupSandbox *_Nullable)updateGroup:(NSString *_Nonnull)groupId 
+- (ObjGroupSandbox *_Nullable)removeSignerFromGroup:(NSString *_Nonnull)groupId keyId:(NSString *_Nonnull)keyId error:(NSError *_Nullable*_Nullable)error;
+- (ObjGroupSandbox *_Nullable)updateGroup:(NSString *_Nonnull)groupId
                                      name:(NSString *_Nonnull)name 
                                         m:(int)m 
-                                        n:(int)n 
-                              addressType:(NSString *_Nonnull)addressType 
+                                        n:(int)n
+                               scriptTmpl:(NSString *_Nullable)scriptTmpl
+                              addressType:(NSString *_Nonnull)addressType
                                 error:(NSError *_Nullable*_Nullable)error;
 - (ObjGroupSandbox *_Nullable)finalizeGroup:(NSString *_Nonnull)groupId valueKeyset:(NSArray *_Nonnull)valueKeyset error:(NSError *_Nullable*_Nullable)error;
 - (BOOL)deleteGroup:(NSString *_Nonnull)groupId error:(NSError *_Nullable*_Nullable)error;
@@ -412,6 +421,10 @@ extern const int FEE_RATE_ECONOMICAL;
 - (ObjGroupSandbox *_Nullable)setSlotOccupied:(NSString *_Nonnull)groupId 
                                        index:(int)index 
                                        value:(BOOL)value 
+                                       error:(NSError *_Nullable*_Nullable)error;
+- (ObjGroupSandbox *_Nullable)setSlotOccupied:(NSString *_Nonnull)groupId
+                                        keyId:(NSString *_Nonnull)keyId
+                                       value:(BOOL)value
                                        error:(NSError *_Nullable*_Nullable)error;
 - (NSString *_Nullable)getGroupDeviceUID:(NSError *_Nullable*_Nullable)error;
 - (NSArray *_Nullable)getGroupWallets:(NSError *_Nullable*_Nullable)error;
@@ -435,6 +448,22 @@ extern const int FEE_RATE_ECONOMICAL;
 - (BOOL)exportTransactionHistoryWithWalletId:(NSString *_Nonnull)walletId filePath:(NSString *_Nonnull)filePath format:(NunchukExportFormat)format error:(NSError *_Nullable*_Nullable)error;
 
 - (NSNumber *_Nullable)getScriptPathFeeRateWithWalletId:(NSString *_Nonnull)walletId transaction:(ObjTransaction *_Nonnull)transaction error:(NSError *_Nullable*_Nullable)error;
+
+// Miniscript wallet
+- (ObjWallet *_Nullable)createMiniscriptWallet:(NSString *_Nonnull)name miniscript:(NSString *_Nonnull)miniscript signers:(NSDictionary<NSString *, ObjSingleSigner *> *_Nonnull)signers addressType:(NSString *_Nonnull)addressType description:(NSString *_Nonnull)description allowUsedSigner:(BOOL)allowUsedSigner decoyPin:(NSString *_Nonnull)decoyPin error:(NSError *_Nullable*_Nullable)error;
+- (NSArray<ObjSingleSigner *> *_Nullable)getMultipleSignersFromTapsignerMasterSigner:(NSString *_Nonnull)masterSignerId cvc:(NSString *_Nonnull)cvc walletType:(NSString *_Nonnull)walletType addressType:(NSString *_Nonnull)addressType indices:(NSArray<NSNumber *> *_Nonnull)indices error:(NSError *_Nullable*_Nullable)error;
+- (NSArray<ObjSigningPathFee *> *_Nullable)estimateFeeForSigningPaths:(NSString *_Nonnull)walletId outputs:(NSArray<StringIntPair *> *_Nonnull)outputs inputs:(NSArray<ObjUnspentOutput *> *_Nonnull)input feeRate:(long)feeRate subtractFeeFromAmount:(BOOL)subtractFeeFromAmount error:(NSError *_Nullable*_Nullable)error;
+- (NSDictionary *_Nullable)getTimelockedUntilWithWalletId:(NSString *_Nonnull)walletId transactionId:(NSString *_Nonnull)transactionId;
+- (NSDictionary *_Nullable)getScriptNodeSatisfiable:(NSString *_Nonnull)script transactionId:(NSString *_Nonnull)transactionId walletId:(NSString *_Nonnull)walletId;
+- (NSDictionary *_Nullable)getCoinsGroupedBySubPolicies:(NSString *_Nonnull)script coins:(NSArray *_Nonnull)coins;
+- (BOOL)isPreferScriptPath:(NSString *_Nonnull)walletId txId:(NSString *_Nonnull)txId;
+- (void)setPreferScriptPath:(NSString *_Nonnull)walletId txId:(NSString *_Nonnull)txId preferScriptPath:(BOOL)preferScriptPath;
+- (NSDictionary *_Nullable)getScriptNodeKeySetStatus:(NSString *_Nonnull)script walletId:(NSString *_Nonnull)walletId txId:(NSString *_Nonnull)txId;
+- (NSArray<ObjUnspentOutput *> *_Nullable)getTimelockedCoins:(NSString *_Nonnull)script walletId:(NSString *_Nonnull)walletId;
+- (NSDictionary *_Nullable)getTimelockedCoinsFromCoins:(NSArray<ObjUnspentOutput *> *_Nonnull)coins script:(NSString *_Nonnull)script;
+- (BOOL)revealPreimage:(NSString *_Nonnull)walletId txId:(NSString *_Nonnull)txId hash:(NSData *_Nonnull)hash preImage:(NSString *_Nonnull)preImage;
+- (NSArray<ObjSigningPathFee *> *_Nullable)estimateFeeForRBFSigningPaths:(NSString *_Nonnull)walletId txId:(NSString *_Nonnull)txId newAddress:(NSString *_Nonnull)newAddress feeRate:(long)feeRate subtractFeeFromAmount:(BOOL)subtractFeeFromAmount error:(NSError *_Nullable*_Nullable)error;
+- (NSArray<ObjSingleSigner *> *_Nullable)getTransactionSigners:(NSString *_Nonnull)walletId txId:(NSString *_Nonnull)txId error:(NSError *_Nullable*_Nullable)error;
 
 @end
 #endif

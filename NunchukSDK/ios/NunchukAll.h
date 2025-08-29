@@ -17,3 +17,4 @@
 #import "ObjRoomWallet.h"
 #import "NunchukLibUlti.h"
 #import "ObjTapsignerStatus.h"
+#import "ObjCoinGroup.h"

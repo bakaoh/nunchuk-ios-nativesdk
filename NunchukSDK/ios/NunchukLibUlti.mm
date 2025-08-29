@@ -18,6 +18,9 @@
 #include "utils/rfc2440.hpp"
 #import <extensions/ObjTransactionLibrary.h>
 #import "extensions/ObjSingleSignerLibrary.h"
+#import <extensions/ObjScriptNode+Extension.h>
+#import <extensions/ObjTimeLock+Extension.h>
+#import "ObjTimeLock.h"
 
 using namespace nunchuk::ndef;
 using namespace nunchuk;
@@ -771,9 +774,14 @@ using namespace nunchuk;
         }
         AddressType addressType = [self addressTypeFromString: wallet.addressType];
         auto obj = Wallet([wallet.walletId UTF8String], [wallet.walletName UTF8String], wallet.m, wallet.n, signers, addressType, wallet.isEscrow, [wallet.createdAt timeIntervalSince1970]);
-        auto datas = Utils::ExportBBQRWallet(obj, ExportFormat::COLDCARD, 1, fragmentLength);
+        std::vector<std::string> qrs;
+        if (wallet.isMiniscriptWallet) {
+            qrs = Utils::ExportBBQRWallet(obj, ExportFormat::DESCRIPTOR_EXTERNAL_ALL, 1, fragmentLength);
+        } else {
+            qrs = Utils::ExportBBQRWallet(obj, ExportFormat::COLDCARD, 1, fragmentLength);
+        }
         NSMutableArray *bbqrs = [[NSMutableArray alloc] init];
-        for (auto &data: datas) {
+        for (auto &data: qrs) {
             [bbqrs addObject: [NSString stringWithUTF8String:data.c_str()]];
         }
         return bbqrs;
@@ -783,6 +791,215 @@ using namespace nunchuk;
     } catch (const std::exception& exception) {
         *error = [[NSError alloc] initWithDomain:@"io.nunchuk.ios" code: NunchukSDKErrorUndefined userInfo:@{@"message": [NSString stringWithUTF8String: exception.what()]}];
         return NULL;
+    }
+}
+
+//
+// Miniscript utilities
+//
+- (BOOL)isValidMiniscriptTemplate:(NSString *_Nonnull)tmpl addressType:(NSString *_Nonnull)addressType {
+    try {
+        AddressType cAddressType = [self addressTypeFromString:addressType];
+        return Utils::IsValidMiniscriptTemplate([tmpl UTF8String], cAddressType);
+    } catch (const std::exception& exception) {
+        return NO;
+    }
+}
+
+- (BOOL)isValidPolicy:(NSString *_Nonnull)policy {
+    try {
+        return Utils::IsValidPolicy([policy UTF8String]);
+    } catch (const std::exception& exception) {
+        return NO;
+    }
+}
+
+- (BOOL)isValidTapscriptTemplate:(NSString *_Nonnull)tmpl error:(NSError * _Nullable __autoreleasing *)error {
+    try {
+        std::string err;
+        bool result = Utils::IsValidTapscriptTemplate([tmpl UTF8String], err);
+        if (!result && error && !err.empty()) {
+            *error = [[NSError alloc] initWithDomain:@"io.nunchuk.ios" code:NunchukSDKErrorUndefined userInfo:@{ @"message": [NSString stringWithUTF8String:err.c_str()] }];
+            return NO;
+        }
+        return result;
+    } catch (const std::exception& exception) {
+        if (error) {
+            *error = [[NSError alloc] initWithDomain:@"io.nunchuk.ios" code:NunchukSDKErrorUndefined userInfo:@{ @"message": [NSString stringWithUTF8String:exception.what()] }];
+        }
+        return NO;
+    }
+}
+
+- (NSString *_Nullable)policyToMiniscript:(NSString *_Nonnull)policy addressType:(NSString *_Nonnull)addressType error:(NSError * _Nullable __autoreleasing *)error {
+    try {
+        AddressType cAddressType = [self addressTypeFromString:addressType];
+        std::string result = Utils::PolicyToMiniscript([policy UTF8String], {}, cAddressType);
+        return [NSString stringWithUTF8String:result.c_str()];
+    } catch (const BaseException& exception) {
+        if (error) {
+            *error = [[NSError alloc] initWithDomain:@"io.nunchuk.ios" code: exception.code() userInfo:@{@"message": [NSString stringWithUTF8String: exception.what()]}];
+        }
+        return nil;
+    } catch (const std::exception& exception) {
+        if (error) {
+            *error = [[NSError alloc] initWithDomain:@"io.nunchuk.ios" code: NunchukSDKErrorUndefined userInfo:@{@"message": [NSString stringWithUTF8String: exception.what()]}];
+        }
+        return nil;
+    }
+}
+
+- (NSDictionary *_Nullable)getScriptNode:(NSString *_Nonnull)script error:(NSError * _Nullable __autoreleasing *)error {
+    try {
+        std::vector<std::string> keypaths;
+        auto scriptNode = Utils::GetScriptNode([script UTF8String], keypaths);
+        ObjScriptNode *objScriptNode = [[ObjScriptNode alloc] initWithScriptNode:scriptNode];
+        NSMutableArray * keypathsArr = [[NSMutableArray alloc] init];
+        for(auto& keypath : keypaths) {
+            [keypathsArr addObject:[[NSString alloc] initWithUTF8String: keypath.c_str()]];
+        }
+        return @{ @"scriptNode": objScriptNode, @"keyPaths": keypathsArr };
+    } catch (const BaseException& exception) {
+        if (error) {
+            *error = [[NSError alloc] initWithDomain:@"io.nunchuk.ios" code: exception.code() userInfo:@{@"message": [NSString stringWithUTF8String: exception.what()]}];
+        }
+        return nil;
+    } catch (const std::exception& exception) {
+        if (error) {
+            *error = [[NSError alloc] initWithDomain:@"io.nunchuk.ios" code: NunchukSDKErrorUndefined userInfo:@{@"message": [NSString stringWithUTF8String: exception.what()]}];
+        }
+        return nil;
+    }
+}
+
+- (Timelock::Type)timelockTypeFromString: (NSString *)timelockType {
+    if (std::strcmp([timelockType UTF8String], "absolute") == 0) {
+        return Timelock::Type::LOCKTYPE_ABSOLUTE;
+    }
+    
+    if (std::strcmp([timelockType UTF8String], "relative") == 0) {
+        return Timelock::Type::LOCKTYPE_RELATIVE;
+    }
+    
+    return Timelock::Type::LOCKTYPE_ABSOLUTE;
+}
+
+- (Timelock::Based)timelockUnitFromString: (NSString *)timelockUnit {
+    if (std::strcmp([timelockUnit UTF8String], "timestamp") == 0) {
+        return Timelock::Based::TIME_LOCK;
+    }
+    
+    if (std::strcmp([timelockUnit UTF8String], "blockHeight") == 0) {
+        return Timelock::Based::HEIGHT_LOCK;
+    }
+    
+    return Timelock::Based::HEIGHT_LOCK;
+}
+
+- (ObjTimeLock *)timelockFromK: (long)k isAbsolute:(BOOL)isAbsolute {
+    Timelock timelock = Timelock::FromK(isAbsolute, k);
+    return [[ObjTimeLock alloc] initWithTimelock:&timelock];
+}
+
+- (NSString *_Nullable)expandingMultisigMiniscriptTemplate:(int)m n:(int)n newN:(int)newN reuseSigners:(BOOL)reuseSigners expandTime:(long)expandTime timelockType:(NSString *_Nonnull)timelockType timelockUnit:(NSString *_Nonnull)timelockUnit addressType:(NSString *_Nonnull)addressType error:(NSError *_Nullable*_Nullable)error {
+    try {
+        AddressType cAddressType = [self addressTypeFromString:addressType];
+        Timelock::Based cTimelockUnit = [self timelockUnitFromString:timelockUnit];
+        Timelock::Type cTimelockType = [self timelockTypeFromString:timelockType];
+        Timelock timelock(cTimelockUnit, cTimelockType, expandTime);
+        std::string result = Utils::ExpandingMultisigMiniscriptTemplate(m, n, newN, reuseSigners, timelock, cAddressType);
+        return [NSString stringWithUTF8String:result.c_str()];
+    } catch (const BaseException& exception) {
+        if (error) {
+            *error = [[NSError alloc] initWithDomain:@"io.nunchuk.ios" code: exception.code() userInfo:@{@"message": [NSString stringWithUTF8String: exception.what()]}];
+        }
+        return nil;
+    } catch (const std::exception& exception) {
+        if (error) {
+            *error = [[NSError alloc] initWithDomain:@"io.nunchuk.ios" code: NunchukSDKErrorUndefined userInfo:@{@"message": [NSString stringWithUTF8String: exception.what()]}];
+        }
+        return nil;
+    }
+}
+
+- (NSString *_Nullable)decayingMultisigMiniscriptTemplate:(int)m n:(int)n newM:(int)newM reuseSigners:(BOOL)reuseSigners decayTime:(long)decayTime timelockType:(NSString *_Nonnull)timelockType timelockUnit:(NSString *_Nonnull)timelockUnit addressType:(NSString *_Nonnull)addressType error:(NSError *_Nullable*_Nullable)error {
+    try {
+        AddressType cAddressType = [self addressTypeFromString:addressType];
+        Timelock::Based cTimelockUnit = [self timelockUnitFromString:timelockUnit];
+        Timelock::Type cTimelockType = [self timelockTypeFromString:timelockType];
+        Timelock timelock(cTimelockUnit, cTimelockType, decayTime);
+        std::string result = Utils::DecayingMultisigMiniscriptTemplate(m, n, newM, reuseSigners, timelock, cAddressType);
+        return [NSString stringWithUTF8String:result.c_str()];
+    } catch (const BaseException& exception) {
+        if (error) {
+            *error = [[NSError alloc] initWithDomain:@"io.nunchuk.ios" code: exception.code() userInfo:@{@"message": [NSString stringWithUTF8String: exception.what()]}];
+        }
+        return nil;
+    } catch (const std::exception& exception) {
+        if (error) {
+            *error = [[NSError alloc] initWithDomain:@"io.nunchuk.ios" code: NunchukSDKErrorUndefined userInfo:@{@"message": [NSString stringWithUTF8String: exception.what()]}];
+        }
+        return nil;
+    }
+}
+
+- (NSString *_Nullable)flexibleMultisigMiniscriptTemplate:(int)m n:(int)n newM:(int)newM newN:(int)newN reuseSigners:(BOOL)reuseSigners time:(long)time timelockType:(NSString *_Nonnull)timelockType timelockUnit:(NSString *_Nonnull)timelockUnit addressType:(NSString *_Nonnull)addressType error:(NSError *_Nullable*_Nullable)error {
+    try {
+        AddressType cAddressType = [self addressTypeFromString:addressType];
+        Timelock::Based cTimelockUnit = [self timelockUnitFromString:timelockUnit];
+        Timelock::Type cTimelockType = [self timelockTypeFromString:timelockType];
+        Timelock timelock(cTimelockUnit, cTimelockType, time);
+        std::string result = Utils::FlexibleMultisigMiniscriptTemplate(m, n, newM, newN, reuseSigners, timelock, cAddressType);
+        return [NSString stringWithUTF8String:result.c_str()];
+    } catch (const BaseException& exception) {
+        if (error) {
+            *error = [[NSError alloc] initWithDomain:@"io.nunchuk.ios" code: exception.code() userInfo:@{@"message": [NSString stringWithUTF8String: exception.what()]}];
+        }
+        return nil;
+    } catch (const std::exception& exception) {
+        if (error) {
+            *error = [[NSError alloc] initWithDomain:@"io.nunchuk.ios" code: NunchukSDKErrorUndefined userInfo:@{@"message": [NSString stringWithUTF8String: exception.what()]}];
+        }
+        return nil;
+    }
+}
+
+- (NSDictionary *_Nullable)getScriptNodeSatisfiable:(NSString *_Nonnull)script psbt:(NSString *_Nonnull)psbt {
+    try {
+        std::vector<std::string> keypaths;
+        auto scriptNode = Utils::GetScriptNode([script UTF8String], keypaths);
+        return [self getNodeSatisfiable:scriptNode psbt:psbt];
+    } catch (const BaseException& exception) {
+        return nil;
+    }
+}
+
+- (NSDictionary *)getNodeSatisfiable:(const ScriptNode &)node psbt:(NSString *_Nonnull)psbt {
+    const std::vector<size_t>& nodeId = node.get_id();
+    NSMutableArray *idArray = [NSMutableArray arrayWithCapacity:nodeId.size()];
+    for (size_t idValue : nodeId) {
+        [idArray addObject:[NSString stringWithFormat:@"%zu", idValue]];
+    }
+    NSString *nodeIdStr = [idArray componentsJoinedByString:@"."];
+    NSMutableDictionary *dict = [NSMutableDictionary new];
+    [dict setObject:[NSNumber numberWithBool:node.is_satisfiable([psbt UTF8String])] forKey:nodeIdStr];
+    
+    const std::vector<ScriptNode>& subs = node.get_subs();
+    for (const ScriptNode& subNode : subs) {
+        NSDictionary *subDict = [self getNodeSatisfiable:subNode psbt:psbt];
+        [dict addEntriesFromDictionary:subDict];
+    }
+    return dict;
+}
+
+- (BOOL)isPreimageRevealed:(NSString *)psbtOrHexTx hash:(NSData *)hash {
+    try {
+        const uint8_t *hashBytes = (const uint8_t *)[hash bytes];
+        NSUInteger dataLength = [hash length];
+        std::vector<uint8_t> hashC(hashBytes, hashBytes + dataLength);
+        return Utils::IsPreimageRevealed([psbtOrHexTx UTF8String], hashC);
+    } catch (const BaseException& exception) {
+        return FALSE;
     }
 }
 

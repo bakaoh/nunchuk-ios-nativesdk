@@ -15,7 +15,6 @@ public:
     void createNewMasterSigner(const char* name, Device& device);
     Wallet createMultisigWallet(const char* name, int m, std::vector<SingleSigner> signers, const char* desc, const char* type, const char* addressType);
     std::string draftMultisigWallet(const char* name, int m, std::vector<SingleSigner> signers, const char* desc, const char* type, const char* addressType);
-    bool exportWallet(const char* walletId, const char* filePath, const char* format);
     void importConfig(std::string path);
     MasterSigner createSoftwareSigner(std::string& raw_name, std::string& mnemonic, std::string& passphrase, std::function<bool(int)> progress);
     std::vector<std::string> exportCobo(const char* walletId);

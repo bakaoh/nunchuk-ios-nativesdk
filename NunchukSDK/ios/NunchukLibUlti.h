@@ -15,6 +15,8 @@
 #import "ObjSingleSigner.h"
 #import <CoreNFC/CoreNFC.h>
 #import "ObjAnalyzeQRResult.h"
+#import "ObjScriptNode.h"
+#import "ObjTimeLock.h"
 
 typedef enum NCNDEFMessageType {
     UNKNOWN,
@@ -82,6 +84,19 @@ typedef enum NCNDEFMessageType {
 - (NSArray *_Nullable)exportKeystoneWallet:(ObjWallet *_Nonnull)wallet fragmentLength:(NSInteger)fragmentLength error:(NSError *_Nullable*_Nullable)error;
 - (NSArray *_Nullable)exportBCUR2:(ObjWallet *_Nonnull)wallet fragmentLength:(NSInteger)fragmentLength error:(NSError *_Nullable*_Nullable)error;
 - (NSArray *_Nullable)exportBBQRWallet:(ObjWallet *_Nonnull)wallet fragmentLength:(NSInteger)fragmentLength error:(NSError *_Nullable*_Nullable)error;
+
+// Miniscript utilities
+- (BOOL)isValidMiniscriptTemplate:(NSString *_Nonnull)tmpl addressType:(NSString *_Nonnull)addressType;
+- (BOOL)isValidPolicy:(NSString *_Nonnull)policy;
+- (BOOL)isValidTapscriptTemplate:(NSString *_Nonnull)tmpl error:(NSError *_Nullable*_Nullable)error;
+- (NSString *_Nullable)policyToMiniscript:(NSString *_Nonnull)policy addressType:(NSString *_Nonnull)addressType error:(NSError *_Nullable*_Nullable)error;
+- (NSDictionary *_Nullable)getScriptNode:(NSString *_Nonnull)script error:(NSError *_Nullable*_Nullable)error;
+- (ObjTimeLock *_Nullable)timelockFromK: (long)k isAbsolute:(BOOL)isAbsolute;
+- (NSString *_Nullable)expandingMultisigMiniscriptTemplate:(int)m n:(int)n newN:(int)newN reuseSigners:(BOOL)reuseSigners expandTime:(long)expandTime timelockType:(NSString *_Nonnull)timelockType timelockUnit:(NSString *_Nonnull)timelockUnit addressType:(NSString *_Nonnull)addressType error:(NSError *_Nullable*_Nullable)error;
+- (NSString *_Nullable)decayingMultisigMiniscriptTemplate:(int)m n:(int)n newM:(int)newM reuseSigners:(BOOL)reuseSigners decayTime:(long)decayTime timelockType:(NSString *_Nonnull)timelockType timelockUnit:(NSString *_Nonnull)timelockUnit addressType:(NSString *_Nonnull)addressType error:(NSError *_Nullable*_Nullable)error;
+- (NSString *_Nullable)flexibleMultisigMiniscriptTemplate:(int)m n:(int)n newM:(int)newM newN:(int)newN reuseSigners:(BOOL)reuseSigners time:(long)time timelockType:(NSString *_Nonnull)timelockType timelockUnit:(NSString *_Nonnull)timelockUnit addressType:(NSString *_Nonnull)addressType error:(NSError *_Nullable*_Nullable)error;
+- (NSDictionary *_Nullable)getScriptNodeSatisfiable:(NSString *_Nonnull)script psbt:(NSString *_Nonnull)psbt;
+- (BOOL)isPreimageRevealed:(NSString *_Nonnull)psbtOrHexTx hash:(NSData *_Nonnull)hash;
 
 @end
 

@@ -5787,7 +5787,6 @@ dispatch_semaphore_t semaphore;
                     [idArray addObject:[NSString stringWithFormat:@"%zu", idValue]];
                 }
                 NSString *nodeIdStr = [idArray componentsJoinedByString:@"."];
-                std::vector<UnspentOutput> coinsC;
                 [dict setObject:array forKey:nodeIdStr];
             }
         }

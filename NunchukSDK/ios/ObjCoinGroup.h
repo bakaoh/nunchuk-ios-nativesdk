@@ -9,8 +9,8 @@
 @interface ObjCoinGroup : NSObject
 
 @property(nonatomic, strong, nonnull) NSArray<ObjUnspentOutput *> *coins;
-@property(nonatomic, assign) long long timeFrom;
-@property(nonatomic, assign) long long timeTo;
+@property(nonatomic, assign) UInt64 timeFrom;
+@property(nonatomic, assign) UInt64 timeTo;
 
 @end
 

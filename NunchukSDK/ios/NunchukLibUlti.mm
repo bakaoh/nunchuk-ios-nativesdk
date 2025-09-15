@@ -964,6 +964,27 @@ using namespace nunchuk;
     }
 }
 
+- (NSString *_Nullable)zenHodlMiniscriptTemplate:(int)m n:(int)n time:(long)time timelockType:(NSString *_Nonnull)timelockType timelockUnit:(NSString *_Nonnull)timelockUnit addressType:(NSString *_Nonnull)addressType error:(NSError *_Nullable*_Nullable)error {
+    try {
+        AddressType cAddressType = [self addressTypeFromString:addressType];
+        Timelock::Based cTimelockUnit = [self timelockUnitFromString:timelockUnit];
+        Timelock::Type cTimelockType = [self timelockTypeFromString:timelockType];
+        Timelock timelock(cTimelockUnit, cTimelockType, time);
+        std::string result = Utils::ZenHodlMiniscriptTemplate(m, n, timelock, cAddressType);
+        return [NSString stringWithUTF8String:result.c_str()];
+    } catch (const BaseException& exception) {
+        if (error) {
+            *error = [[NSError alloc] initWithDomain:@"io.nunchuk.ios" code: exception.code() userInfo:@{@"message": [NSString stringWithUTF8String: exception.what()]}];
+        }
+        return nil;
+    } catch (const std::exception& exception) {
+        if (error) {
+            *error = [[NSError alloc] initWithDomain:@"io.nunchuk.ios" code: NunchukSDKErrorUndefined userInfo:@{@"message": [NSString stringWithUTF8String: exception.what()]}];
+        }
+        return nil;
+    }
+}
+
 - (NSDictionary *_Nullable)getScriptNodeSatisfiable:(NSString *_Nonnull)script psbt:(NSString *_Nonnull)psbt {
     try {
         std::vector<std::string> keypaths;

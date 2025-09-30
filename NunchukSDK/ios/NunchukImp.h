@@ -294,7 +294,7 @@ extern const int FEE_RATE_ECONOMICAL;
 - (BOOL)forceRefreshWalletWithWalletId:(NSString *_Nonnull)walletId error:(NSError *_Nullable*_Nullable)error;
 - (ObjTransaction *_Nullable)decodeDummyTxWithData:(NSData *_Nonnull)data walletId:(NSString *_Nonnull)walletId error:(NSError *_Nullable*_Nullable)error;
 - (BOOL)addKeyTag:(NSString *_Nonnull)tag path:(NSString *_Nonnull)path masterFingerprint:(NSString *_Nonnull)masterFingerprint error:(NSError *_Nullable*_Nullable)error;
-- (ObjSingleSigner *_Nullable)singleSignerWithName:(NSString *_Nonnull)name xpub:(NSString *_Nonnull)xPub xpubKey:(NSString *_Nonnull)xPubkey path:(NSString *_Nonnull)path fingerprint:(NSString *_Nonnull)fingerPrint error:(NSError *_Nullable*_Nullable)outError;
+- (ObjSingleSigner *_Nullable)singleSignerWithName:(NSString *_Nonnull)name xpub:(NSString *_Nonnull)xPub xpubKey:(NSString *_Nonnull)xPubkey path:(NSString *_Nonnull)path fingerprint:(NSString *_Nonnull)fingerPrint externalInternalIndex:(IntPair *_Nullable)externalInternalIndex error:(NSError *_Nullable*_Nullable)outError;
 
 // Coin
 - (NSArray *_Nullable)getCoins:(NSString *_Nonnull)walletId error:(NSError *_Nullable*_Nullable)error;

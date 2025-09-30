@@ -432,7 +432,12 @@ using namespace nunchuk;
 
 - (NSString *)getPartialSignatureWithSingleSigner:(ObjSingleSigner *)singleSigner psbt:(NSString *)psbt error:(NSError * _Nullable __autoreleasing *)error {
     try {
-        auto signer = SingleSigner(std::string([singleSigner.signerName UTF8String]), std::string([singleSigner.xpub UTF8String]), std::string([singleSigner.publicKey UTF8String]), std::string([singleSigner.bip32Path UTF8String]), std::string([singleSigner.masterFingerPrint UTF8String]), false);
+        std::pair<int, int> externalInternalIndex(0, 1);
+        if (singleSigner.externalInternalIndex != nil) {
+            externalInternalIndex.first = singleSigner.externalInternalIndex.first;
+            externalInternalIndex.second = singleSigner.externalInternalIndex.second;
+        }
+        auto signer = SingleSigner(std::string([singleSigner.signerName UTF8String]), std::string([singleSigner.xpub UTF8String]), std::string([singleSigner.publicKey UTF8String]), std::string([singleSigner.bip32Path UTF8String]), externalInternalIndex, std::string([singleSigner.masterFingerPrint UTF8String]), false);
         signer.set_type([self parseObjCSignerType:singleSigner.type]);
         auto signature = Utils::GetPartialSignature(signer, [psbt UTF8String]);
         return [NSString stringWithUTF8String:signature.c_str()];
@@ -633,7 +638,12 @@ using namespace nunchuk;
         std::vector<SingleSigner> remoteSigners;
         for(unsigned long i = 0; i < signers.count; i++) {
             ObjSingleSigner *rmSigner = [signers objectAtIndex:i];
-            auto signer = SingleSigner(std::string([rmSigner.signerName UTF8String]), std::string([rmSigner.xpub UTF8String]), std::string([rmSigner.publicKey UTF8String]), std::string([rmSigner.bip32Path UTF8String]), std::string([rmSigner.masterFingerPrint UTF8String]), false);
+            std::pair<int, int> externalInternalIndex(0, 1);
+            if (rmSigner.externalInternalIndex != nil) {
+                externalInternalIndex.first = rmSigner.externalInternalIndex.first;
+                externalInternalIndex.second = rmSigner.externalInternalIndex.second;
+            }
+            auto signer = SingleSigner(std::string([rmSigner.signerName UTF8String]), std::string([rmSigner.xpub UTF8String]), std::string([rmSigner.publicKey UTF8String]), std::string([rmSigner.bip32Path UTF8String]), externalInternalIndex, std::string([rmSigner.masterFingerPrint UTF8String]), false);
             signer.set_type([self parseObjCSignerType:rmSigner.type]);
             remoteSigners.push_back(signer);
         }
@@ -711,7 +721,12 @@ using namespace nunchuk;
         for (NSUInteger i = 0; i < wallet.signers.count; i++) {
             if ([[wallet.signers objectAtIndex:i] isKindOfClass:[ObjSingleSigner class]]) {
                 ObjSingleSigner *rmSigner = [wallet.signers objectAtIndex:i];
-                auto signer = SingleSigner(std::string([rmSigner.signerName UTF8String]), std::string([rmSigner.xpub UTF8String]), std::string([rmSigner.publicKey UTF8String]), std::string([rmSigner.bip32Path UTF8String]), std::string([rmSigner.masterFingerPrint UTF8String]), false);
+                std::pair<int, int> externalInternalIndex(0, 1);
+                if (rmSigner.externalInternalIndex != nil) {
+                    externalInternalIndex.first = rmSigner.externalInternalIndex.first;
+                    externalInternalIndex.second = rmSigner.externalInternalIndex.second;
+                }
+                auto signer = SingleSigner(std::string([rmSigner.signerName UTF8String]), std::string([rmSigner.xpub UTF8String]), std::string([rmSigner.publicKey UTF8String]), std::string([rmSigner.bip32Path UTF8String]), externalInternalIndex, std::string([rmSigner.masterFingerPrint UTF8String]), false);
                 signer.set_type([self parseObjCSignerType:rmSigner.type]);
                 signers.push_back(signer);
             }
@@ -739,7 +754,12 @@ using namespace nunchuk;
         for (NSUInteger i = 0; i < wallet.signers.count; i++) {
             if ([[wallet.signers objectAtIndex:i] isKindOfClass:[ObjSingleSigner class]]) {
                 ObjSingleSigner *rmSigner = [wallet.signers objectAtIndex:i];
-                auto signer = SingleSigner(std::string([rmSigner.signerName UTF8String]), std::string([rmSigner.xpub UTF8String]), std::string([rmSigner.publicKey UTF8String]), std::string([rmSigner.bip32Path UTF8String]), std::string([rmSigner.masterFingerPrint UTF8String]), false);
+                std::pair<int, int> externalInternalIndex(0, 1);
+                if (rmSigner.externalInternalIndex != nil) {
+                    externalInternalIndex.first = rmSigner.externalInternalIndex.first;
+                    externalInternalIndex.second = rmSigner.externalInternalIndex.second;
+                }
+                auto signer = SingleSigner(std::string([rmSigner.signerName UTF8String]), std::string([rmSigner.xpub UTF8String]), std::string([rmSigner.publicKey UTF8String]), std::string([rmSigner.bip32Path UTF8String]), externalInternalIndex, std::string([rmSigner.masterFingerPrint UTF8String]), false);
                 signer.set_type([self parseObjCSignerType:rmSigner.type]);
                 signers.push_back(signer);
             }
@@ -767,7 +787,12 @@ using namespace nunchuk;
         for (NSUInteger i = 0; i < wallet.signers.count; i++) {
             if ([[wallet.signers objectAtIndex:i] isKindOfClass:[ObjSingleSigner class]]) {
                 ObjSingleSigner *rmSigner = [wallet.signers objectAtIndex:i];
-                auto signer = SingleSigner(std::string([rmSigner.signerName UTF8String]), std::string([rmSigner.xpub UTF8String]), std::string([rmSigner.publicKey UTF8String]), std::string([rmSigner.bip32Path UTF8String]), std::string([rmSigner.masterFingerPrint UTF8String]), false);
+                std::pair<int, int> externalInternalIndex(0, 1);
+                if (rmSigner.externalInternalIndex != nil) {
+                    externalInternalIndex.first = rmSigner.externalInternalIndex.first;
+                    externalInternalIndex.second = rmSigner.externalInternalIndex.second;
+                }
+                auto signer = SingleSigner(std::string([rmSigner.signerName UTF8String]), std::string([rmSigner.xpub UTF8String]), std::string([rmSigner.publicKey UTF8String]), std::string([rmSigner.bip32Path UTF8String]), externalInternalIndex, std::string([rmSigner.masterFingerPrint UTF8String]), false);
                 signer.set_type([self parseObjCSignerType:rmSigner.type]);
                 signers.push_back(signer);
             }

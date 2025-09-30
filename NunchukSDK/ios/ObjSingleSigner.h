@@ -7,7 +7,7 @@
 
 #ifndef ObjSingleSigner_h
 #define ObjSingleSigner_h
-
+#import "StringIntPair.h"
 #import "ObjMasterSigner.h"
 
 @interface ObjSingleSigner : NSObject
@@ -25,6 +25,7 @@
 @property(nonatomic, strong, nonnull) NSArray *tags;
 @property(nonatomic, assign) BOOL isVisible;
 @property(nonatomic, assign) NSInteger indexPath;
+@property(nonatomic, strong, nullable) IntPair *externalInternalIndex;
 
 - (instancetype _Nonnull )initWithName:(NSString * _Nonnull)name
                                   xpub:(NSString * _Nonnull)xpub
@@ -39,7 +40,8 @@
                        hasMasterSigner:(BOOL)hasMasterSigner
                                   tags:(NSArray *_Nonnull)tags
                              isVisible:(BOOL)isVisible
-                             indexPath:(NSInteger)indexPath;
+                             indexPath:(NSInteger)indexPath
+                 externalInternalIndex:(IntPair * _Nullable)externalInternalIndex;
 
 - (BOOL)hasAirgapTypeTag;
 

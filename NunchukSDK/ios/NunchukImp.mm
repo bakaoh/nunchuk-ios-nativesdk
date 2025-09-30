@@ -217,7 +217,12 @@ dispatch_semaphore_t semaphore;
         for(unsigned long i = 0; i < signers.count; i++) {
             if ([[signers objectAtIndex:i] isKindOfClass:[ObjSingleSigner class]]) {
                 ObjSingleSigner *rmSigner = [signers objectAtIndex:i];
-                auto signer = SingleSigner(std::string([rmSigner.signerName UTF8String]), std::string([rmSigner.xpub UTF8String]), std::string([rmSigner.publicKey UTF8String]), std::string([rmSigner.bip32Path UTF8String]), std::string([rmSigner.masterFingerPrint UTF8String]), false);
+                std::pair<int, int> externalInternalIndex(0, 1);
+                if (rmSigner.externalInternalIndex != nil) {
+                    externalInternalIndex.first = rmSigner.externalInternalIndex.first;
+                    externalInternalIndex.second = rmSigner.externalInternalIndex.second;
+                }
+                auto signer = SingleSigner(std::string([rmSigner.signerName UTF8String]), std::string([rmSigner.xpub UTF8String]), std::string([rmSigner.publicKey UTF8String]), std::string([rmSigner.bip32Path UTF8String]), externalInternalIndex, std::string([rmSigner.masterFingerPrint UTF8String]), false);
                 signer.set_type([self parseObjCSignerType:rmSigner.type]);
                 remoteSigners.push_back(signer);
             }
@@ -241,7 +246,12 @@ dispatch_semaphore_t semaphore;
         for(unsigned long i = 0; i < signers.count; i++) {
             if ([[signers objectAtIndex:i] isKindOfClass:[ObjSingleSigner class]]) {
                 ObjSingleSigner *rmSigner = [signers objectAtIndex:i];
-                auto signer = SingleSigner(std::string([rmSigner.signerName UTF8String]), std::string([rmSigner.xpub UTF8String]), std::string([rmSigner.publicKey UTF8String]), std::string([rmSigner.bip32Path UTF8String]), std::string([rmSigner.masterFingerPrint UTF8String]), false);
+                std::pair<int, int> externalInternalIndex(0, 1);
+                if (rmSigner.externalInternalIndex != nil) {
+                    externalInternalIndex.first = rmSigner.externalInternalIndex.first;
+                    externalInternalIndex.second = rmSigner.externalInternalIndex.second;
+                }
+                auto signer = SingleSigner(std::string([rmSigner.signerName UTF8String]), std::string([rmSigner.xpub UTF8String]), std::string([rmSigner.publicKey UTF8String]), std::string([rmSigner.bip32Path UTF8String]), externalInternalIndex, std::string([rmSigner.masterFingerPrint UTF8String]), false);
                 signer.set_type([self parseObjCSignerType:rmSigner.type]);
                 remoteSigners.push_back(signer);
             }
@@ -266,7 +276,12 @@ dispatch_semaphore_t semaphore;
         for(unsigned long i = 0; i < signers.count; i++) {
             if ([[signers objectAtIndex:i] isKindOfClass:[ObjSingleSigner class]]) {
                 ObjSingleSigner *rmSigner = [signers objectAtIndex:i];
-                auto signer = SingleSigner(std::string([rmSigner.signerName UTF8String]), std::string([rmSigner.xpub UTF8String]), std::string([rmSigner.publicKey UTF8String]), std::string([rmSigner.bip32Path UTF8String]), std::string([rmSigner.masterFingerPrint UTF8String]), false);
+                std::pair<int, int> externalInternalIndex(0, 1);
+                if (rmSigner.externalInternalIndex != nil) {
+                    externalInternalIndex.first = rmSigner.externalInternalIndex.first;
+                    externalInternalIndex.second = rmSigner.externalInternalIndex.second;
+                }
+                auto signer = SingleSigner(std::string([rmSigner.signerName UTF8String]), std::string([rmSigner.xpub UTF8String]), std::string([rmSigner.publicKey UTF8String]), std::string([rmSigner.bip32Path UTF8String]), externalInternalIndex, std::string([rmSigner.masterFingerPrint UTF8String]), false);
                 signer.set_type([self parseObjCSignerType:rmSigner.type]);
                 remoteSigners.push_back(signer);
             }
@@ -377,7 +392,12 @@ dispatch_semaphore_t semaphore;
         for(unsigned long i = 0; i < signers.count; i++) {
             if ([[signers objectAtIndex:i] isKindOfClass:[ObjSingleSigner class]]) {
                 ObjSingleSigner *rmSigner = [signers objectAtIndex:i];
-                auto signer = SingleSigner(std::string([rmSigner.signerName UTF8String]), std::string([rmSigner.xpub UTF8String]), std::string([rmSigner.publicKey UTF8String]), std::string([rmSigner.bip32Path UTF8String]), std::string([rmSigner.masterFingerPrint UTF8String]), false);
+                std::pair<int, int> externalInternalIndex(0, 1);
+                if (rmSigner.externalInternalIndex != nil) {
+                    externalInternalIndex.first = rmSigner.externalInternalIndex.first;
+                    externalInternalIndex.second = rmSigner.externalInternalIndex.second;
+                }
+                auto signer = SingleSigner(std::string([rmSigner.signerName UTF8String]), std::string([rmSigner.xpub UTF8String]), std::string([rmSigner.publicKey UTF8String]), std::string([rmSigner.bip32Path UTF8String]), externalInternalIndex, std::string([rmSigner.masterFingerPrint UTF8String]), false);
                 signer.set_type([self parseObjCSignerType:rmSigner.type]);
                 remoteSigners.push_back(signer);
             }
@@ -446,9 +466,14 @@ dispatch_semaphore_t semaphore;
     }
 }
 
-- (ObjSingleSigner *)singleSignerWithName:(NSString *)name xpub:(NSString *)xPub xpubKey:(NSString *)xPubkey path:(NSString *)path fingerprint:(NSString *)fingerPrint error:(NSError * _Nullable __autoreleasing *)outError {
+- (ObjSingleSigner *)singleSignerWithName:(NSString *)name xpub:(NSString *)xPub xpubKey:(NSString *)xPubkey path:(NSString *)path fingerprint:(NSString *)fingerPrint externalInternalIndex:(IntPair *)externalInternalIndex error:(NSError * _Nullable __autoreleasing *)outError {
     try {
-        SingleSigner signer = SingleSigner([name UTF8String], [xPub UTF8String], [xPubkey UTF8String], [path UTF8String], [fingerPrint UTF8String], 0);
+        std::pair<int, int> index(0, 1);
+        if (externalInternalIndex != nil) {
+            index.first = externalInternalIndex.first;
+            index.second = externalInternalIndex.second;
+        }
+        SingleSigner signer = SingleSigner([name UTF8String], [xPub UTF8String], [xPubkey UTF8String], [path UTF8String], index, [fingerPrint UTF8String], 0);
         return [[ObjSingleSigner alloc] initWithSigner:&signer];
     } catch (const BaseException& exception) {
         *outError = [[NSError alloc] initWithDomain:@"io.nunchuk.ios" code: exception.code() userInfo:@{@"message": [NSString stringWithUTF8String: exception.what()]}];
@@ -1279,7 +1304,12 @@ dispatch_semaphore_t semaphore;
             for (id signer in signers) {
                 if ([signer isKindOfClass:[ObjSingleSigner class]]) {
                     ObjSingleSigner *remoteSigner = (ObjSingleSigner *)signer;
-                    auto cSigner = SingleSigner(std::string([remoteSigner.signerName UTF8String]), std::string([remoteSigner.xpub UTF8String]), std::string([remoteSigner.publicKey UTF8String]), std::string([remoteSigner.bip32Path UTF8String]), std::string([remoteSigner.masterFingerPrint UTF8String]), false);
+                    std::pair<int, int> externalInternalIndex(0, 1);
+                    if (remoteSigner.externalInternalIndex != nil) {
+                        externalInternalIndex.first = remoteSigner.externalInternalIndex.first;
+                        externalInternalIndex.second = remoteSigner.externalInternalIndex.second;
+                    }
+                    auto cSigner = SingleSigner(std::string([remoteSigner.signerName UTF8String]), std::string([remoteSigner.xpub UTF8String]), std::string([remoteSigner.publicKey UTF8String]), std::string([remoteSigner.bip32Path UTF8String]), externalInternalIndex, std::string([remoteSigner.masterFingerPrint UTF8String]), false);
                     cSigner.set_type([self parseObjCSignerType:remoteSigner.type]);
                     auto event = nunchukManager->nuMatrix->JoinWallet([roomId UTF8String], cSigner);
                 }
@@ -2008,7 +2038,12 @@ dispatch_semaphore_t semaphore;
                       signature:(NSString *)signature
                           error:(NSError **)error {
     try {
-        SingleSigner singleSigner = SingleSigner([signer.signerName UTF8String], [signer.xpub UTF8String], [signer.publicKey UTF8String], [signer.bip32Path UTF8String], [signer.masterFingerPrint UTF8String], signer.lastHealthCheckTS);
+        std::pair<int, int> externalInternalIndex(0, 1);
+        if (signer.externalInternalIndex != nil) {
+            externalInternalIndex.first = signer.externalInternalIndex.first;
+            externalInternalIndex.second = signer.externalInternalIndex.second;
+        }
+        SingleSigner singleSigner = SingleSigner([signer.signerName UTF8String], [signer.xpub UTF8String], [signer.publicKey UTF8String], [signer.bip32Path UTF8String], externalInternalIndex, [signer.masterFingerPrint UTF8String], signer.lastHealthCheckTS);
         singleSigner.set_type([self parseObjCSignerType:signer.type]);
         nunchukManager->nu->HealthCheckSingleSigner(singleSigner, [message UTF8String], [signature UTF8String]);
         return YES;
@@ -2140,7 +2175,12 @@ dispatch_semaphore_t semaphore;
             for(unsigned long i = 0; i < wallet.signers.count; i++) {
                 if ([[wallet.signers objectAtIndex:i] isKindOfClass:[ObjSingleSigner class]]) {
                     ObjSingleSigner *rmSigner = [wallet.signers objectAtIndex:i];
-                    auto signer = SingleSigner(std::string([rmSigner.signerName UTF8String]), std::string([rmSigner.xpub UTF8String]), std::string([rmSigner.publicKey UTF8String]), std::string([rmSigner.bip32Path UTF8String]), std::string([rmSigner.masterFingerPrint UTF8String]), false);
+                    std::pair<int, int> externalInternalIndex(0, 1);
+                    if (rmSigner.externalInternalIndex != nil) {
+                        externalInternalIndex.first = rmSigner.externalInternalIndex.first;
+                        externalInternalIndex.second = rmSigner.externalInternalIndex.second;
+                    }
+                    auto signer = SingleSigner(std::string([rmSigner.signerName UTF8String]), std::string([rmSigner.xpub UTF8String]), std::string([rmSigner.publicKey UTF8String]), std::string([rmSigner.bip32Path UTF8String]), externalInternalIndex, std::string([rmSigner.masterFingerPrint UTF8String]), false);
                     signer.set_type([self parseObjCSignerType:rmSigner.type]);
                     signers.push_back(signer);
                 }
@@ -2161,7 +2201,12 @@ dispatch_semaphore_t semaphore;
 
 - (BOOL)hasSigner:(ObjSingleSigner *)signer {
     try {
-        auto singleSigner = SingleSigner(std::string([signer.signerName UTF8String]), std::string([signer.xpub UTF8String]), std::string([signer.publicKey UTF8String]), std::string([signer.bip32Path UTF8String]), std::string([signer.masterFingerPrint UTF8String]), false);
+        std::pair<int, int> externalInternalIndex(0, 1);
+        if (signer.externalInternalIndex != nil) {
+            externalInternalIndex.first = signer.externalInternalIndex.first;
+            externalInternalIndex.second = signer.externalInternalIndex.second;
+        }
+        auto singleSigner = SingleSigner(std::string([signer.signerName UTF8String]), std::string([signer.xpub UTF8String]), std::string([signer.publicKey UTF8String]), std::string([signer.bip32Path UTF8String]), externalInternalIndex, std::string([signer.masterFingerPrint UTF8String]), false);
         singleSigner.set_type([self parseObjCSignerType:signer.type]);
         return nunchukManager->nu->HasSigner(singleSigner);
     } catch (const std::exception& exception) {
@@ -2956,7 +3001,8 @@ dispatch_semaphore_t semaphore;
         NSMutableDictionary *isNew = [NSMutableDictionary new];
         if (shouldSyncKey) {
             for (ObjKeyInfo *key in wallet.signers) {
-                BOOL hasSigner = nunchukManager->nu->HasSigner(SingleSigner([key.name UTF8String], [key.xpub UTF8String], [key.pubkey UTF8String], [key.derivationPath UTF8String], [key.xfp UTF8String], std::time(nullptr)));
+                std::pair<int, int> externalInternalIndex(0, 1);
+                BOOL hasSigner = nunchukManager->nu->HasSigner(SingleSigner([key.name UTF8String], [key.xpub UTF8String], [key.pubkey UTF8String], [key.derivationPath UTF8String], externalInternalIndex, [key.xfp UTF8String], std::time(nullptr)));
                 [isNew setObject:[NSNumber numberWithBool:hasSigner] forKey:key.xfp];
             }
         }
@@ -3033,7 +3079,8 @@ dispatch_semaphore_t semaphore;
 
 - (BOOL)addKey:(ObjKeyInfo *)key error:(NSError * _Nullable __autoreleasing *)error {
     try {
-        BOOL hasSigner = nunchukManager->nu->HasSigner(SingleSigner([key.name UTF8String], [key.xpub UTF8String], [key.pubkey UTF8String], [key.derivationPath UTF8String], [key.xfp UTF8String], std::time(nullptr)));
+        std::pair<int, int> externalInternalIndex(0, 1);
+        BOOL hasSigner = nunchukManager->nu->HasSigner(SingleSigner([key.name UTF8String], [key.xpub UTF8String], [key.pubkey UTF8String], [key.derivationPath UTF8String], externalInternalIndex, [key.xfp UTF8String], std::time(nullptr)));
         if (key.tapsigner != NULL) {
             nunchukManager->nu->AddTapsigner([key.tapsigner.cardId UTF8String], [key.xfp UTF8String], [key.name UTF8String], [key.tapsigner.version UTF8String], key.tapsigner.birthHeight, key.tapsigner.isTestnet);
         } else {
@@ -3679,7 +3726,12 @@ dispatch_semaphore_t semaphore;
         for (NSUInteger i = 0; i < wallet.signers.count; i++) {
             if ([[wallet.signers objectAtIndex:i] isKindOfClass:[ObjSingleSigner class]]) {
                 ObjSingleSigner *rmSigner = [wallet.signers objectAtIndex:i];
-                auto signer = SingleSigner(std::string([rmSigner.signerName UTF8String]), std::string([rmSigner.xpub UTF8String]), std::string([rmSigner.publicKey UTF8String]), std::string([rmSigner.bip32Path UTF8String]), std::string([rmSigner.masterFingerPrint UTF8String]), false);
+                std::pair<int, int> externalInternalIndex(0, 1);
+                if (rmSigner.externalInternalIndex != nil) {
+                    externalInternalIndex.first = rmSigner.externalInternalIndex.first;
+                    externalInternalIndex.second = rmSigner.externalInternalIndex.second;
+                }
+                auto signer = SingleSigner(std::string([rmSigner.signerName UTF8String]), std::string([rmSigner.xpub UTF8String]), std::string([rmSigner.publicKey UTF8String]), std::string([rmSigner.bip32Path UTF8String]), externalInternalIndex, std::string([rmSigner.masterFingerPrint UTF8String]), false);
                 signer.set_type([self parseObjCSignerType:rmSigner.type]);
                 signers.push_back(signer);
             }
@@ -3759,7 +3811,12 @@ dispatch_semaphore_t semaphore;
         for(unsigned long i = 0; i < wallet.signers.count; i++) {
             if ([[wallet.signers objectAtIndex:i] isKindOfClass:[ObjSingleSigner class]]) {
                 ObjSingleSigner *rmSigner = [wallet.signers objectAtIndex:i];
-                auto signer = SingleSigner(std::string([rmSigner.signerName UTF8String]), std::string([rmSigner.xpub UTF8String]), std::string([rmSigner.publicKey UTF8String]), std::string([rmSigner.bip32Path UTF8String]), std::string([rmSigner.masterFingerPrint UTF8String]), false);
+                std::pair<int, int> externalInternalIndex(0, 1);
+                if (rmSigner.externalInternalIndex != nil) {
+                    externalInternalIndex.first = rmSigner.externalInternalIndex.first;
+                    externalInternalIndex.second = rmSigner.externalInternalIndex.second;
+                }
+                auto signer = SingleSigner(std::string([rmSigner.signerName UTF8String]), std::string([rmSigner.xpub UTF8String]), std::string([rmSigner.publicKey UTF8String]), std::string([rmSigner.bip32Path UTF8String]), externalInternalIndex, std::string([rmSigner.masterFingerPrint UTF8String]), false);
                 signer.set_type([self parseObjCSignerType:rmSigner.type]);
                 remoteSigners.push_back(signer);
             }
@@ -3785,7 +3842,12 @@ dispatch_semaphore_t semaphore;
         for (NSString *key in signers) {
             id obj = [signers objectForKey:key];
             ObjSingleSigner *remoteSigner = (ObjSingleSigner *)obj;
-            auto cSigner = SingleSigner(std::string([remoteSigner.signerName UTF8String]), std::string([remoteSigner.xpub UTF8String]), std::string([remoteSigner.publicKey UTF8String]), std::string([remoteSigner.bip32Path UTF8String]), std::string([remoteSigner.masterFingerPrint UTF8String]), false);
+            std::pair<int, int> externalInternalIndex(0, 1);
+            if (remoteSigner.externalInternalIndex != nil) {
+                externalInternalIndex.first = remoteSigner.externalInternalIndex.first;
+                externalInternalIndex.second = remoteSigner.externalInternalIndex.second;
+            }
+            auto cSigner = SingleSigner(std::string([remoteSigner.signerName UTF8String]), std::string([remoteSigner.xpub UTF8String]), std::string([remoteSigner.publicKey UTF8String]), std::string([remoteSigner.bip32Path UTF8String]), externalInternalIndex, std::string([remoteSigner.masterFingerPrint UTF8String]), false);
             cSigner.set_type([self parseObjCSignerType:remoteSigner.type]);
             signerMap[std::string([key UTF8String])] = cSigner;
         }
@@ -3882,7 +3944,12 @@ dispatch_semaphore_t semaphore;
 
 - (BOOL)healthCheckColdCard:(ObjSingleSigner *)signer message:(NSString *)message error:(NSError * _Nullable __autoreleasing *)error {
     try {
-        SingleSigner singleSigner = SingleSigner([signer.signerName UTF8String], [signer.xpub UTF8String], [signer.publicKey UTF8String], [signer.bip32Path UTF8String], [signer.masterFingerPrint UTF8String], signer.lastHealthCheckTS);
+        std::pair<int, int> externalInternalIndex(0, 1);
+        if (signer.externalInternalIndex != nil) {
+            externalInternalIndex.first = signer.externalInternalIndex.first;
+            externalInternalIndex.second = signer.externalInternalIndex.second;
+        }
+        SingleSigner singleSigner = SingleSigner([signer.signerName UTF8String], [signer.xpub UTF8String], [signer.publicKey UTF8String], [signer.bip32Path UTF8String], externalInternalIndex, [signer.masterFingerPrint UTF8String], signer.lastHealthCheckTS);
         singleSigner.set_type([self parseObjCSignerType:signer.type]);
         BitcoinSignedMessage signedMessage = ParseBitcoinSignedMessage([message UTF8String]);
         HealthStatus status = nunchukManager->nu->HealthCheckSingleSigner(singleSigner, signedMessage.message, signedMessage.signature);
@@ -3992,7 +4059,12 @@ dispatch_semaphore_t semaphore;
 
 - (NSString *)signHealthCheckMessageWithSingleSigner:(ObjSingleSigner *)singleSigner mesage:(NSString *)message error:(NSError * _Nullable __autoreleasing *)error {
     try {
-        auto signer = SingleSigner(std::string([singleSigner.signerName UTF8String]), std::string([singleSigner.xpub UTF8String]), std::string([singleSigner.publicKey UTF8String]), std::string([singleSigner.bip32Path UTF8String]), std::string([singleSigner.masterFingerPrint UTF8String]), false);
+        std::pair<int, int> externalInternalIndex(0, 1);
+        if (singleSigner.externalInternalIndex != nil) {
+            externalInternalIndex.first = singleSigner.externalInternalIndex.first;
+            externalInternalIndex.second = singleSigner.externalInternalIndex.second;
+        }
+        auto signer = SingleSigner(std::string([singleSigner.signerName UTF8String]), std::string([singleSigner.xpub UTF8String]), std::string([singleSigner.publicKey UTF8String]), std::string([singleSigner.bip32Path UTF8String]), externalInternalIndex, std::string([singleSigner.masterFingerPrint UTF8String]), false);
         signer.set_type([self parseObjCSignerType:singleSigner.type]);
         auto signature = nunchukManager->nu->SignHealthCheckMessage(signer, [message UTF8String]);
         return [NSString stringWithUTF8String:signature.c_str()];
@@ -4019,7 +4091,12 @@ dispatch_semaphore_t semaphore;
                 return NULL;
             }
         }
-        auto signer = SingleSigner(std::string([singleSigner.signerName UTF8String]), std::string([singleSigner.xpub UTF8String]), std::string([singleSigner.publicKey UTF8String]), std::string([singleSigner.bip32Path UTF8String]), std::string([singleSigner.masterFingerPrint UTF8String]), false);
+        std::pair<int, int> externalInternalIndex(0, 1);
+        if (singleSigner.externalInternalIndex != nil) {
+            externalInternalIndex.first = singleSigner.externalInternalIndex.first;
+            externalInternalIndex.second = singleSigner.externalInternalIndex.second;
+        }
+        auto signer = SingleSigner(std::string([singleSigner.signerName UTF8String]), std::string([singleSigner.xpub UTF8String]), std::string([singleSigner.publicKey UTF8String]), std::string([singleSigner.bip32Path UTF8String]), externalInternalIndex, std::string([singleSigner.masterFingerPrint UTF8String]), false);
         signer.set_type([self parseObjCSignerType:singleSigner.type]);
         auto signature = nunchukManager->nu->SignHealthCheckMessage(card.get(), [cvc UTF8String], signer, [message UTF8String]);
         [self invalidateSessionWithError:*error];
@@ -5085,7 +5162,12 @@ dispatch_semaphore_t semaphore;
                    error:(NSError * _Nullable __autoreleasing *)error {
     try {
         if (signer) {
-            SingleSigner singleSigner = SingleSigner([signer.signerName UTF8String], [signer.xpub UTF8String], [signer.publicKey UTF8String], [signer.bip32Path UTF8String], [signer.masterFingerPrint UTF8String], signer.lastHealthCheckTS);
+            std::pair<int, int> externalInternalIndex(0, 1);
+            if (signer.externalInternalIndex != nil) {
+                externalInternalIndex.first = signer.externalInternalIndex.first;
+                externalInternalIndex.second = signer.externalInternalIndex.second;
+            }
+            SingleSigner singleSigner = SingleSigner([signer.signerName UTF8String], [signer.xpub UTF8String], [signer.publicKey UTF8String], [signer.bip32Path UTF8String], externalInternalIndex, [signer.masterFingerPrint UTF8String], signer.lastHealthCheckTS);
             singleSigner.set_type([self parseObjCSignerType:signer.type]);
             nunchukManager->nu->SendGroupMessage([walletId UTF8String], [message UTF8String], singleSigner);
         } else {
@@ -5266,7 +5348,12 @@ dispatch_semaphore_t semaphore;
 
 - (ObjGroupSandbox *)addSignerToGroup:(NSString *)groupId signer:(ObjSingleSigner *)signer index:(int)index error:(NSError **)error {
     try {
-        auto cppSigner = SingleSigner(std::string([signer.signerName UTF8String]), std::string([signer.xpub UTF8String]), std::string([signer.publicKey UTF8String]), std::string([signer.bip32Path UTF8String]), std::string([signer.masterFingerPrint UTF8String]), false);
+        std::pair<int, int> externalInternalIndex(0, 1);
+        if (signer.externalInternalIndex != nil) {
+            externalInternalIndex.first = signer.externalInternalIndex.first;
+            externalInternalIndex.second = signer.externalInternalIndex.second;
+        }
+        auto cppSigner = SingleSigner(std::string([signer.signerName UTF8String]), std::string([signer.xpub UTF8String]), std::string([signer.publicKey UTF8String]), std::string([signer.bip32Path UTF8String]), externalInternalIndex, std::string([signer.masterFingerPrint UTF8String]), false);
         auto group = nunchukManager->nu->AddSignerToGroup([groupId UTF8String], cppSigner, index);
         return [[ObjGroupSandbox alloc] initWithGroupSandbox:&group];
     } catch (const BaseException& exception) {
@@ -5280,7 +5367,12 @@ dispatch_semaphore_t semaphore;
 
 - (ObjGroupSandbox *)addSignerToGroup:(NSString *)groupId signer:(ObjSingleSigner *)signer keyId:(NSString *)keyId error:(NSError **)error {
     try {
-        auto cppSigner = SingleSigner(std::string([signer.signerName UTF8String]), std::string([signer.xpub UTF8String]), std::string([signer.publicKey UTF8String]), std::string([signer.bip32Path UTF8String]), std::string([signer.masterFingerPrint UTF8String]), false);
+        std::pair<int, int> externalInternalIndex(0, 1);
+        if (signer.externalInternalIndex != nil) {
+            externalInternalIndex.first = signer.externalInternalIndex.first;
+            externalInternalIndex.second = signer.externalInternalIndex.second;
+        }
+        auto cppSigner = SingleSigner(std::string([signer.signerName UTF8String]), std::string([signer.xpub UTF8String]), std::string([signer.publicKey UTF8String]), std::string([signer.bip32Path UTF8String]), externalInternalIndex, std::string([signer.masterFingerPrint UTF8String]), false);
         auto group = nunchukManager->nu->AddSignerToGroup([groupId UTF8String], cppSigner, [keyId UTF8String]);
         return [[ObjGroupSandbox alloc] initWithGroupSandbox:&group];
     } catch (const BaseException& exception) {

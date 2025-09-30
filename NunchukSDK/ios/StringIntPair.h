@@ -12,3 +12,11 @@
 @property (nonatomic) long value;
 @end
 #endif /* StringIntPair_h */
+
+@interface IntPair: NSObject
+@property (nonatomic, assign) int first;
+@property (nonatomic, assign) int second;
+
+- (instancetype _Nullable)initWithFirst:(int)first second:(int)second;
+
+@end

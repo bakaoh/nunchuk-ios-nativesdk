@@ -28,7 +28,8 @@ using namespace nunchuk;
              hasMasterSigner:(BOOL)hasMasterSigner
                         tags:(NSArray *)tags
                    isVisible:(BOOL)isVisible 
-                   indexPath:(NSInteger)indexPath {
+                   indexPath:(NSInteger)indexPath
+       externalInternalIndex:(IntPair * _Nullable)externalInternalIndex {
     ObjSingleSigner * signer = [[ObjSingleSigner alloc] init];
     signer->_signerName = name;
     signer->_bip32Path = bip32Path;
@@ -44,6 +45,7 @@ using namespace nunchuk;
     signer.tags = tags;
     signer.isVisible = isVisible;
     signer.indexPath = indexPath;
+    signer.externalInternalIndex = externalInternalIndex;
     return signer;
 }
 - (instancetype _Nonnull ) initWithSigner: (SingleSigner*_Nullable) signer {
@@ -62,6 +64,8 @@ using namespace nunchuk;
         [tags addObject:[NSString stringWithUTF8String:SignerTagToStr(tag).c_str()]];
     }
     NSInteger indexPath = Utils::GetIndexFromPath(signer->get_derivation_path());
+    std::pair<int, int> externalInternalIndex = signer->get_external_internal_index();
+    IntPair *index = [[IntPair alloc] initWithFirst:externalInternalIndex.first second:externalInternalIndex.second];
     ObjSingleSigner * objSigner = [[ObjSingleSigner alloc] initWithName:name
                                                                    xpub:xpub
                                                               bip32Path:bip32Path
@@ -75,7 +79,7 @@ using namespace nunchuk;
                                                         hasMasterSigner:signer->has_master_signer()
                                                                    tags:tags
                                                               isVisible:signer->is_visible()
-                                                              indexPath:indexPath];
+                                                              indexPath:indexPath externalInternalIndex:index];
     return objSigner;
 }
 

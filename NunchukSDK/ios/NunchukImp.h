@@ -57,7 +57,8 @@ typedef enum NunchukExportFormat {
     COBO,
     CSV,
     BSMS,
-    DESCRIPTOR_EXTERNAL_ALL
+    DESCRIPTOR_EXTERNAL_ALL,
+    DESCRIPTOR_EXTERNAL_INTERNAL
 } NunchukExportFormat;
 
 typedef enum KeyHealthStatus {
@@ -122,7 +123,7 @@ extern const int FEE_RATE_ECONOMICAL;
 -(BOOL)removeSignerWithPath:(NSString *_Nullable)path fingerprint:(NSString *_Nullable)fingerPrint error:(NSError * _Nullable * _Nullable)outError;
 -(BOOL)removeSignerWithId:(NSString *_Nullable)signerId error:(NSError * _Nullable * _Nullable)outError;
 -(ObjSingleSigner *_Nullable)newRemoteSignerWithName:(NSString *_Nullable)name xpub:(NSString *_Nullable)xPub xpubKey:(NSString *_Nullable)xPubkey path:(NSString *_Nullable)path fingerprint:(NSString *_Nullable)fingerPrint tags:(NSArray<NSString *>*_Nullable)tags error:(NSError * _Nullable * _Nullable)outError;
--(BOOL)exportWalletWithId:(NSString* _Nonnull)walletId filePath:(NSString* _Nonnull)filePath format:(NSString* _Nonnull)walletFormat error:(NSError * _Nullable * _Nullable)outError;
+-(BOOL)exportWalletWithId:(NSString* _Nonnull)walletId filePath:(NSString* _Nonnull)filePath format:(NunchukExportFormat)format error:(NSError * _Nullable * _Nullable)outError;
 -(BOOL)createNewMasterSignerWithName:(NSString * _Nonnull)name device:(ObjDevice * _Nonnull)device error:(NSError * _Nullable * _Nullable)outError;
 -(NSMutableArray<ObjSingleSigner *> *_Nullable)getSigners:(NSError * _Nullable * _Nullable)outError;
 -(NSMutableArray<ObjWallet *> *_Nullable)getWallets:(BOOL)ordered error:(NSError * _Nullable * _Nullable)outError;
@@ -454,7 +455,6 @@ extern const int FEE_RATE_ECONOMICAL;
 - (NSArray<ObjSingleSigner *> *_Nullable)getMultipleSignersFromTapsignerMasterSigner:(NSString *_Nonnull)masterSignerId cvc:(NSString *_Nonnull)cvc walletType:(NSString *_Nonnull)walletType addressType:(NSString *_Nonnull)addressType indices:(NSArray<NSNumber *> *_Nonnull)indices error:(NSError *_Nullable*_Nullable)error;
 - (NSArray<ObjSigningPathFee *> *_Nullable)estimateFeeForSigningPaths:(NSString *_Nonnull)walletId outputs:(NSArray<StringIntPair *> *_Nonnull)outputs inputs:(NSArray<ObjUnspentOutput *> *_Nonnull)input feeRate:(long)feeRate subtractFeeFromAmount:(BOOL)subtractFeeFromAmount error:(NSError *_Nullable*_Nullable)error;
 - (NSDictionary *_Nullable)getTimelockedUntilWithWalletId:(NSString *_Nonnull)walletId transactionId:(NSString *_Nonnull)transactionId;
-- (NSDictionary *_Nullable)getScriptNodeSatisfiable:(NSString *_Nonnull)script transactionId:(NSString *_Nonnull)transactionId walletId:(NSString *_Nonnull)walletId;
 - (NSDictionary *_Nullable)getCoinsGroupedBySubPolicies:(NSString *_Nonnull)script coins:(NSArray *_Nonnull)coins;
 - (BOOL)isPreferScriptPath:(NSString *_Nonnull)walletId txId:(NSString *_Nonnull)txId;
 - (void)setPreferScriptPath:(NSString *_Nonnull)walletId txId:(NSString *_Nonnull)txId preferScriptPath:(BOOL)preferScriptPath;

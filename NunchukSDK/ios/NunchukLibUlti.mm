@@ -801,7 +801,7 @@ using namespace nunchuk;
         auto obj = Wallet([wallet.walletId UTF8String], [wallet.walletName UTF8String], wallet.m, wallet.n, signers, addressType, wallet.isEscrow, [wallet.createdAt timeIntervalSince1970]);
         std::vector<std::string> qrs;
         if (wallet.isMiniscriptWallet) {
-            qrs = Utils::ExportBBQRWallet(obj, ExportFormat::DESCRIPTOR_EXTERNAL_ALL, 1, fragmentLength);
+            qrs = Utils::ExportBBQRWallet(obj, ExportFormat::DESCRIPTOR_EXTERNAL_INTERNAL, 1, fragmentLength);
         } else {
             qrs = Utils::ExportBBQRWallet(obj, ExportFormat::COLDCARD, 1, fragmentLength);
         }

@@ -3707,7 +3707,7 @@ dispatch_semaphore_t semaphore;
     try {
         auto wallet = nunchukManager->nu->GetWallet([walletId UTF8String]);
         if (wallet.get_wallet_type() == WalletType::MINISCRIPT) {
-            return [NSString stringWithUTF8String:wallet.get_descriptor(DescriptorPath::EXTERNAL_ALL).c_str()];
+            return [NSString stringWithUTF8String:wallet.get_descriptor(DescriptorPath::EXTERNAL_INTERNAL).c_str()];
         } else {
             return [NSString stringWithUTF8String:nunchukManager->nu->GetWalletExportData(std::string([walletId UTF8String]), ExportFormat::COLDCARD).c_str()];
         }

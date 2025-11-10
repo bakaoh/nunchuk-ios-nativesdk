@@ -1383,13 +1383,14 @@ dispatch_semaphore_t semaphore;
     if (std::strcmp([walletType UTF8String], "SINGLE_SIG") == 0) {
         return WalletType::SINGLE_SIG;
     }
-    
     if (std::strcmp([walletType UTF8String], "ESCROW") == 0) {
         return WalletType::ESCROW;
     }
-    
     if (std::strcmp([walletType UTF8String], "MULTI_SIG") == 0) {
         return WalletType::MULTI_SIG;
+    }
+    if (std::strcmp([walletType UTF8String], "MINISCRIPT") == 0) {
+        return WalletType::MINISCRIPT;
     }
     return WalletType::SINGLE_SIG;
 }

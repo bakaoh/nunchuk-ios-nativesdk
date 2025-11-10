@@ -45,37 +45,7 @@ std::vector<SingleSigner> NunchukManager::getSigners() {
 std::vector<std::string> NunchukManager::exportCobo(const char* walletId) {
     return this->nu->ExportCoboWallet(walletId);
 }
-std::string NunchukManager::draftMultisigWallet(const char* name, int m, std::vector<SingleSigner> signers, const char* desc, const char* type, const char* addressType) {
-    AddressType address_type = AddressType::ANY;
-    if (strcmp(addressType, "NATIVE_SEGWIT") == 0) {
-        address_type = AddressType::NATIVE_SEGWIT;
-    }
-        
-    if (strcmp(addressType, "LEGACY") == 0) {
-        address_type = AddressType::LEGACY;
-    }
-    
-    if (strcmp(addressType, "NESTED_SEGWIT") == 0) {
-        address_type = AddressType::NESTED_SEGWIT;
-    }
-    
-    if (strcmp(addressType, "TAPROOT") == 0) {
-        address_type = AddressType::TAPROOT;
-    }
-    
-    WalletType wallet_type = WalletType::MULTI_SIG;
-    
-    if (strcmp(type, "SINGLE_SIG") == 0) {
-        wallet_type = WalletType::SINGLE_SIG;
-    }
-    
-    if (strcmp(type, "ESCROW") == 0) {
-        wallet_type = WalletType::ESCROW;
-    }
-    // Create a multisig (2/2) wallet
-    return this->nu->DraftWallet(name, m, signers.size(),
-                                         signers, address_type, wallet_type == WalletType::ESCROW);
-}
+
 std::vector<Wallet> NunchukManager::getWallet() {
     return this->nu->GetWallets();
 }

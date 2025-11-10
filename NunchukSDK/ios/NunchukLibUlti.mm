@@ -501,9 +501,11 @@ using namespace nunchuk;
     if (std::strcmp([walletType UTF8String], "ESCROW") == 0) {
         return WalletType::ESCROW;
     }
-    
     if (std::strcmp([walletType UTF8String], "MULTI_SIG") == 0) {
         return WalletType::MULTI_SIG;
+    }
+    if (std::strcmp([walletType UTF8String], "MINISCRIPT") == 0) {
+        return WalletType::MINISCRIPT;
     }
     return WalletType::SINGLE_SIG;
 }

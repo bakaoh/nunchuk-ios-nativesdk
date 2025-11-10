@@ -550,7 +550,6 @@ dispatch_semaphore_t semaphore;
             if (signer.get_derivation_path().compare(pathC) == 0 && signer.get_master_fingerprint().compare(fingerC) == 0) {
                 signer.set_name([name UTF8String]);
                 nunchukManager->nu->UpdateRemoteSigner(signer);
-                printf("\n----- update the name for wallet");
             }
         }
         return YES;
@@ -570,8 +569,8 @@ dispatch_semaphore_t semaphore;
             auto signer = masterSigners.at(i);
             if (signer.get_id().compare([signerId UTF8String]) == 0) {
                 signer.set_name([name UTF8String]);
+                signer.set_visible(true);
                 nunchukManager->nu->UpdateMasterSigner(signer);
-                printf("\n----- update the name for wallet");
             }
         }
         return YES;

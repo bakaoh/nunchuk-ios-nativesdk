@@ -291,7 +291,7 @@ extern const int FEE_RATE_ECONOMICAL;
 - (NSString *_Nullable)signHealthCheckMessageTapsignerWithSingleSigner:(ObjSingleSigner *_Nonnull)singleSigner mesage:(NSString *_Nonnull)message cvc:(NSString *_Nonnull)cvc error:(NSError *_Nullable*_Nullable)error;
 - (ObjTransaction *_Nullable)getHealthcheckDummyTxWithWallet:(NSString *_Nonnull)walletId body:(NSString *_Nonnull)body error:(NSError *_Nullable*_Nullable)error;
 - (ObjTransaction *_Nullable)decodeDummyTxWithWallet:(NSString *_Nonnull)walletId psbt:(NSString *_Nonnull)psbt error:(NSError *_Nullable*_Nullable)error;
-- (ObjTransaction *_Nullable)signClaimTransaction:(NSString *_Nonnull)masterSignerId psbt:(NSString *_Nonnull)psbt subAmount:(UInt64)subAmount fee:(UInt64)fee feeRate:(UInt64)feeRate error:(NSError *_Nullable*_Nullable)error;
+- (ObjTransaction *_Nullable)signClaimTransaction:(NSString *_Nonnull)masterSignerId psbt:(NSString *_Nonnull)psbt subAmount:(UInt64)subAmount fee:(UInt64)fee feeRate:(UInt64)feeRate subtractFeeFromAmount:(BOOL)subtractFeeFromAmount error:(NSError *_Nullable*_Nullable)error;
 - (BOOL)forceRefreshWalletWithWalletId:(NSString *_Nonnull)walletId error:(NSError *_Nullable*_Nullable)error;
 - (ObjTransaction *_Nullable)decodeDummyTxWithData:(NSData *_Nonnull)data walletId:(NSString *_Nonnull)walletId error:(NSError *_Nullable*_Nullable)error;
 - (BOOL)addKeyTag:(NSString *_Nonnull)tag path:(NSString *_Nonnull)path masterFingerprint:(NSString *_Nonnull)masterFingerprint error:(NSError *_Nullable*_Nullable)error;

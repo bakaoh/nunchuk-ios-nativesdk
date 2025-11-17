@@ -4976,7 +4976,7 @@ dispatch_semaphore_t semaphore;
             cCollections.insert([collection intValue]);
         }
         auto value = nunchukManager->nu->EstimateRollOverAmount([sourceWalletId UTF8String], [destinationWalletId UTF8String], cTags, cCollections, feeRate, useScriptPath);
-        return @{@"subamount": [NSNumber numberWithInt:value.first], @"fee": [NSNumber numberWithInt:value.second]};
+        return @{@"subamount": [NSNumber numberWithLongLong:value.first], @"fee": [NSNumber numberWithLongLong:value.second]};
     } catch (const BaseException& exception) {
         *error = [[NSError alloc] initWithDomain:@"io.nunchuk.ios" code: exception.code() userInfo:@{@"message": [NSString stringWithUTF8String: exception.what()]}];
         return NULL;
@@ -5035,6 +5035,67 @@ dispatch_semaphore_t semaphore;
         }
         NSMutableArray *temp = [NSMutableArray new];
         auto txs = nunchukManager->nu->CreateRollOverTransactions([sourceWalletId UTF8String], [destinationWalletId UTF8String], cTags, cCollections, feeRate, antiFeeSniping, useScriptPath);
+        for (auto& tx : txs) {
+            ObjTransaction *obj = [[ObjTransaction alloc] initWithTransaction: &tx];
+            [temp addObject:obj];
+        }
+        return temp;
+    } catch (const BaseException& exception) {
+        *error = [[NSError alloc] initWithDomain:@"io.nunchuk.ios" code: exception.code() userInfo:@{@"message": [NSString stringWithUTF8String: exception.what()]}];
+        return NULL;
+    } catch (const std::exception& exception) {
+        *error = [[NSError alloc] initWithDomain:@"io.nunchuk.ios" code: NunchukSDKErrorUndefined userInfo:@{@"message": [NSString stringWithUTF8String: exception.what()]}];
+        return NULL;
+    }
+}
+
+- (NSNumber *)estimateRollOver11TransactionCount:(NSString *)walletId error:(NSError **)error {
+    try {
+        return [NSNumber numberWithInt:nunchukManager->nu->EstimateRollOver11TransactionCount([walletId UTF8String])];
+    } catch (const BaseException& exception) {
+        *error = [[NSError alloc] initWithDomain:@"io.nunchuk.ios" code: exception.code() userInfo:@{@"message": [NSString stringWithUTF8String: exception.what()]}];
+        return NULL;
+    } catch (const std::exception& exception) {
+        *error = [[NSError alloc] initWithDomain:@"io.nunchuk.ios" code: NunchukSDKErrorUndefined userInfo:@{@"message": [NSString stringWithUTF8String: exception.what()]}];
+        return NULL;
+    }
+}
+
+- (NSDictionary *)estimateRollOver11Amount:(NSString *)sourceWalletId destinationWalletId:(NSString *)destinationWalletId feeRate:(long)feeRate useScriptPath:(BOOL)useScriptPath error:(NSError **)error {
+    try {
+        auto value = nunchukManager->nu->EstimateRollOver11Amount([sourceWalletId UTF8String], [destinationWalletId UTF8String], feeRate, useScriptPath);
+        return @{@"subamount": [NSNumber numberWithLongLong:value.first], @"fee": [NSNumber numberWithLongLong:value.second]};
+    } catch (const BaseException& exception) {
+        *error = [[NSError alloc] initWithDomain:@"io.nunchuk.ios" code: exception.code() userInfo:@{@"message": [NSString stringWithUTF8String: exception.what()]}];
+        return NULL;
+    } catch (const std::exception& exception) {
+        *error = [[NSError alloc] initWithDomain:@"io.nunchuk.ios" code: NunchukSDKErrorUndefined userInfo:@{@"message": [NSString stringWithUTF8String: exception.what()]}];
+        return NULL;
+    }
+}
+
+- (NSArray *)draftRollOver11Transactions:(NSString *)sourceWalletId destinationWalletId:(NSString *)destinationWalletId feeRate:(long)feeRate useScriptPath:(BOOL)useScriptPath error:(NSError **)error {
+    try {
+        NSMutableArray *temp = [NSMutableArray new];
+        auto txs = nunchukManager->nu->DraftRollOver11Transactions([sourceWalletId UTF8String], [destinationWalletId UTF8String], feeRate, useScriptPath);
+        for (auto&& tx: txs) {
+            ObjDraftRolloverTransaction *transaction = [[ObjDraftRolloverTransaction alloc] initWithTransaction:[[ObjTransaction alloc] initWithTransaction: &tx] tagIds:@[] collectionIds:@[]];
+            [temp addObject:transaction];
+        }
+        return temp;
+    } catch (const BaseException& exception) {
+        *error = [[NSError alloc] initWithDomain:@"io.nunchuk.ios" code: exception.code() userInfo:@{@"message": [NSString stringWithUTF8String: exception.what()]}];
+        return NULL;
+    } catch (const std::exception& exception) {
+        *error = [[NSError alloc] initWithDomain:@"io.nunchuk.ios" code: NunchukSDKErrorUndefined userInfo:@{@"message": [NSString stringWithUTF8String: exception.what()]}];
+        return NULL;
+    }
+}
+
+- (NSArray *)createRollOver11Transactions:(NSString *)sourceWalletId destinationWalletId:(NSString *)destinationWalletId feeRate:(long)feeRate antiFeeSniping:(BOOL)antiFeeSniping useScriptPath:(BOOL)useScriptPath error:(NSError **)error {
+    try {
+        NSMutableArray *temp = [NSMutableArray new];
+        auto txs = nunchukManager->nu->CreateRollOver11Transactions([sourceWalletId UTF8String], [destinationWalletId UTF8String], feeRate, antiFeeSniping, useScriptPath);
         for (auto& tx : txs) {
             ObjTransaction *obj = [[ObjTransaction alloc] initWithTransaction: &tx];
             [temp addObject:obj];

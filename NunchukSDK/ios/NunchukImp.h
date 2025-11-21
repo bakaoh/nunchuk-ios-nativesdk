@@ -363,7 +363,7 @@ extern const int FEE_RATE_ECONOMICAL;
 - (NSArray *_Nullable)draftRollOver11Transactions:(NSString *_Nonnull)sourceWalletId destinationWalletId:(NSString *_Nonnull)destinationWalletId feeRate:(long)feeRate useScriptPath:(BOOL)useScriptPath signingPath:(ObjSigningPath *_Nullable)signingPath error:(NSError *_Nullable*_Nullable)error;
 - (NSArray *_Nullable)createRollOver11Transactions:(NSString *_Nonnull)sourceWalletId destinationWalletId:(NSString *_Nonnull)destinationWalletId feeRate:(long)feeRate antiFeeSniping:(BOOL)antiFeeSniping useScriptPath:(BOOL)useScriptPath signingPath:(ObjSigningPath *_Nullable)signingPath error:(NSError *_Nullable*_Nullable)error;
 - (NSArray<ObjSigningPathFee *> *_Nullable)estimateRollOverFeeForSigningPaths:(NSString *_Nonnull)sourceWalletId destinationWalletId:(NSString *_Nonnull)destinationWalletId tags:(NSArray *_Nonnull)tags collections:(NSArray *_Nonnull)collections feeRate:(long)feeRate error:(NSError *_Nullable*_Nullable)error;
-- (NSArray<ObjSigningPathFee *> *_Nullable)estimateRollOverFeeForSigningPaths:(NSString *_Nonnull)sourceWalletId destinationWalletId:(NSString *_Nonnull)destinationWalletId feeRate:(long)feeRate error:(NSError *_Nullable*_Nullable)error;
+- (NSArray<ObjSigningPathFee *> *_Nullable)estimateRollOver11FeeForSigningPaths:(NSString *_Nonnull)sourceWalletId destinationWalletId:(NSString *_Nonnull)destinationWalletId feeRate:(long)feeRate error:(NSError *_Nullable*_Nullable)error;
 
 // Value key set
 

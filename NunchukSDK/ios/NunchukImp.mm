@@ -5176,7 +5176,7 @@ dispatch_semaphore_t semaphore;
     }
 }
 
-- (NSArray<ObjSigningPathFee *> *)estimateRollOverFeeForSigningPaths:(NSString *)sourceWalletId destinationWalletId:(NSString *)destinationWalletId feeRate:(long)feeRate error:(NSError * _Nullable __autoreleasing *)error {
+- (NSArray<ObjSigningPathFee *> *)estimateRollOver11FeeForSigningPaths:(NSString *)sourceWalletId destinationWalletId:(NSString *)destinationWalletId feeRate:(long)feeRate error:(NSError * _Nullable __autoreleasing *)error {
     try {
         auto signingPaths = nunchukManager->nu->EstimateRollOver11FeeForSigningPaths([destinationWalletId UTF8String], [destinationWalletId UTF8String], feeRate);
         NSMutableArray *temp = [NSMutableArray new];

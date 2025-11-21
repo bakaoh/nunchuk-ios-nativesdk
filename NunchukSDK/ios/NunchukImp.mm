@@ -4965,7 +4965,7 @@ dispatch_semaphore_t semaphore;
     }
 }
 
-- (NSDictionary *)estimateRollOverAmount:(NSString *)sourceWalletId destinationWalletId:(NSString *)destinationWalletId tags:(NSArray *)tags collections:(NSArray *)collections feeRate:(long)feeRate useScriptPath:(BOOL)useScriptPath error:(NSError **)error {
+- (NSDictionary *)estimateRollOverAmount:(NSString *)sourceWalletId destinationWalletId:(NSString *)destinationWalletId tags:(NSArray *)tags collections:(NSArray *)collections feeRate:(long)feeRate useScriptPath:(BOOL)useScriptPath signingPath:(ObjSigningPath *)signingPath error:(NSError **)error {
     try {
         std::set<int> cTags;
         for (NSNumber *tag in tags) {
@@ -4975,7 +4975,12 @@ dispatch_semaphore_t semaphore;
         for (NSNumber *collection in collections) {
             cCollections.insert([collection intValue]);
         }
-        auto value = nunchukManager->nu->EstimateRollOverAmount([sourceWalletId UTF8String], [destinationWalletId UTF8String], cTags, cCollections, feeRate, useScriptPath);
+        std::pair<Amount, Amount> value;
+        if (signingPath == nil) {
+            value = nunchukManager->nu->EstimateRollOverAmount([sourceWalletId UTF8String], [destinationWalletId UTF8String], cTags, cCollections, feeRate, useScriptPath);
+        } else {
+            value = nunchukManager->nu->EstimateRollOverAmount([sourceWalletId UTF8String], [destinationWalletId UTF8String], cTags, cCollections, feeRate, useScriptPath, [self getSigningPathFrom:signingPath]);
+        }
         return @{@"subamount": [NSNumber numberWithLongLong:value.first], @"fee": [NSNumber numberWithLongLong:value.second]};
     } catch (const BaseException& exception) {
         *error = [[NSError alloc] initWithDomain:@"io.nunchuk.ios" code: exception.code() userInfo:@{@"message": [NSString stringWithUTF8String: exception.what()]}];
@@ -4986,7 +4991,7 @@ dispatch_semaphore_t semaphore;
     }
 }
 
-- (NSArray *)draftRollOverTransactions:(NSString *)sourceWalletId destinationWalletId:(NSString *)destinationWalletId tags:(NSArray *)tags collections:(NSArray *)collections feeRate:(long)feeRate useScriptPath:(BOOL)useScriptPath error:(NSError **)error {
+- (NSArray *)draftRollOverTransactions:(NSString *)sourceWalletId destinationWalletId:(NSString *)destinationWalletId tags:(NSArray *)tags collections:(NSArray *)collections feeRate:(long)feeRate useScriptPath:(BOOL)useScriptPath signingPath:(ObjSigningPath *)signingPath error:(NSError **)error {
     try {
         std::set<int> cTags;
         for (NSNumber *tag in tags) {
@@ -4997,7 +5002,12 @@ dispatch_semaphore_t semaphore;
             cCollections.insert([collection intValue]);
         }
         NSMutableArray *temp = [NSMutableArray new];
-        auto txs = nunchukManager->nu->DraftRollOverTransactions([sourceWalletId UTF8String], [destinationWalletId UTF8String], cTags, cCollections, feeRate, useScriptPath);
+        std::map<std::pair<std::set<int>, std::set<int>>, Transaction> txs;
+        if (signingPath == nil) {
+            txs = nunchukManager->nu->DraftRollOverTransactions([sourceWalletId UTF8String], [destinationWalletId UTF8String], cTags, cCollections, feeRate, useScriptPath);
+        } else {
+            txs = nunchukManager->nu->DraftRollOverTransactions([sourceWalletId UTF8String], [destinationWalletId UTF8String], cTags, cCollections, feeRate, useScriptPath, [self getSigningPathFrom:signingPath]);
+        }
         for (auto&& tx: txs) {
             std::set<int> ctags = tx.first.first;
             NSMutableArray *tags = [NSMutableArray new];
@@ -5023,7 +5033,7 @@ dispatch_semaphore_t semaphore;
     }
 }
 
-- (NSArray *)createRollOverTransactions:(NSString *)sourceWalletId destinationWalletId:(NSString *)destinationWalletId tags:(NSArray *)tags collections:(NSArray *)collections feeRate:(long)feeRate antiFeeSniping:(BOOL)antiFeeSniping useScriptPath:(BOOL)useScriptPath error:(NSError **)error {
+- (NSArray *)createRollOverTransactions:(NSString *)sourceWalletId destinationWalletId:(NSString *)destinationWalletId tags:(NSArray *)tags collections:(NSArray *)collections feeRate:(long)feeRate antiFeeSniping:(BOOL)antiFeeSniping useScriptPath:(BOOL)useScriptPath signingPath:(ObjSigningPath *)signingPath error:(NSError **)error {
     try {
         std::set<int> cTags;
         for (NSNumber *tag in tags) {
@@ -5034,7 +5044,12 @@ dispatch_semaphore_t semaphore;
             cCollections.insert([collection intValue]);
         }
         NSMutableArray *temp = [NSMutableArray new];
-        auto txs = nunchukManager->nu->CreateRollOverTransactions([sourceWalletId UTF8String], [destinationWalletId UTF8String], cTags, cCollections, feeRate, antiFeeSniping, useScriptPath);
+        std::vector<Transaction> txs;
+        if (signingPath == nil) {
+            txs = nunchukManager->nu->CreateRollOverTransactions([sourceWalletId UTF8String], [destinationWalletId UTF8String], cTags, cCollections, feeRate, antiFeeSniping, useScriptPath);
+        } else {
+            txs = nunchukManager->nu->CreateRollOverTransactions([sourceWalletId UTF8String], [destinationWalletId UTF8String], cTags, cCollections, feeRate, antiFeeSniping, useScriptPath, [self getSigningPathFrom:signingPath]);
+        }
         for (auto& tx : txs) {
             ObjTransaction *obj = [[ObjTransaction alloc] initWithTransaction: &tx];
             [temp addObject:obj];
@@ -5061,9 +5076,14 @@ dispatch_semaphore_t semaphore;
     }
 }
 
-- (NSDictionary *)estimateRollOver11Amount:(NSString *)sourceWalletId destinationWalletId:(NSString *)destinationWalletId feeRate:(long)feeRate useScriptPath:(BOOL)useScriptPath error:(NSError **)error {
+- (NSDictionary *)estimateRollOver11Amount:(NSString *)sourceWalletId destinationWalletId:(NSString *)destinationWalletId feeRate:(long)feeRate useScriptPath:(BOOL)useScriptPath signingPath:(ObjSigningPath *)signingPath error:(NSError **)error {
     try {
-        auto value = nunchukManager->nu->EstimateRollOver11Amount([sourceWalletId UTF8String], [destinationWalletId UTF8String], feeRate, useScriptPath);
+        std::pair<Amount, Amount> value;
+        if (signingPath == nil) {
+            value = nunchukManager->nu->EstimateRollOver11Amount([sourceWalletId UTF8String], [destinationWalletId UTF8String], feeRate, useScriptPath);
+        } else {
+            value = nunchukManager->nu->EstimateRollOver11Amount([sourceWalletId UTF8String], [destinationWalletId UTF8String], feeRate, useScriptPath, [self getSigningPathFrom:signingPath]);
+        }
         return @{@"subamount": [NSNumber numberWithLongLong:value.first], @"fee": [NSNumber numberWithLongLong:value.second]};
     } catch (const BaseException& exception) {
         *error = [[NSError alloc] initWithDomain:@"io.nunchuk.ios" code: exception.code() userInfo:@{@"message": [NSString stringWithUTF8String: exception.what()]}];
@@ -5074,10 +5094,15 @@ dispatch_semaphore_t semaphore;
     }
 }
 
-- (NSArray *)draftRollOver11Transactions:(NSString *)sourceWalletId destinationWalletId:(NSString *)destinationWalletId feeRate:(long)feeRate useScriptPath:(BOOL)useScriptPath error:(NSError **)error {
+- (NSArray *)draftRollOver11Transactions:(NSString *)sourceWalletId destinationWalletId:(NSString *)destinationWalletId feeRate:(long)feeRate useScriptPath:(BOOL)useScriptPath signingPath:(ObjSigningPath *)signingPath error:(NSError **)error {
     try {
         NSMutableArray *temp = [NSMutableArray new];
-        auto txs = nunchukManager->nu->DraftRollOver11Transactions([sourceWalletId UTF8String], [destinationWalletId UTF8String], feeRate, useScriptPath);
+        std::vector<Transaction> txs;
+        if (signingPath == nil) {
+            txs = nunchukManager->nu->DraftRollOver11Transactions([sourceWalletId UTF8String], [destinationWalletId UTF8String], feeRate, useScriptPath);
+        } else {
+            txs = nunchukManager->nu->DraftRollOver11Transactions([sourceWalletId UTF8String], [destinationWalletId UTF8String], feeRate, useScriptPath, [self getSigningPathFrom:signingPath]);
+        }
         for (auto&& tx: txs) {
             ObjDraftRolloverTransaction *transaction = [[ObjDraftRolloverTransaction alloc] initWithTransaction:[[ObjTransaction alloc] initWithTransaction: &tx] tagIds:@[] collectionIds:@[]];
             [temp addObject:transaction];
@@ -5092,12 +5117,81 @@ dispatch_semaphore_t semaphore;
     }
 }
 
-- (NSArray *)createRollOver11Transactions:(NSString *)sourceWalletId destinationWalletId:(NSString *)destinationWalletId feeRate:(long)feeRate antiFeeSniping:(BOOL)antiFeeSniping useScriptPath:(BOOL)useScriptPath error:(NSError **)error {
+- (NSArray *)createRollOver11Transactions:(NSString *)sourceWalletId destinationWalletId:(NSString *)destinationWalletId feeRate:(long)feeRate antiFeeSniping:(BOOL)antiFeeSniping useScriptPath:(BOOL)useScriptPath signingPath:(ObjSigningPath *)signingPath error:(NSError **)error {
     try {
         NSMutableArray *temp = [NSMutableArray new];
-        auto txs = nunchukManager->nu->CreateRollOver11Transactions([sourceWalletId UTF8String], [destinationWalletId UTF8String], feeRate, antiFeeSniping, useScriptPath);
+        std::vector<Transaction> txs;
+        if (signingPath == nil) {
+            txs = nunchukManager->nu->CreateRollOver11Transactions([sourceWalletId UTF8String], [destinationWalletId UTF8String], feeRate, antiFeeSniping, useScriptPath);
+        } else {
+            txs = nunchukManager->nu->CreateRollOver11Transactions([sourceWalletId UTF8String], [destinationWalletId UTF8String], feeRate, antiFeeSniping, useScriptPath, [self getSigningPathFrom:signingPath]);
+        }
         for (auto& tx : txs) {
             ObjTransaction *obj = [[ObjTransaction alloc] initWithTransaction: &tx];
+            [temp addObject:obj];
+        }
+        return temp;
+    } catch (const BaseException& exception) {
+        *error = [[NSError alloc] initWithDomain:@"io.nunchuk.ios" code: exception.code() userInfo:@{@"message": [NSString stringWithUTF8String: exception.what()]}];
+        return NULL;
+    } catch (const std::exception& exception) {
+        *error = [[NSError alloc] initWithDomain:@"io.nunchuk.ios" code: NunchukSDKErrorUndefined userInfo:@{@"message": [NSString stringWithUTF8String: exception.what()]}];
+        return NULL;
+    }
+}
+
+- (NSArray<ObjSigningPathFee *> *)estimateRollOverFeeForSigningPaths:(NSString *)sourceWalletId destinationWalletId:(NSString *)destinationWalletId tags:(NSArray *)tags collections:(NSArray *)collections feeRate:(long)feeRate error:(NSError * _Nullable __autoreleasing *)error {
+    std::set<int> cTags;
+    for (NSNumber *tag in tags) {
+        cTags.insert([tag intValue]);
+    }
+    std::set<int> cCollections;
+    for (NSNumber *collection in collections) {
+        cCollections.insert([collection intValue]);
+    }
+    try {
+        auto signingPaths = nunchukManager->nu->EstimateRollOverFeeForSigningPaths([destinationWalletId UTF8String], [destinationWalletId UTF8String], cTags, cCollections, feeRate);
+        NSMutableArray *temp = [NSMutableArray new];
+        for (auto& item: signingPaths) {
+            SigningPath path = item.first;
+            NSMutableArray *scriptNodeIdArray = [NSMutableArray arrayWithCapacity:path.size()];
+            for (ScriptNodeId scriptNodeId: path) {
+                NSMutableArray *idArray = [NSMutableArray arrayWithCapacity:scriptNodeId.size()];
+                for (size_t idValue: scriptNodeId) {
+                    [idArray addObject:[NSString stringWithFormat:@"%zu", idValue]];
+                }
+                [scriptNodeIdArray addObject:idArray];
+            }
+            ObjSigningPath *signingPathObj = [[ObjSigningPath alloc] initWithScriptNodeIds:scriptNodeIdArray];
+            ObjSigningPathFee *obj = [[ObjSigningPathFee alloc] initWithSigningPath:signingPathObj amount:item.second];
+            [temp addObject:obj];
+        }
+        return temp;
+    } catch (const BaseException& exception) {
+        *error = [[NSError alloc] initWithDomain:@"io.nunchuk.ios" code: exception.code() userInfo:@{@"message": [NSString stringWithUTF8String: exception.what()]}];
+        return NULL;
+    } catch (const std::exception& exception) {
+        *error = [[NSError alloc] initWithDomain:@"io.nunchuk.ios" code: NunchukSDKErrorUndefined userInfo:@{@"message": [NSString stringWithUTF8String: exception.what()]}];
+        return NULL;
+    }
+}
+
+- (NSArray<ObjSigningPathFee *> *)estimateRollOverFeeForSigningPaths:(NSString *)sourceWalletId destinationWalletId:(NSString *)destinationWalletId feeRate:(long)feeRate error:(NSError * _Nullable __autoreleasing *)error {
+    try {
+        auto signingPaths = nunchukManager->nu->EstimateRollOver11FeeForSigningPaths([destinationWalletId UTF8String], [destinationWalletId UTF8String], feeRate);
+        NSMutableArray *temp = [NSMutableArray new];
+        for (auto& item: signingPaths) {
+            SigningPath path = item.first;
+            NSMutableArray *scriptNodeIdArray = [NSMutableArray arrayWithCapacity:path.size()];
+            for (ScriptNodeId scriptNodeId: path) {
+                NSMutableArray *idArray = [NSMutableArray arrayWithCapacity:scriptNodeId.size()];
+                for (size_t idValue: scriptNodeId) {
+                    [idArray addObject:[NSString stringWithFormat:@"%zu", idValue]];
+                }
+                [scriptNodeIdArray addObject:idArray];
+            }
+            ObjSigningPath *signingPathObj = [[ObjSigningPath alloc] initWithScriptNodeIds:scriptNodeIdArray];
+            ObjSigningPathFee *obj = [[ObjSigningPathFee alloc] initWithSigningPath:signingPathObj amount:item.second];
             [temp addObject:obj];
         }
         return temp;

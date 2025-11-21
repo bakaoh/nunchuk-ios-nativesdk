@@ -5150,7 +5150,7 @@ dispatch_semaphore_t semaphore;
         cCollections.insert([collection intValue]);
     }
     try {
-        auto signingPaths = nunchukManager->nu->EstimateRollOverFeeForSigningPaths([destinationWalletId UTF8String], [destinationWalletId UTF8String], cTags, cCollections, feeRate);
+        auto signingPaths = nunchukManager->nu->EstimateRollOverFeeForSigningPaths([sourceWalletId UTF8String], [destinationWalletId UTF8String], cTags, cCollections, feeRate);
         NSMutableArray *temp = [NSMutableArray new];
         for (auto& item: signingPaths) {
             SigningPath path = item.first;
@@ -5178,7 +5178,7 @@ dispatch_semaphore_t semaphore;
 
 - (NSArray<ObjSigningPathFee *> *)estimateRollOver11FeeForSigningPaths:(NSString *)sourceWalletId destinationWalletId:(NSString *)destinationWalletId feeRate:(long)feeRate error:(NSError * _Nullable __autoreleasing *)error {
     try {
-        auto signingPaths = nunchukManager->nu->EstimateRollOver11FeeForSigningPaths([destinationWalletId UTF8String], [destinationWalletId UTF8String], feeRate);
+        auto signingPaths = nunchukManager->nu->EstimateRollOver11FeeForSigningPaths([sourceWalletId UTF8String], [destinationWalletId UTF8String], feeRate);
         NSMutableArray *temp = [NSMutableArray new];
         for (auto& item: signingPaths) {
             SigningPath path = item.first;

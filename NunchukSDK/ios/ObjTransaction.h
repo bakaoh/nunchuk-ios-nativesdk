@@ -8,6 +8,7 @@
 #ifndef ObjTransaction_h
 #define ObjTransaction_h
 #include "StringIntPair.h"
+#import "ObjSingleSigner.h"
 
 @interface ObjTransactionInput : NSObject
 
@@ -44,6 +45,7 @@ typedef StringIntPair ObjOutput;  // address-amount pair
 @property(nonatomic, strong, nonnull) NSString *psbt;
 @property(nonatomic) int64_t scheduleTime;
 @property(nonatomic) int vsize;
+@property(nonatomic) NSArray<ObjSingleSigner *> *_Nullable signedKeys;
 
 @end
 

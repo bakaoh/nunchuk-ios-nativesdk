@@ -8,6 +8,8 @@
 #import <Foundation/Foundation.h>
 #import "ObjTransaction.h"
 #include <nunchuk.h>
+#import <extensions/ObjSingleSignerLibrary.h>
+
 using namespace nunchuk;
 
 @implementation ObjTransaction {
@@ -77,6 +79,15 @@ using namespace nunchuk;
     obj.psbt = [[NSString alloc] initWithUTF8String:transaction->get_psbt().c_str()];
     obj.vsize = transaction->get_vsize();
     obj.scheduleTime = transaction->get_schedule_time();
+    
+    if (![obj.status isEqualToString:@"PENDING_CONFIRMATION"] && ![obj.status isEqualToString:@"CONFIRMED"]) {
+        NSMutableArray *signedArray = [[NSMutableArray alloc] init];
+        for (auto signer : transaction->get_signed()) {
+            ObjSingleSigner *signerObj = [[ObjSingleSigner alloc] initWithSigner:&signer];
+            [signedArray addObject:signerObj];
+        }
+        obj.signedKeys = [NSArray arrayWithArray:signedArray];
+    }
     return obj;
 }
 

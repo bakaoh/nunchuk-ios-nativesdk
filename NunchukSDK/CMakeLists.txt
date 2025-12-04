@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 3.2)
+cmake_minimum_required (VERSION 3.18)
 
 project (nunchukWalletSDK)
 set(CMAKE_XCODE_ATTRIBUTE_IPHONEOS_DEPLOYMENT_TARGET "13.0")

@@ -35,6 +35,7 @@ applyBitcoinDependsPatches() {
   patchFile ./patches/Makefile ./NunchukSDK/libnunchuk/contrib/bitcoin/depends/Makefile
   patchFile ./patches/ProcessConfigurations.cmake ./NunchukSDK/libnunchuk/contrib/bitcoin/cmake/module/ProcessConfigurations.cmake
   patchFile ./patches/AddBoostIfNeeded.cmake ./NunchukSDK/libnunchuk/contrib/bitcoin/cmake/module/AddBoostIfNeeded.cmake
+  patchFile ./patches/FindLibevent.cmake ./NunchukSDK/libnunchuk/contrib/bitcoin/cmake/module/FindLibevent.cmake
 }
 
 installBitcoinDeps() {

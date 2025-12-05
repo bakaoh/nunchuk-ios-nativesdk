@@ -30,9 +30,11 @@ patchFile() {
 applyBitcoinDependsPatches() {
   echo "Patching bitcoin dependencies"
   patchFile ./patches/libevent.mk ./NunchukSDK/libnunchuk/contrib/bitcoin/depends/packages/libevent.mk
+  patchFile ./patches/boost.mk ./NunchukSDK/libnunchuk/contrib/bitcoin/depends/packages/boost.mk
   patchFile ./patches/ios.mk ./NunchukSDK/libnunchuk/contrib/bitcoin/depends/hosts/ios.mk
   patchFile ./patches/Makefile ./NunchukSDK/libnunchuk/contrib/bitcoin/depends/Makefile
   patchFile ./patches/ProcessConfigurations.cmake ./NunchukSDK/libnunchuk/contrib/bitcoin/cmake/module/ProcessConfigurations.cmake
+  patchFile ./patches/AddBoostIfNeeded.cmake ./NunchukSDK/libnunchuk/contrib/bitcoin/cmake/module/AddBoostIfNeeded.cmake
 }
 
 installBitcoinDeps() {

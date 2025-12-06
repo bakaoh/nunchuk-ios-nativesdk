@@ -46,7 +46,7 @@ if(Libevent_FOUND)
     REQUIRED_VARS Libevent_DIR
     VERSION_VAR Libevent_VERSION
   )
-  check_evhttp_connection_get_peer(libevent::extra)
+  # check_evhttp_connection_get_peer(libevent::extra)
 else()
   find_package(PkgConfig REQUIRED)
   foreach(component IN LISTS _libevent_components)

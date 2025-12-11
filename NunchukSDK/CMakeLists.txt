@@ -148,7 +148,6 @@ set(SDK_STATIC_DEPENDENCIES "\
   $<TARGET_FILE:nunchuk>
   $<TARGET_FILE:sqlcipher>
   $<TARGET_FILE:crc32c>
-  $<TARGET_FILE:crc32c_arm64>
   $<TARGET_FILE:leveldb>
   $<TARGET_FILE:minisketch>
   $<TARGET_FILE:bitcoin_consensus>

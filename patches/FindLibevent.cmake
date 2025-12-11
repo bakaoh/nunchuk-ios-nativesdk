@@ -32,13 +32,13 @@ if(NOT WIN32)
   list(APPEND _libevent_components pthreads)
 endif()
 
-find_package(Libevent ${Libevent_FIND_VERSION} QUIET
+find_package(Libevent ${Libevent_FIND_VERSION}
   NO_MODULE
 )
 
 include(FindPackageHandleStandardArgs)
 if(Libevent_FOUND)
-  find_package(Libevent ${Libevent_FIND_VERSION} QUIET
+  find_package(Libevent ${Libevent_FIND_VERSION}
     REQUIRED COMPONENTS ${_libevent_components}
     NO_MODULE
   )
@@ -46,7 +46,7 @@ if(Libevent_FOUND)
     REQUIRED_VARS Libevent_DIR
     VERSION_VAR Libevent_VERSION
   )
-  # check_evhttp_connection_get_peer(libevent::extra)
+  check_evhttp_connection_get_peer(libevent::extra)
 else()
   find_package(PkgConfig REQUIRED)
   foreach(component IN LISTS _libevent_components)

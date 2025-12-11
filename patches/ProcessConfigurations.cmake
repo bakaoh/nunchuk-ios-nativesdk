@@ -114,7 +114,7 @@ function(replace_cxx_flag_in_config config old_flag new_flag)
   set_property(CACHE ${var_name} PROPERTY VALUE "${${var_name}}")
 endfunction()
 
-set_default_config(Debug)
+set_default_config(Release)
 
 include(TryAppendCXXFlags)
 

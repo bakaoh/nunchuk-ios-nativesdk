@@ -137,6 +137,7 @@ else()
 endif()
 
 set(ENABLE_HARDENING OFF)
+set(BUILD_CLI OFF)
 add_subdirectory(libnunchuk)
 target_link_libraries(nunchukSDK PUBLIC nunchuk)
 target_include_directories(nunchukSDK PUBLIC ${PROJECT_SOURCE_DIR})

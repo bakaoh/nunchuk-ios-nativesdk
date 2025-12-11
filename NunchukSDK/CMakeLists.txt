@@ -154,7 +154,6 @@ set(SDK_STATIC_DEPENDENCIES "\
   $<TARGET_FILE:bitcoin_common>
   $<TARGET_FILE:bitcoin_node>
   $<TARGET_FILE:bitcoin_crypto>
-  $<TARGET_FILE:bitcoin_crypto_arm_shani>
   $<TARGET_FILE:univalue>
   $<TARGET_FILE:bitcoin_util>
   $<TARGET_FILE:secp256k1>

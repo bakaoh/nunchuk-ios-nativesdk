@@ -170,7 +170,7 @@ set(SDK_STATIC_DEPENDENCIES "\
   ${PROJECT_SOURCE_DIR}/libnunchuk/contrib/openssl/${PLATFORM}/lib/libcrypto.a
   ${PROJECT_SOURCE_DIR}/libnunchuk/contrib/openssl/${PLATFORM}/lib/libssl.a
   $<TARGET_FILE:event_core_static>
-  $<$<TARGET_EXISTS:event_extra_static>:$<TARGET_FILE:event_extra_static>>
+  $<$<TARGET_EXISTS:libevent::extra>:$<TARGET_FILE:libevent::extra>>
   $<TARGET_FILE:event_pthreads_static>
   "
 )

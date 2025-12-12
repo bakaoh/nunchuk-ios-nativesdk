@@ -149,12 +149,14 @@ set(SDK_STATIC_DEPENDENCIES "\
   $<TARGET_FILE:nunchuk>
   $<TARGET_FILE:sqlcipher>
   $<TARGET_FILE:crc32c>
+  $<TARGET_NAME_IF_EXISTS:crc32c_arm64>
   $<TARGET_FILE:leveldb>
   $<TARGET_FILE:minisketch>
   $<TARGET_FILE:bitcoin_consensus>
   $<TARGET_FILE:bitcoin_common>
   $<TARGET_FILE:bitcoin_node>
   $<TARGET_FILE:bitcoin_crypto>
+  $<TARGET_NAME_IF_EXISTS:bitcoin_crypto_arm_shani>
   $<TARGET_FILE:univalue>
   $<TARGET_FILE:bitcoin_util>
   $<TARGET_FILE:secp256k1>
@@ -168,6 +170,7 @@ set(SDK_STATIC_DEPENDENCIES "\
   ${PROJECT_SOURCE_DIR}/libnunchuk/contrib/openssl/${PLATFORM}/lib/libcrypto.a
   ${PROJECT_SOURCE_DIR}/libnunchuk/contrib/openssl/${PLATFORM}/lib/libssl.a
   $<TARGET_FILE:event_core_static>
+  $<TARGET_NAME_IF_EXISTS:event_extra_static>
   $<TARGET_FILE:event_pthreads_static>
   "
 )

@@ -46,7 +46,7 @@ jobs:
       working-directory: ${{ github.workspace }}/NunchukSDK/
       run: |
         set -e
-        cmake -B build -G Xcode -DCMAKE_TOOLCHAIN_FILE=./ios.toolchain.cmake -DPLATFORM=OS64 -DCMAKE_WARN_DEPRECATED=FALSE
+        cmake -B build -G Xcode -DCMAKE_TOOLCHAIN_FILE=./ios.toolchain.cmake -DPLATFORM=OS64 -DCMAKE_WARN_DEPRECATED=FALSE -DCMAKE_POLICY_VERSION_MINIMUM=3.5
 
     - name: Build
       working-directory: ${{ github.workspace }}/NunchukSDK/build

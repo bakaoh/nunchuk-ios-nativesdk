@@ -1,7 +1,7 @@
-cmake_minimum_required (VERSION 3.2)
+cmake_minimum_required (VERSION 3.18)
 
 project (nunchukWalletSDK)
-set(CMAKE_XCODE_ATTRIBUTE_IPHONEOS_DEPLOYMENT_TARGET "13.0")
+set(CMAKE_XCODE_ATTRIBUTE_IPHONEOS_DEPLOYMENT_TARGET "14.0")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++20")
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -137,6 +137,8 @@ else()
 endif()
 
 set(ENABLE_HARDENING OFF)
+set(BUILD_CLI OFF)
+set(CMAKE_MACOSX_BUNDLE NO)
 add_subdirectory(libnunchuk)
 target_link_libraries(nunchukSDK PUBLIC nunchuk)
 target_include_directories(nunchukSDK PUBLIC ${PROJECT_SOURCE_DIR})
@@ -147,14 +149,14 @@ set(SDK_STATIC_DEPENDENCIES "\
   $<TARGET_FILE:nunchuk>
   $<TARGET_FILE:sqlcipher>
   $<TARGET_FILE:crc32c>
-  $<TARGET_FILE:crc32c_arm64>
+  $<$<TARGET_EXISTS:crc32c_arm64>:$<TARGET_FILE:crc32c_arm64>>
   $<TARGET_FILE:leveldb>
   $<TARGET_FILE:minisketch>
   $<TARGET_FILE:bitcoin_consensus>
   $<TARGET_FILE:bitcoin_common>
   $<TARGET_FILE:bitcoin_node>
   $<TARGET_FILE:bitcoin_crypto>
-  $<TARGET_FILE:bitcoin_crypto_arm_shani>
+  $<$<TARGET_EXISTS:bitcoin_crypto_arm_shani>:$<TARGET_FILE:bitcoin_crypto_arm_shani>>
   $<TARGET_FILE:univalue>
   $<TARGET_FILE:bitcoin_util>
   $<TARGET_FILE:secp256k1>
@@ -168,7 +170,7 @@ set(SDK_STATIC_DEPENDENCIES "\
   ${PROJECT_SOURCE_DIR}/libnunchuk/contrib/openssl/${PLATFORM}/lib/libcrypto.a
   ${PROJECT_SOURCE_DIR}/libnunchuk/contrib/openssl/${PLATFORM}/lib/libssl.a
   $<TARGET_FILE:event_core_static>
-  $<TARGET_FILE:event_extra_static>
+  $<$<TARGET_EXISTS:libevent::extra>:$<TARGET_FILE:libevent::extra>>
   $<TARGET_FILE:event_pthreads_static>
   "
 )
